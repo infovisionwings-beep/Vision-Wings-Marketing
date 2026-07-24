@@ -1,26 +1,197 @@
 @import "tailwindcss";
 
+@theme {
+  --color-navy-950: #0F172A;
+  --color-navy-900: #16213D;
+  --color-navy-700: #2E3F5C;
+  --color-navy-500: #4A5A78;
+  --color-navy-300: #8891A3;
+  --color-navy-100: #D8DCE3;
+
+  --color-bronze-900: #652209;
+  --color-bronze-700: #8A4A1C;
+  --color-bronze-500: #B87333;
+  --color-bronze-300: #D4A87A;
+  --color-bronze-100: #EDD9C0;
+  --color-bronze-50:  #F7EEE3;
+
+  --color-warm-200: #F5E6CC;
+  --color-warm-100: #FCF1E0;
+  --color-warm-50:  #FFF8EF;
+
+  --color-bg-base: var(--color-warm-50);
+  --color-text-primary: var(--color-navy-950);
+  --color-accent-primary: var(--color-bronze-500);
+  --color-accent-strong: var(--color-bronze-900);
+
+  --font-display: var(--font-league-spartan), sans-serif;
+  --font-body: var(--font-dm-sans), sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --radius-none: 0px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: var(--color-warm-50);
+  --foreground: var(--color-navy-950);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+}
+
+/* ═══════════════════════════════════════════
+   Typography Tokens — Design.md §4
+   Mobile-first, then tablet (md), then desktop (lg)
+   ═══════════════════════════════════════════ */
+
+.text-display {
+  font-family: var(--font-display);
+  font-size: 40px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+.text-h1 {
+  font-family: var(--font-display);
+  font-size: 32px;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+}
+
+.text-h2 {
+  font-family: var(--font-display);
+  font-size: 26px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+.text-h3 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: 0;
+  font-weight: 600;
+}
+
+.text-h4 {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.text-body-lg {
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.6;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+.text-body {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.7;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+.text-body-sm {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+.text-caption {
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  font-weight: 400;
+}
+
+/* Tablet (768px+) */
+@media (min-width: 768px) {
+  .text-display {
+    font-size: 64px;
+  }
+  .text-h1 {
+    font-size: 40px;
+  }
+  .text-h2 {
+    font-size: 32px;
+  }
+  .text-h3 {
+    font-size: 24px;
+  }
+  .text-body-lg {
+    font-size: 19px;
+  }
+}
+
+/* Desktop (1024px+) */
+@media (min-width: 1024px) {
+  .text-display {
+    font-size: 96px;
+  }
+  .text-h1 {
+    font-size: 56px;
+  }
+  .text-h2 {
+    font-size: 40px;
+  }
+  .text-h3 {
+    font-size: 28px;
+  }
+  .text-body-lg {
+    font-size: 20px;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   Base element styles
+   ═══════════════════════════════════════════ */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+h2, h3, h4 {
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════
+   Lenis smooth scroll
+   ═══════════════════════════════════════════ */
+
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
 }

@@ -1,0 +1,439 @@
+{
+  "communities": {
+    "0": [
+      "app_actions_insights",
+      "app_actions_insights_createinsight",
+      "app_actions_insights_deleteinsight",
+      "app_actions_insights_getinsightbyslug",
+      "app_actions_insights_getinsights",
+      "app_actions_insights_updateinsight",
+      "app_actions_projects",
+      "app_actions_projects_createproject",
+      "app_actions_projects_deleteproject",
+      "app_actions_projects_getprojectbyslug",
+      "app_actions_projects_getprojects",
+      "app_actions_projects_updateproject",
+      "app_actions_upload",
+      "app_actions_upload_uploadimage",
+      "app_admin_page",
+      "app_admin_page_admindashboard",
+      "app_admin_projects_id_edit_page",
+      "app_admin_projects_id_edit_page_editprojectpage",
+      "app_admin_projects_new_page",
+      "app_admin_projects_new_page_newprojectpage",
+      "app_admin_projects_page",
+      "app_admin_projects_page_projectspage",
+      "components_admin_projectform",
+      "components_admin_projectform_projectform",
+      "db_index",
+      "db_index_db",
+      "db_index_sql",
+      "db_schema",
+      "db_schema_insights",
+      "db_schema_projects"
+    ],
+    "1": [
+      "app_page",
+      "app_page_home",
+      "components_motion_animatedlogo",
+      "components_motion_animatedlogo_animatedlogo",
+      "components_motion_animatedlogo_animatedlogoprops",
+      "components_motion_revealonscroll",
+      "components_motion_revealonscroll_revealonscroll",
+      "components_motion_revealonscroll_revealonscrollprops",
+      "components_sections_aboutvision",
+      "components_sections_aboutvision_aboutvision",
+      "components_sections_contact",
+      "components_sections_contact_contact",
+      "components_sections_hero",
+      "components_sections_hero_hero",
+      "components_sections_insights",
+      "components_sections_insights_insights",
+      "components_sections_services",
+      "components_sections_services_services",
+      "components_sections_work",
+      "components_sections_work_projects",
+      "components_sections_work_work",
+      "components_ui_button",
+      "components_ui_button_button",
+      "components_ui_button_buttonprops",
+      "lib_utils",
+      "lib_utils_cn"
+    ],
+    "2": [
+      "clsx",
+      "drizzle_orm",
+      "framer_motion",
+      "lucide_react",
+      "neondatabase_serverless",
+      "next",
+      "package_dependencies",
+      "package_dependencies_clsx",
+      "package_dependencies_drizzle_orm",
+      "package_dependencies_framer_motion",
+      "package_dependencies_lucide_react",
+      "package_dependencies_neondatabase_serverless",
+      "package_dependencies_next",
+      "package_dependencies_react",
+      "package_dependencies_react_dom",
+      "package_dependencies_react_icons",
+      "package_dependencies_tailwind_merge",
+      "package_dependencies_vercel_blob",
+      "react",
+      "react_dom",
+      "react_icons",
+      "tailwind_merge",
+      "vercel_blob"
+    ],
+    "3": [
+      "dotenv",
+      "drizzle_kit",
+      "eslint",
+      "eslint_config_next",
+      "package_devdependencies",
+      "package_devdependencies_dotenv",
+      "package_devdependencies_drizzle_kit",
+      "package_devdependencies_eslint",
+      "package_devdependencies_eslint_config_next",
+      "package_devdependencies_tailwindcss",
+      "package_devdependencies_tailwindcss_postcss",
+      "package_devdependencies_types_node",
+      "package_devdependencies_types_react",
+      "package_devdependencies_types_react_dom",
+      "package_devdependencies_typescript",
+      "tailwindcss",
+      "tailwindcss_postcss",
+      "types_node",
+      "types_react",
+      "types_react_dom",
+      "typescript"
+    ],
+    "4": [
+      "architecture_architecture_md",
+      "architecture_design_tokens_impl",
+      "architecture_tech_stack",
+      "design_cursor_aperture",
+      "design_design_md",
+      "design_editorial_philosophy",
+      "design_hero_logo_reveal",
+      "idea_idea_md",
+      "phases_phases_md",
+      "prd_brand_positioning",
+      "prd_eagle_eye_symbol",
+      "prd_globe_symbol",
+      "prd_logo_metaphor",
+      "prd_prd_md",
+      "prd_vision_wing",
+      "prd_wing_symbol",
+      "rules_engineering_standards",
+      "rules_rules_md",
+      "rules_single_responsibility",
+      "works_works_md"
+    ],
+    "5": [
+      "ref_dom",
+      "ref_dom_iterable",
+      "ref_esnext",
+      "tsconfig_compileroptions",
+      "tsconfig_compileroptions_allowjs",
+      "tsconfig_compileroptions_esmoduleinterop",
+      "tsconfig_compileroptions_incremental",
+      "tsconfig_compileroptions_isolatedmodules",
+      "tsconfig_compileroptions_jsx",
+      "tsconfig_compileroptions_lib",
+      "tsconfig_compileroptions_module",
+      "tsconfig_compileroptions_moduleresolution",
+      "tsconfig_compileroptions_noemit",
+      "tsconfig_compileroptions_paths",
+      "tsconfig_compileroptions_plugins",
+      "tsconfig_compileroptions_resolvejsonmodule",
+      "tsconfig_compileroptions_skiplibcheck",
+      "tsconfig_compileroptions_strict",
+      "tsconfig_compileroptions_target"
+    ],
+    "6": [
+      "app_layout",
+      "app_layout_dmsans",
+      "app_layout_leaguespartan",
+      "app_layout_metadata",
+      "app_layout_rootlayout",
+      "components_layout_footer",
+      "components_layout_footer_footer",
+      "components_layout_navbar",
+      "components_layout_navbar_navbar",
+      "components_motion_cursoraperture",
+      "components_motion_cursoraperture_cursoraperture",
+      "components_motion_smoothscrollprovider",
+      "components_motion_smoothscrollprovider_smoothscrollprovider",
+      "lenis",
+      "package_dependencies_lenis"
+    ],
+    "7": [
+      "ref_mts",
+      "ref_next_dev_types_ts",
+      "ref_next_env_d_ts",
+      "ref_next_types_ts",
+      "ref_node_modules",
+      "ref_ts",
+      "ref_tsx",
+      "tsconfig",
+      "tsconfig_exclude",
+      "tsconfig_include"
+    ],
+    "8": [
+      "package",
+      "package_name",
+      "package_private",
+      "package_scripts",
+      "package_scripts_build",
+      "package_scripts_dev",
+      "package_scripts_lint",
+      "package_scripts_start",
+      "package_version"
+    ],
+    "9": [
+      "architecture_framer_motion",
+      "architecture_gsap_animation",
+      "architecture_lenis_scroll",
+      "architecture_lenis_single_scroll_truth",
+      "works_reveal_on_scroll"
+    ],
+    "10": [
+      "architecture_sanity_cms",
+      "idea_cms_architecture_pivot",
+      "idea_neon_sql_drizzle",
+      "idea_vercel_blob_storage",
+      "works_admin_portal"
+    ],
+    "11": [
+      "agents_agents_md",
+      "agents_nextjs_agent_rules",
+      "claude_claude_md"
+    ],
+    "12": [
+      "app_admin_layout",
+      "app_admin_layout_adminlayout"
+    ],
+    "13": [
+      "design_bronze_aa_rule",
+      "prd_wcag_aa_compliance"
+    ],
+    "14": [
+      "eslint_config",
+      "eslint_config_eslintconfig"
+    ],
+    "15": [
+      "next_config",
+      "next_config_nextconfig"
+    ],
+    "16": [
+      "postcss_config",
+      "postcss_config_config"
+    ],
+    "17": [
+      "architecture_isr_rendering"
+    ],
+    "18": [
+      "architecture_nextjs_app_router"
+    ],
+    "19": [
+      "design_color_system"
+    ],
+    "20": [
+      "design_ease_out_expo"
+    ],
+    "21": [
+      "design_typography_scale"
+    ],
+    "22": [
+      "drizzle_config"
+    ],
+    "23": [
+      "prd_performance_budget"
+    ],
+    "24": [
+      "prd_target_audience"
+    ],
+    "25": [
+      "readme_readme_md"
+    ],
+    "26": [
+      "rules_descriptive_naming"
+    ]
+  },
+  "cohesion": {
+    "0": 0.11954022988505747,
+    "1": 0.13230769230769232,
+    "2": 0.08695652173913043,
+    "3": 0.09523809523809523,
+    "4": 0.11052631578947368,
+    "5": 0.10526315789473684,
+    "6": 0.1523809523809524,
+    "7": 0.2,
+    "8": 0.2222222222222222,
+    "9": 0.4,
+    "10": 0.4,
+    "11": 0.6666666666666666,
+    "12": 1.0,
+    "13": 1.0,
+    "14": 1.0,
+    "15": 1.0,
+    "16": 1.0,
+    "17": 1.0,
+    "18": 1.0,
+    "19": 1.0,
+    "20": 1.0,
+    "21": 1.0,
+    "22": 1.0,
+    "23": 1.0,
+    "24": 1.0,
+    "25": 1.0,
+    "26": 1.0
+  },
+  "gods": [
+    {
+      "id": "tsconfig_compileroptions",
+      "label": "compilerOptions",
+      "degree": 16
+    },
+    {
+      "id": "tsconfig_include",
+      "label": "include",
+      "degree": 7
+    },
+    {
+      "id": "components_motion_revealonscroll_revealonscroll",
+      "label": "RevealOnScroll()",
+      "degree": 6
+    },
+    {
+      "id": "app_actions_projects_getprojects",
+      "label": "getProjects()",
+      "degree": 5
+    },
+    {
+      "id": "package_scripts",
+      "label": "scripts",
+      "degree": 5
+    },
+    {
+      "id": "prd_prd_md",
+      "label": "Product Requirements Document",
+      "degree": 5
+    },
+    {
+      "id": "prd_logo_metaphor",
+      "label": "Globe, Wing & Eagle Eye Metaphor",
+      "degree": 5
+    },
+    {
+      "id": "architecture_architecture_md",
+      "label": "Technical Architecture Document",
+      "degree": 5
+    },
+    {
+      "id": "components_admin_projectform_projectform",
+      "label": "ProjectForm()",
+      "degree": 4
+    },
+    {
+      "id": "db_index_db",
+      "label": "db",
+      "degree": 4
+    }
+  ],
+  "surprises": [
+    {
+      "source": "Design System Document",
+      "target": "Design Token CSS Variable Architecture",
+      "source_files": [
+        "Design.md",
+        "Architecture.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "semantically_similar_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; semantically similar concepts with no structural link"
+    },
+    {
+      "source": "Project Phases Document",
+      "target": "Product Requirements Document",
+      "source_files": [
+        "Phases.md",
+        "PRD.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "cites",
+      "why": "connects across different repos/directories; peripheral node `Project Phases Document` unexpectedly reaches hub `Product Requirements Document`"
+    },
+    {
+      "source": "Signature Logo Reveal Sequence",
+      "target": "Globe, Wing & Eagle Eye Metaphor",
+      "source_files": [
+        "Design.md",
+        "PRD.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "implements",
+      "why": "connects across different repos/directories; peripheral node `Signature Logo Reveal Sequence` unexpectedly reaches hub `Globe, Wing & Eagle Eye Metaphor`"
+    },
+    {
+      "source": "Custom Aperture Precision Cursor",
+      "target": "Eagle Eye Symbol (Precision & Insight)",
+      "source_files": [
+        "Design.md",
+        "PRD.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "implements",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories"
+    },
+    {
+      "source": "Editorial Over Promotional Philosophy",
+      "target": "See What Others Miss Positioning",
+      "source_files": [
+        "Design.md",
+        "PRD.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "implements",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `dependencies` connect `Community 2` to `Community 8`, `Community 6`?",
+      "why": "High betweenness centrality (0.219) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `lenis` connect `Community 6` to `Community 2`?",
+      "why": "High betweenness centrality (0.181) - this node is a cross-community bridge."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `leagueSpartan`, `dmSans`, `metadata` to the rest of the system?",
+      "why": "83 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 0` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.11954022988505747 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 1` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.13230769230769232 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 2` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.08695652173913043 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 3` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.09523809523809523 - nodes in this community are weakly interconnected."
+    }
+  ]
+}
