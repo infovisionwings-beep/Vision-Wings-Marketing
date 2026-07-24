@@ -92,8 +92,8 @@ export async function verifySignupOtp(formData: FormData) {
     return { error: result.error.message || "Invalid verification code. Please try again." }
   }
 
-  // Verification successful, redirect to dashboard
-  redirect('/')
+  // Verification successful, redirect to onboarding flow
+  redirect('/onboarding')
 }
 
 export async function logoutUser() {
