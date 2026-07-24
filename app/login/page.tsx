@@ -78,18 +78,14 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div className="flex justify-center py-2 w-full overflow-hidden relative">
-              {/* Scale down on very small screens to prevent overflow */}
-              <div className="scale-[0.85] xs:scale-[0.95] sm:scale-100 origin-center">
-                <Turnstile 
-                  siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!} 
-                  options={{
-                    theme: 'light',
-                    // Use standard size but let CSS scaling handle tiny screens
-                    size: 'normal',
-                  }}
-                />
-              </div>
+            <div className="flex justify-center py-2 w-full">
+              <Turnstile 
+                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!} 
+                options={{
+                  theme: 'light',
+                  size: 'flexible', // Native responsive sizing for mobile
+                }}
+              />
             </div>
 
             <AnimatePresence mode="wait">
