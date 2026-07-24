@@ -15,24 +15,24 @@ const dmSans = DM_Sans({
 export const metadata: Metadata = {
   metadataBase: new URL("https://visionwing.com"), // Placeholder URL, update to actual domain
   title: {
-    default: "Vision Wing - Premium Marketing Agency",
-    template: "%s | Vision Wing",
+    default: "Vision Wings - Premium Marketing Agency",
+    template: "%s | Vision Wings",
   },
-  description: "Vision Wing is a premium marketing agency, brand strategy studio, and business consultancy dedicated to elevating visionary brands.",
-  keywords: ["marketing agency", "brand strategy", "business consultancy", "premium design", "Vision Wing"],
-  authors: [{ name: "Vision Wing" }],
+  description: "Vision Wings is a premium marketing agency, brand strategy studio, and business consultancy dedicated to elevating visionary brands.",
+  keywords: ["marketing agency", "brand strategy", "business consultancy", "premium design", "Vision Wings"],
+  authors: [{ name: "Vision Wings" }],
   openGraph: {
-    title: "Vision Wing - Premium Marketing Agency",
-    description: "Vision Wing is a premium marketing agency, brand strategy studio, and business consultancy.",
+    title: "Vision Wings - Premium Marketing Agency",
+    description: "Vision Wings is a premium marketing agency, brand strategy studio, and business consultancy.",
     url: "https://visionwing.com",
-    siteName: "Vision Wing",
+    siteName: "Vision Wings",
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Vision Wing - Premium Marketing Agency",
-    description: "Vision Wing is a premium marketing agency, brand strategy studio, and business consultancy.",
+    title: "Vision Wings - Premium Marketing Agency",
+    description: "Vision Wings is a premium marketing agency, brand strategy studio, and business consultancy.",
     creator: "@visionwing",
   },
   robots: {
@@ -51,9 +51,9 @@ export const metadata: Metadata = {
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "ProfessionalService",
-  "name": "Vision Wing",
+  "name": "Vision Wings",
   "image": "https://visionwing.com/logo-svg/Primary%20ICON.svg",
-  "description": "Vision Wing is a premium marketing agency, brand strategy studio, and business consultancy.",
+  "description": "Vision Wings is a premium marketing agency, brand strategy studio, and business consultancy.",
   "address": {
     "@type": "PostalAddress",
     "streetAddress": "123 Strategy Blvd",

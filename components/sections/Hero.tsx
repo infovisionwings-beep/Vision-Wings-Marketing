@@ -87,7 +87,7 @@ export default function Hero() {
               animate={showContent ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             >
-              For growth-stage businesses who feel invisible in a crowded market, Vision Wing is the strategic brand and growth partner that sees the opportunities competitors miss.
+              For growth-stage businesses who feel invisible in a crowded market, Vision Wings is the strategic brand and growth partner that sees the opportunities competitors miss.
             </motion.p>
 
             <motion.div

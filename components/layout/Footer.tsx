@@ -6,11 +6,11 @@ export default function Footer() {
       <div className="max-w-[1280px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
         <div className="col-span-1 md:col-span-2 lg:col-span-1 flex flex-col gap-6">
           <Link href="/" className="flex items-center gap-2 w-fit py-2" data-interactive>
-            <img src="/logo-svg/Dark%20BG%20ICON.svg" alt="Vision Wing Logo" className="h-8 w-auto" />
-            <span className="font-display font-bold text-xl text-warm-50">Vision Wing</span>
+            <img src="/logo-svg/Dark%20BG%20ICON.svg" alt="Vision Wings Logo" className="h-8 w-auto" />
+            <span className="font-display font-bold text-xl text-warm-50">Vision Wings</span>
           </Link>
           <p className="text-body-sm text-navy-300 max-w-xs">
-            For growth-stage businesses who feel invisible in a crowded market, Vision Wing is the strategic brand and growth partner that sees the opportunities competitors miss.
+            For growth-stage businesses who feel invisible in a crowded market, Vision Wings is the strategic brand and growth partner that sees the opportunities competitors miss.
           </p>
         </div>
 
@@ -41,7 +41,7 @@ export default function Footer() {
       </div>
       
       <div className="max-w-[1280px] mx-auto mt-16 md:mt-24 pt-8 border-t border-navy-700 flex flex-col md:flex-row justify-between items-center gap-6">
-        <p className="text-caption text-navy-300">© {new Date().getFullYear()} Vision Wing. All rights reserved.</p>
+        <p className="text-caption text-navy-300">© {new Date().getFullYear()} Vision Wings. All rights reserved.</p>
         <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
           <Link href="/privacy" className="text-caption text-navy-300 hover:text-warm-50 transition-colors py-2" data-interactive>Privacy Policy</Link>
           <Link href="/terms" className="text-caption text-navy-300 hover:text-warm-50 transition-colors py-2" data-interactive>Terms of Service</Link>

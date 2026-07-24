@@ -1,8 +1,8 @@
-# Vision Wing — Architecture Document
+# Vision Wings — Architecture Document
 
 | | |
 |---|---|
-| **Project** | Vision Wing — Premium Marketing Agency Website |
+| **Project** | Vision Wings — Premium Marketing Agency Website |
 | **Document** | Technical Architecture |
 | **Version** | 1.0 |
 | **Status** | Draft for Engineering Review |
@@ -161,7 +161,7 @@ Every section component wraps its scroll-triggered children in the shared `Revea
 
 ## 5. State Management
 
-**No external global state library (Redux, Zustand, Jotai) is used.** This is a deliberate architectural decision, not an omission: Vision Wing is a narrative content site, not an application with complex cross-cutting client state. Introducing a state library here would be over-engineering relative to actual need — the same restraint principle that governs the visual design should govern the codebase.
+**No external global state library (Redux, Zustand, Jotai) is used.** This is a deliberate architectural decision, not an omission: Vision Wings is a narrative content site, not an application with complex cross-cutting client state. Introducing a state library here would be over-engineering relative to actual need — the same restraint principle that governs the visual design should govern the codebase.
 
 | State need | Mechanism |
 |---|---|

@@ -1,6 +1,6 @@
 # RULES.md
 
-> **Vision Wing Engineering Standards**
+> **Vision Wings Engineering Standards**
 >
 > These rules are mandatory for every contributor, AI agent, and developer working on this project.
 > Every commit must follow these standards. Do not make exceptions unless explicitly approved.

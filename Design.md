@@ -1,8 +1,8 @@
-# Vision Wing — Design System
+# Vision Wings — Design System
 
 | | |
 |---|---|
-| **Project** | Vision Wing — Premium Marketing Agency Website |
+| **Project** | Vision Wings — Premium Marketing Agency Website |
 | **Document** | Design System |
 | **Version** | 1.0 |
 | **Status** | Draft for Design & Engineering Review |
@@ -370,7 +370,7 @@ Design is produced **desktop-first** per the brief, but every component is verif
 
 ## 21. Dark Mode Strategy
 
-Vision Wing's brand identity is fundamentally light/warm — `warm-50` is the primary page background, not a "light theme option" alongside an equal dark counterpart. **True dark mode is not part of v1** (consistent with [PRD.md §17 Future Roadmap](./PRD.md#17-future-roadmap)).
+Vision Wings' brand identity is fundamentally light/warm — `warm-50` is the primary page background, not a "light theme option" alongside an equal dark counterpart. **True dark mode is not part of v1** (consistent with [PRD.md §17 Future Roadmap](./PRD.md#17-future-roadmap)).
 
 If a dark mode is prioritized later, the recommended approach is an **"Inverted Editorial"** mode rather than a naive color-flip:
 

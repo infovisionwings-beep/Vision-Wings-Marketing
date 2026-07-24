@@ -14,7 +14,7 @@ export default function AnimatedLogo({
   
   if (isReducedMotion) {
     return (
-      <img src="/logo-svg/Primary%20ICON.svg" alt="Vision Wing Logo" className="w-60 h-60 mx-auto lg:mx-0 object-contain" />
+      <img src="/logo-svg/Primary%20ICON.svg" alt="Vision Wings Logo" className="w-60 h-60 mx-auto lg:mx-0 object-contain" />
     )
   }
   

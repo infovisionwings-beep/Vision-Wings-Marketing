@@ -15,7 +15,7 @@ export default function Contact() {
         </RevealOnScroll>
         <RevealOnScroll delay={0.1}>
           <p className="text-body-lg text-navy-300 mb-12">
-            Let's discuss how Vision Wing can help clarify your brand, elevate your design, and accelerate your growth.
+            Let's discuss how Vision Wings can help clarify your brand, elevate your design, and accelerate your growth.
           </p>
         </RevealOnScroll>
         <RevealOnScroll delay={0.2}>

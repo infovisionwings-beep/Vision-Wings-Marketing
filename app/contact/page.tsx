@@ -28,7 +28,7 @@ export default function ContactPage() {
             Start the Conversation
           </h1>
           <p className="text-body-lg text-navy-700 max-w-xl">
-            For growth-stage businesses who feel invisible in a crowded market, Vision Wing is the strategic brand and growth partner that sees the opportunities competitors miss. 
+            For growth-stage businesses who feel invisible in a crowded market, Vision Wings is the strategic brand and growth partner that sees the opportunities competitors miss. 
             <br /><br />
             Fill out the form to tell us a bit about your current challenges, and we'll reach out to schedule a discovery call.
           </p>

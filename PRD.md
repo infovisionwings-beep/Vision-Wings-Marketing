@@ -1,8 +1,8 @@
-# Vision Wing — Product Requirements Document (PRD)
+# Vision Wings — Product Requirements Document (PRD)
 
 | | |
 |---|---|
-| **Project** | Vision Wing — Premium Marketing Agency Website |
+| **Project** | Vision Wings — Premium Marketing Agency Website |
 | **Document** | Product Requirements Document |
 | **Version** | 1.0 |
 | **Status** | Draft for Stakeholder Sign-off |
@@ -34,9 +34,9 @@
 
 ## 1. Project Overview
 
-Vision Wing is a marketing agency, brand strategy studio, and business consultancy. Its website is the agency's single most important sales asset: for a premium services business, the site is often the first — and sometimes only — proof point a prospect sees before a call is booked. It has to do in silence what the best account director would do in a room: demonstrate taste, precision, and judgment before a single word of copy is read.
+Vision Wings is a marketing agency, brand strategy studio, and business consultancy. Its website is the agency's single most important sales asset: for a premium services business, the site is often the first — and sometimes only — proof point a prospect sees before a call is booked. It has to do in silence what the best account director would do in a room: demonstrate taste, precision, and judgment before a single word of copy is read.
 
-This is **not** a template SaaS marketing site. It is an editorial, scroll-driven brand experience that mirrors the quality of work Vision Wing promises to produce for its clients. The website itself is the agency's best case study.
+This is **not** a template SaaS marketing site. It is an editorial, scroll-driven brand experience that mirrors the quality of work Vision Wings promises to produce for its clients. The website itself is the agency's best case study.
 
 The three-part logo — **Globe, Wing, Eagle Eye** — is not decorative. It is the organizing metaphor for the entire site:
 
@@ -54,7 +54,7 @@ Every section of this PRD assumes the build team will keep referring back to thi
 
 **Supporting goals:**
 
-- Establish Vision Wing as a premium, senior-level partner — not a freelancer collective or a volume-based agency.
+- Establish Vision Wings as a premium, senior-level partner — not a freelancer collective or a volume-based agency.
 - Make the agency's thinking (strategy, process, POV) as visible as its visual output.
 - Give the sales team a site they can send cold, with zero verbal context, and have it land the pitch on its own.
 - Build a foundation (design system + architecture) that scales to new case studies, insights articles, and services without a redesign.
@@ -74,12 +74,12 @@ Objectives are written to be measurable at 90 days post-launch.
 
 ## 4. Target Audience
 
-Vision Wing sells senior strategic and creative work, not commodity execution. The audience is deliberately narrower than "anyone who needs a website":
+Vision Wings sells senior strategic and creative work, not commodity execution. The audience is deliberately narrower than "anyone who needs a website":
 
 - **Founders and CEOs** of Series A–C startups and growth-stage SMBs who have outgrown their founding brand identity.
 - **Marketing Directors / CMOs** at mid-market companies (50–500 employees) evaluating a rebrand, website relaunch, or growth-marketing partner.
 - **Business owners** in traditional industries seeking to modernize their brand and digital presence without losing credibility with existing customers.
-- **Referral-driven prospects** — people arriving with a warm introduction, who are validating a recommendation rather than discovering Vision Wing cold.
+- **Referral-driven prospects** — people arriving with a warm introduction, who are validating a recommendation rather than discovering Vision Wings cold.
 
 What this audience is *not*: bargain-hunters comparing hourly rates, or DIY founders looking for a Squarespace-tier solution. Copy, pricing signals (or intentional absence of pricing), and CTA language should filter for this throughout.
 
@@ -87,11 +87,11 @@ What this audience is *not*: bargain-hunters comparing hourly rates, or DIY foun
 
 **Positioning statement:**
 
-> For growth-stage businesses who feel invisible in a crowded market, Vision Wing is the strategic brand and growth partner that sees the opportunities competitors miss — because unlike execution-only agencies or generalist freelancers, Vision Wing pairs consulting-grade strategic rigor with the design craft of a boutique studio.
+> For growth-stage businesses who feel invisible in a crowded market, Vision Wings is the strategic brand and growth partner that sees the opportunities competitors miss — because unlike execution-only agencies or generalist freelancers, Vision Wings pairs consulting-grade strategic rigor with the design craft of a boutique studio.
 
 **Competitive frame (how the site should differentiate visually and verbally):**
 
-| Competitor archetype | How they present | How Vision Wing differs |
+| Competitor archetype | How they present | How Vision Wings differs |
 |---|---|---|
 | Volume production agencies | Portfolio-grid heavy, generic "our services" language | Narrative-first; portfolio is curated (Featured Projects, not "all work") |
 | Freelancer/collective marketplaces | Personality-led, informal tone | Institutional confidence; senior tone throughout, no first-person founder cult of personality |
@@ -156,7 +156,7 @@ Brand voice: confident, precise, understated. Short declarative sentences. No ex
 Organized by epic, in standard "As a / I want / so that" format.
 
 **Epic: First Impression**
-- As a first-time visitor, I want the hero to immediately communicate what Vision Wing does and for whom, so I can decide within seconds whether to keep reading.
+- As a first-time visitor, I want the hero to immediately communicate what Vision Wings does and for whom, so I can decide within seconds whether to keep reading.
 - As a visitor on a slow connection, I want the page to remain usable and readable even before animations/assets finish loading, so I'm not blocked from the content.
 
 **Epic: Evaluation**
@@ -247,7 +247,7 @@ Target conformance: **WCAG 2.1 Level AA**, audited before launch (see [Phases.md
 
 ## 15. Animations
 
-Motion in Vision Wing is not decoration — it encodes the Wing (momentum/progress) meaning of the logo. Every animation must be justifiable against that principle, not added because "sites like this usually move."
+Motion in Vision Wings is not decoration — it encodes the Wing (momentum/progress) meaning of the logo. Every animation must be justifiable against that principle, not added because "sites like this usually move."
 
 - **Signature moment:** The logo reveal draws in sequence — Globe outline first (context/world), Wing stroke sweeping across second (momentum), Eagle Eye detail resolving and sharpening last (precision/focus). This ~1.6s sequence is the site's single most distinctive animated moment and should not be diluted by competing motion elsewhere on first load.
 - **Scroll storytelling:** Section transitions use restrained fade/rise reveals (content enters from ~24px below its resting position, opacity 0→1) — never full-screen slide transitions or aggressive parallax that could induce motion discomfort.

@@ -46,9 +46,9 @@ export default function Navbar() {
       >
         <div className="max-w-[1280px] mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 z-50" data-interactive>
-            <img src="/logo-svg/Primary%20ICON.svg" alt="Vision Wing Logo" className="h-14 w-auto" />
+            <img src="/logo-svg/Primary%20ICON.svg" alt="Vision Wings Logo" className="h-14 w-auto" />
             <span className="font-display font-bold text-xl text-navy-950 mt-1">
-              Vision Wing
+              Vision Wings
             </span>
           </Link>
 

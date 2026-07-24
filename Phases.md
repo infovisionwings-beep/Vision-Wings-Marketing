@@ -1,8 +1,8 @@
-# Vision Wing — Project Phases
+# Vision Wings — Project Phases
 
 | | |
 |---|---|
-| **Project** | Vision Wing — Premium Marketing Agency Website |
+| **Project** | Vision Wings — Premium Marketing Agency Website |
 | **Document** | Phases & Milestones |
 | **Version** | 1.0 |
 | **Status** | Draft for Planning Review |
@@ -33,7 +33,7 @@ Estimated total: **~13 calendar weeks (~3 months)** from kickoff to launch, assu
 
 ```mermaid
 gantt
-    title Vision Wing — Illustrative Development Timeline
+    title Vision Wings — Illustrative Development Timeline
     dateFormat YYYY-MM-DD
     axisFormat %b %d
 
@@ -64,7 +64,7 @@ Note: Phase 6 (Animations) and Phase 7 (CMS) both start before Phase 5 (Frontend
 ## Phase 1 — Research
 
 **Deliverables**
-- Competitive audit of 5–7 comparable agencies (positioning, visual language, information architecture — used to confirm Vision Wing does *not* converge on generic agency-site patterns)
+- Competitive audit of 5–7 comparable agencies (positioning, visual language, information architecture — used to confirm Vision Wings does *not* converge on generic agency-site patterns)
 - Stakeholder interview notes (goals, non-negotiables, internal politics/approval chain)
 - Draft sitemap (validates the 12-section brief structure against real content availability)
 - Content audit — inventory of existing copy, logos, case study material, testimonials that can be reused vs. must be created
