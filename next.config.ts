@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  env: {
+    BETTER_AUTH_TRUSTED_ORIGINS: "https://vw-ashen.vercel.app,https://*.vercel.app,http://localhost:3000",
+  },
   async headers() {
     return [
       {
