@@ -68,7 +68,31 @@ export async function authenticateWithTurnstile(formData: FormData) {
     { success: true }
   );
 
+  // If this was a sign up, Neon Auth will send a verification OTP
+  // We return a flag to tell the UI to show the OTP entry form
+  if (isSignUp) {
+    return { requireOtp: true, email }
+  }
+
   // 3. Redirect on success
+  redirect('/')
+}
+
+export async function verifySignupOtp(formData: FormData) {
+  const email = formData.get('email') as string
+  const otp = formData.get('otp') as string
+
+  if (!email || !otp) {
+    return { error: "Missing email or verification code." }
+  }
+
+  const result = await auth.emailOtp.verifyEmail({ email, otp })
+
+  if (result?.error) {
+    return { error: result.error.message || "Invalid verification code. Please try again." }
+  }
+
+  // Verification successful, redirect to dashboard
   redirect('/')
 }
 

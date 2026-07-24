@@ -3,14 +3,17 @@
 import { useState, useTransition } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Turnstile } from '@marsidev/react-turnstile'
-import { authenticateWithTurnstile } from '@/app/actions/auth'
-import { Mail, Lock, ArrowRight } from 'lucide-react'
+import { authenticateWithTurnstile, verifySignupOtp } from '@/app/actions/auth'
+import { Mail, Lock, ArrowRight, KeyRound } from 'lucide-react'
 import Button from "@/components/ui/Button"
 
 export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [isOtpPending, startOtpTransition] = useTransition()
+  const [showOtp, setShowOtp] = useState(false)
+  const [registeredEmail, setRegisteredEmail] = useState("")
   
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -20,6 +23,23 @@ export default function LoginPage() {
     
     startTransition(async () => {
       const result = await authenticateWithTurnstile(formData)
+      if (result?.error) {
+        setError(result.error)
+      } else if (result?.requireOtp) {
+        setRegisteredEmail(result.email!)
+        setShowOtp(true)
+      }
+    })
+  }
+
+  const handleOtpSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setError(null)
+    const formData = new FormData(e.currentTarget)
+    formData.append('email', registeredEmail)
+    
+    startOtpTransition(async () => {
+      const result = await verifySignupOtp(formData)
       if (result?.error) {
         setError(result.error)
       }
@@ -42,100 +62,158 @@ export default function LoginPage() {
         <div className="bg-white border border-navy-100 p-6 sm:p-10 rounded-sm shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
           <div className="mb-10 text-center">
             <h1 className="text-3xl font-display font-bold text-navy-950 mb-3">
-              {isSignUp ? 'Create Account' : 'Welcome Back'}
+              {showOtp ? 'Check your email' : (isSignUp ? 'Create Account' : 'Welcome Back')}
             </h1>
             <p className="text-navy-500 font-medium text-body">
-              {isSignUp ? 'Enter your details to get started' : 'Sign in to continue to your dashboard'}
+              {showOtp 
+                ? `We've sent a verification code to ${registeredEmail}`
+                : (isSignUp ? 'Enter your details to get started' : 'Sign in to continue to your dashboard')}
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-5">
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-navy-300 group-focus-within:text-bronze-600 transition-colors" />
+          {showOtp ? (
+            <form onSubmit={handleOtpSubmit} className="space-y-6">
+              <div className="space-y-5">
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <KeyRound className="h-5 w-5 text-navy-300 group-focus-within:text-bronze-600 transition-colors" />
+                  </div>
+                  <input
+                    name="otp"
+                    type="text"
+                    required
+                    placeholder="Enter verification code"
+                    className="w-full pl-12 pr-4 py-4 bg-warm-50 border border-navy-100 rounded-sm text-navy-950 placeholder:text-navy-300 focus:outline-none focus:ring-1 focus:ring-bronze-500 focus:border-bronze-500 transition-all font-medium text-body tracking-widest text-center"
+                  />
                 </div>
-                <input
-                  name="email"
-                  type="email"
-                  required
-                  placeholder="name@example.com"
-                  className="w-full pl-12 pr-4 py-4 bg-warm-50 border border-navy-100 rounded-sm text-navy-950 placeholder:text-navy-300 focus:outline-none focus:ring-1 focus:ring-bronze-500 focus:border-bronze-500 transition-all font-medium text-body"
-                />
               </div>
 
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-navy-300 group-focus-within:text-bronze-600 transition-colors" />
-                </div>
-                <input
-                  name="password"
-                  type="password"
-                  required
-                  placeholder="••••••••"
-                  className="w-full pl-12 pr-4 py-4 bg-warm-50 border border-navy-100 rounded-sm text-navy-950 placeholder:text-navy-300 focus:outline-none focus:ring-1 focus:ring-bronze-500 focus:border-bronze-500 transition-all font-medium text-body"
-                />
-              </div>
-            </div>
+              <AnimatePresence mode="wait">
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="text-red-600 text-sm font-medium text-center bg-red-50 py-3 px-4 rounded-sm border border-red-100"
+                  >
+                    {error}
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-            <div className="flex justify-center py-2 w-full">
-              <Turnstile 
-                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!} 
-                options={{
-                  theme: 'light',
-                  size: 'flexible',
-                }}
-              />
-            </div>
-
-            <AnimatePresence mode="wait">
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="text-red-600 text-sm font-medium text-center bg-red-50 py-3 px-4 rounded-sm border border-red-100"
-                >
-                  {error}
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <Button
-              type="submit"
-              isLoading={isPending}
-              className="w-full flex items-center justify-center gap-2"
-            >
-              {isSignUp ? 'Sign Up' : 'Sign In'}
-              {!isPending && <ArrowRight className="w-4 h-4" />}
-            </Button>
-          </form>
-
-          <div className="mt-8 text-center border-t border-navy-100 pt-6 flex flex-col gap-3">
-            <button
-              type="button"
-              onClick={() => {
-                setIsSignUp(!isSignUp)
-                setError(null)
-              }}
-              className="text-sm font-medium text-navy-500 hover:text-navy-950 transition-colors"
-            >
-              {isSignUp ? (
-                <>Already have an account? <span className="text-bronze-600 hover:underline">Sign in</span></>
-              ) : (
-                <>Don't have an account? <span className="text-bronze-600 hover:underline">Sign up</span></>
-              )}
-            </button>
-            
-            {!isSignUp && (
-              <a 
-                href="/forgot-password" 
-                className="text-sm font-medium text-navy-500 hover:text-bronze-600 transition-colors hover:underline"
+              <Button
+                type="submit"
+                isLoading={isOtpPending}
+                className="w-full flex items-center justify-center gap-2"
               >
-                Forgot your password?
-              </a>
-            )}
-          </div>
+                Verify Email
+                {!isOtpPending && <ArrowRight className="w-4 h-4" />}
+              </Button>
+              
+              <div className="mt-6 text-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowOtp(false)
+                    setError(null)
+                  }}
+                  className="text-sm font-medium text-navy-500 hover:text-navy-950 transition-colors"
+                >
+                  Back to Sign Up
+                </button>
+              </div>
+            </form>
+          ) : (
+            <>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-5">
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <Mail className="h-5 w-5 text-navy-300 group-focus-within:text-bronze-600 transition-colors" />
+                    </div>
+                    <input
+                      name="email"
+                      type="email"
+                      required
+                      placeholder="name@example.com"
+                      className="w-full pl-12 pr-4 py-4 bg-warm-50 border border-navy-100 rounded-sm text-navy-950 placeholder:text-navy-300 focus:outline-none focus:ring-1 focus:ring-bronze-500 focus:border-bronze-500 transition-all font-medium text-body"
+                    />
+                  </div>
+
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <Lock className="h-5 w-5 text-navy-300 group-focus-within:text-bronze-600 transition-colors" />
+                    </div>
+                    <input
+                      name="password"
+                      type="password"
+                      required
+                      placeholder="••••••••"
+                      className="w-full pl-12 pr-4 py-4 bg-warm-50 border border-navy-100 rounded-sm text-navy-950 placeholder:text-navy-300 focus:outline-none focus:ring-1 focus:ring-bronze-500 focus:border-bronze-500 transition-all font-medium text-body"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-center py-2 w-full">
+                  <Turnstile 
+                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!} 
+                    options={{
+                      theme: 'light',
+                      size: 'flexible',
+                    }}
+                  />
+                </div>
+
+                <AnimatePresence mode="wait">
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="text-red-600 text-sm font-medium text-center bg-red-50 py-3 px-4 rounded-sm border border-red-100"
+                    >
+                      {error}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <Button
+                  type="submit"
+                  isLoading={isPending}
+                  className="w-full flex items-center justify-center gap-2"
+                >
+                  {isSignUp ? 'Sign Up' : 'Sign In'}
+                  {!isPending && <ArrowRight className="w-4 h-4" />}
+                </Button>
+              </form>
+
+              <div className="mt-8 text-center border-t border-navy-100 pt-6 flex flex-col gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSignUp(!isSignUp)
+                    setError(null)
+                  }}
+                  className="text-sm font-medium text-navy-500 hover:text-navy-950 transition-colors"
+                >
+                  {isSignUp ? (
+                    <>Already have an account? <span className="text-bronze-600 hover:underline">Sign in</span></>
+                  ) : (
+                    <>Don't have an account? <span className="text-bronze-600 hover:underline">Sign up</span></>
+                  )}
+                </button>
+                
+                {!isSignUp && (
+                  <a 
+                    href="/forgot-password" 
+                    className="text-sm font-medium text-navy-500 hover:text-bronze-600 transition-colors hover:underline"
+                  >
+                    Forgot your password?
+                  </a>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </motion.div>
     </div>
