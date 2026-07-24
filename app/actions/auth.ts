@@ -2,6 +2,7 @@
 
 import { auth } from '@/lib/auth/server'
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { checkRateLimit, resetRateLimit } from '@/lib/auth/rate-limit'
 import { logAdminAction } from '@/lib/auth/audit-log'
 
@@ -47,11 +48,12 @@ export async function authenticateWithTurnstile(formData: FormData) {
 
   // 2. Authenticate with Neon
   let result;
+  const headersList = await headers();
   if (isSignUp) {
     const name = email.split('@')[0] || 'User'
-    result = await auth.signUp.email({ name, email, password })
+    result = await auth.signUp.email({ name, email, password, fetchOptions: { headers: headersList } })
   } else {
-    result = await auth.signIn.email({ email, password })
+    result = await auth.signIn.email({ email, password, fetchOptions: { headers: headersList } })
   }
 
   if (result?.error) {
@@ -86,7 +88,8 @@ export async function verifySignupOtp(formData: FormData) {
     return { error: "Missing email or verification code." }
   }
 
-  const result = await auth.emailOtp.verifyEmail({ email, otp })
+  const headersList = await headers();
+  const result = await auth.emailOtp.verifyEmail({ email, otp, fetchOptions: { headers: headersList } })
 
   if (result?.error) {
     return { error: result.error.message || "Invalid verification code. Please try again." }
@@ -97,6 +100,7 @@ export async function verifySignupOtp(formData: FormData) {
 }
 
 export async function logoutUser() {
-  await auth.signOut()
+  const headersList = await headers();
+  await auth.signOut({ fetchOptions: { headers: headersList } })
   redirect('/')
 }
