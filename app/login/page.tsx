@@ -39,7 +39,7 @@ export default function LoginPage() {
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className="w-full max-w-[440px] relative z-10"
       >
-        <div className="bg-white border border-navy-100 p-8 sm:p-10 rounded-sm shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+        <div className="bg-white border border-navy-100 p-6 sm:p-10 rounded-sm shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
           <div className="mb-10 text-center">
             <h1 className="text-3xl font-display font-bold text-navy-950 mb-3">
               {isSignUp ? 'Create Account' : 'Welcome Back'}
@@ -78,13 +78,18 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div className="flex justify-center py-2">
-              <Turnstile 
-                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!} 
-                options={{
-                  theme: 'light',
-                }}
-              />
+            <div className="flex justify-center py-2 w-full overflow-hidden relative">
+              {/* Scale down on very small screens to prevent overflow */}
+              <div className="scale-[0.85] xs:scale-[0.95] sm:scale-100 origin-center">
+                <Turnstile 
+                  siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!} 
+                  options={{
+                    theme: 'light',
+                    // Use standard size but let CSS scaling handle tiny screens
+                    size: 'normal',
+                  }}
+                />
+              </div>
             </div>
 
             <AnimatePresence mode="wait">
