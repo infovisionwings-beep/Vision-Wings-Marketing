@@ -1,0 +1,4 @@
+- `[x]` Create `lib/auth/client.ts` for Neon Auth client
+- `[x]` Update `app/login/page.tsx` with "Forgot Password?" link
+- `[x]` Create `app/forgot-password/page.tsx`
+- `[x]` Create `app/reset-password/page.tsx`

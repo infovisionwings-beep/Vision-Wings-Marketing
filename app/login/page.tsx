@@ -111,7 +111,7 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <div className="mt-8 text-center border-t border-navy-100 pt-6">
+          <div className="mt-8 text-center border-t border-navy-100 pt-6 flex flex-col gap-3">
             <button
               type="button"
               onClick={() => {
@@ -126,6 +126,15 @@ export default function LoginPage() {
                 <>Don't have an account? <span className="text-bronze-600 hover:underline">Sign up</span></>
               )}
             </button>
+            
+            {!isSignUp && (
+              <a 
+                href="/forgot-password" 
+                className="text-sm font-medium text-navy-500 hover:text-bronze-600 transition-colors hover:underline"
+              >
+                Forgot your password?
+              </a>
+            )}
           </div>
         </div>
       </motion.div>
