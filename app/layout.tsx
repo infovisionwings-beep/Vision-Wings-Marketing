@@ -70,14 +70,25 @@ import SmoothScrollProvider from "@/components/motion/SmoothScrollProvider";
 import CursorAperture from "@/components/motion/CursorAperture";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { auth } from '@/lib/auth/server';
 
 import { LoaderProvider } from "@/components/providers/LoaderProvider";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  let user = null;
+  try {
+    const sessionRes = await auth.getSession();
+    if (sessionRes.data?.user) {
+      user = sessionRes.data.user;
+    }
+  } catch (e) {
+    // Ignore errors during build or if Neon Auth is unconfigured
+  }
+
   return (
     <html
       lang="en"
@@ -93,7 +104,7 @@ export default function RootLayout({
         <LoaderProvider>
           <SmoothScrollProvider>
             <CursorAperture />
-            <Navbar />
+            <Navbar user={user} />
             <main className="flex-grow">{children}</main>
             <Footer />
           </SmoothScrollProvider>

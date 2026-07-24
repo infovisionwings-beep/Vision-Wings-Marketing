@@ -6,7 +6,7 @@ export default auth.middleware({
 
 export const config = {
   matcher: [
-    // Match all paths except static files, api routes, Next.js internals
-    "/((?!_next/static|_next/image|favicon.ico|api/).*)",
+    "/admin/:path*",
+    "/dashboard/:path*"
   ],
 };

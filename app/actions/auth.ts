@@ -46,3 +46,8 @@ export async function authenticateWithTurnstile(formData: FormData) {
   // 3. Redirect on success
   redirect('/')
 }
+
+export async function logoutUser() {
+  await auth.signOut()
+  redirect('/')
+}
