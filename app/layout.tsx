@@ -21,6 +21,14 @@ export const metadata: Metadata = {
   description: "Vision Wings is a premium marketing agency, brand strategy studio, and business consultancy dedicated to elevating visionary brands.",
   keywords: ["marketing agency", "brand strategy", "business consultancy", "premium design", "Vision Wings"],
   authors: [{ name: "Vision Wings" }],
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/logo-svg/Primary%20ICON.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/icon.svg",
+    apple: "/logo-svg/Primary%20ICON.svg",
+  },
   openGraph: {
     title: "Vision Wings - Premium Marketing Agency",
     description: "Vision Wings is a premium marketing agency, brand strategy studio, and business consultancy.",
