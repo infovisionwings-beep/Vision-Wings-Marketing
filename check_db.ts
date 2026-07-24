@@ -11,10 +11,10 @@ async function check() {
     console.log("Connecting to:", process.env.DATABASE_URL);
     await db.execute('select * from projects');
     console.log("SUCCESS! Table exists and is accessible.");
-  } catch(e) {
+  } catch (e: any) {
     console.error("FAILED!");
-    console.error("Message:", e.message);
-    if (e.cause) {
+    console.error("Message:", e?.message || e);
+    if (e?.cause) {
       console.error("Cause:", e.cause);
     }
   }

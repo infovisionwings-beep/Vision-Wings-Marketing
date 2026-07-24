@@ -10,9 +10,12 @@ async function check() {
     const res = await client.query('select 1');
     client.release();
     console.log("SUCCESS! Database is reachable via standard TCP (pg).");
-  } catch(e) {
-    console.error("FAILED TCP!");
-    console.error("Message:", e.message);
+  } catch (e: any) {
+    console.error("FAILED!");
+    console.error("Message:", e?.message || e);
+    if (e?.cause) {
+      console.error("Cause:", e.cause);
+    }
   }
 }
 check();

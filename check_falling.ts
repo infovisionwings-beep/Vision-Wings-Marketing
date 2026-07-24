@@ -10,9 +10,12 @@ async function check() {
     console.log("Connecting to falling-darkness...");
     await db.execute('select 1');
     console.log("SUCCESS!");
-  } catch(e) {
+  } catch (e: any) {
     console.error("FAILED!");
-    console.error("Message:", e.message);
+    console.error("Message:", e?.message || e);
+    if (e?.cause) {
+      console.error("Cause:", e.cause);
+    }
   }
 }
 check();

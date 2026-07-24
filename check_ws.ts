@@ -13,9 +13,12 @@ async function check() {
     const db = drizzle(pool);
     await db.execute('select 1');
     console.log("SUCCESS! Database is reachable via WebSocket.");
-  } catch(e) {
-    console.error("FAILED WebSocket!");
-    console.error("Message:", e.message);
+  } catch (e: any) {
+    console.error("FAILED WS!");
+    console.error("Message:", e?.message || e);
+    if (e?.cause) {
+      console.error("Cause:", e.cause);
+    }
   }
 }
 check();

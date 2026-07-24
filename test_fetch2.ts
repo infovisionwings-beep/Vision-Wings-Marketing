@@ -1,15 +1,15 @@
-async function wakeUp() {
-  console.log("Testing fetch to non-pooler...");
+async function wakeUpFetch2() {
+  console.log("Waking up...");
   try {
-    const res = await fetch('https://ep-polished-forest-ay8a4hro.c-5.us-east-2.aws.neon.tech/sql', {
+    const res = await fetch('https://ep-polished-forest-ay8a4hro-pooler.c-5.us-east-2.aws.neon.tech/sql', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Neon-Connection-String': process.env.DATABASE_URL },
-      body: JSON.stringify({ query: 'select 1 as x' })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: 'select 1' })
     });
     console.log(res.status, await res.text());
-  } catch(e) {
-    console.log("Fetch failed:", e.message);
+  } catch(e: any) {
+    console.log("Fetch failed:", e?.message || e);
   }
 }
 require('dotenv').config({ path: '.env.local' });
-wakeUp();
+wakeUpFetch2();

@@ -7,8 +7,8 @@ async function wakeUp() {
       body: JSON.stringify({ query: 'select 1' })
     });
     console.log(res.status, await res.text());
-  } catch(e) {
-    console.log("Fetch failed:", e.message);
+  } catch(e: any) {
+    console.log("Fetch failed:", e?.message || e);
   }
 }
 wakeUp();

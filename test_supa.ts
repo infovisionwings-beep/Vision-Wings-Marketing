@@ -1,9 +1,9 @@
-async function check() {
+async function checkSupa() {
   try {
     const res = await fetch('https://supabase.com');
     console.log("Supabase:", res.status);
-  } catch(e) {
-    console.error("FAILED Supabase!", e.message);
+  } catch(e: any) {
+    console.error("FAILED Supabase!", e?.message || e);
   }
 }
-check();
+checkSupa();

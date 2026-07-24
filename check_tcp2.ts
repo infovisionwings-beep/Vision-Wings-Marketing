@@ -9,9 +9,9 @@ async function check() {
     const res = await client.query('select 1');
     client.release();
     console.log("SUCCESS! Database is reachable via standard TCP (pg) WITHOUT .c-5");
-  } catch(e) {
+  } catch (e: any) {
     console.error("FAILED TCP!");
-    console.error("Message:", e.message);
+    console.error("Message:", e?.message || e);
   }
 }
 check();
