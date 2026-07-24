@@ -1,9 +1,12 @@
 import { Link } from "@/components/ui/Link";
 import { Eye, Briefcase, FileText, LogOut } from "lucide-react";
+import { requireAdmin } from "@/lib/auth/rbac";
 
 export const dynamic = "force-dynamic";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  await requireAdmin();
+
   return (
     <div className="min-h-screen bg-warm-50 flex">
       {/* Sidebar */}

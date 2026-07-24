@@ -83,7 +83,7 @@ export default function LoginPage() {
                 siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!} 
                 options={{
                   theme: 'light',
-                  size: 'flexible', // Native responsive sizing for mobile
+                  size: 'flexible',
                 }}
               />
             </div>

@@ -2,6 +2,12 @@
 
 import { auth } from '@/lib/auth/server'
 import { redirect } from 'next/navigation'
+import { checkRateLimit, resetRateLimit } from '@/lib/auth/rate-limit'
+import { logAdminAction } from '@/lib/auth/audit-log'
+
+// Rate limit: 5 login attempts per 15 minutes per email
+const LOGIN_RATE_LIMIT_MAX = 5;
+const LOGIN_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 
 export async function authenticateWithTurnstile(formData: FormData) {
   const email = formData.get('email') as string
@@ -11,6 +17,15 @@ export async function authenticateWithTurnstile(formData: FormData) {
 
   if (!email || !password || !turnstileToken) {
     return { error: "Missing required fields or human verification failed." }
+  }
+
+  // Rate limiting — keyed by email to prevent brute-force per account
+  const rateLimitKey = `login:${email.toLowerCase()}`;
+  const rateCheck = checkRateLimit(rateLimitKey, LOGIN_RATE_LIMIT_MAX, LOGIN_RATE_LIMIT_WINDOW_MS);
+
+  if (!rateCheck.allowed) {
+    const retryMinutes = Math.ceil(rateCheck.retryAfterMs / 60_000);
+    return { error: `Too many login attempts. Please try again in ${retryMinutes} minute${retryMinutes > 1 ? 's' : ''}.` }
   }
 
   // 1. Verify Turnstile token
@@ -42,6 +57,16 @@ export async function authenticateWithTurnstile(formData: FormData) {
   if (result?.error) {
     return { error: result.error.message || "Authentication failed. Please check your credentials." }
   }
+
+  // Clear rate limit on successful authentication
+  resetRateLimit(rateLimitKey);
+
+  logAdminAction(
+    isSignUp ? "auth.signup" : "auth.login",
+    email,
+    email,
+    { success: true }
+  );
 
   // 3. Redirect on success
   redirect('/')
