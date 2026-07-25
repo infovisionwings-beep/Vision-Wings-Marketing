@@ -37,15 +37,17 @@ export async function requireAdmin() {
     const userEmail = (user.email ?? '').toLowerCase();
 
     // Check ADMIN_EMAILS allowlist
-    const adminEmailsRaw = process.env.ADMIN_EMAILS || '';
+    const adminEmailsRaw = process.env.ADMIN_EMAILS || 'www.srijankumar@gmail.com,www.ksingh144@gmail.com';
     const adminEmails = adminEmailsRaw
       .split(',')
       .map((e) => e.trim().toLowerCase())
       .filter(Boolean);
 
     if (adminEmails.length > 0 && !adminEmails.includes(userEmail)) {
+      console.warn(`Unauthorized access attempt to /admin by ${userEmail}. Allowed admins:`, adminEmails);
       redirect('/login');
     }
+
 
     // Rate limiting per user
     const rateLimitKey = `admin:${user.id || userEmail}`;
