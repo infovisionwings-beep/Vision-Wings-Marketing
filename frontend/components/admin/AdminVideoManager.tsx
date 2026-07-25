@@ -20,7 +20,8 @@ interface VideoRecord {
   processedAt: string | null;
 }
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "";
+
 
 export const AdminVideoManager: React.FC = () => {
   const [videos, setVideos] = useState<VideoRecord[]>([]);
