@@ -1,5 +1,10 @@
 "use client";
 
+// Reading this as: Company introduction section for premium design/strategy agency, utilizing bold layout blocking, clean serif-less typography, and high typographic contrast.
+// DESIGN_VARIANCE: 8
+// MOTION_INTENSITY: 6
+// VISUAL_DENSITY: 3
+
 import RevealOnScroll from "@/components/motion/RevealOnScroll";
 
 export default function AboutVision() {
@@ -23,7 +28,6 @@ export default function AboutVision() {
           {/* Text Content & Pillars (Right Column) */}
           <div className="flex flex-col justify-center">
             <RevealOnScroll>
-              <span className="text-h4 text-bronze-900 mb-4 block">OUR VISION</span>
               <h2 className="text-h2 text-navy-950 mb-6">
                 Cutting through the static with strategy and precision.
               </h2>

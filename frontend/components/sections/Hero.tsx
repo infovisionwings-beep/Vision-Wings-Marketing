@@ -1,5 +1,10 @@
 "use client";
 
+// Reading this as: Landing page hero for a premium creative marketing agency, with an editorial design vibe, leaning toward large minimalist display type, restrained scroll triggers, and high-fidelity custom motion components.
+// DESIGN_VARIANCE: 8
+// MOTION_INTENSITY: 6
+// VISUAL_DENSITY: 3
+
 import { useState, useEffect } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import AnimatedLogo from "@/components/motion/AnimatedLogo";
@@ -33,7 +38,7 @@ export default function Hero() {
   const showContent = prefersReducedMotion || skipAnimation || isLogoRevealed;
 
   return (
-    <section className="relative min-h-screen pt-28 pb-20 md:pt-48 flex flex-col justify-center bg-warm-50 overflow-hidden">
+    <section className="relative min-h-[100dvh] pt-20 pb-16 md:pt-24 lg:pt-24 flex flex-col justify-center bg-warm-50 overflow-hidden">
       {/* ── Layered background for depth ── */}
       {/* Radial copper glow behind the logo area */}
       <div 
@@ -97,10 +102,10 @@ export default function Hero() {
               transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             >
               <Link href="/contact" className="w-full sm:w-auto">
-                <Button variant="primary" className="w-full sm:w-auto" data-interactive>Let&apos;s Build Together</Button>
+                <Button variant="primary" className="w-full sm:w-auto whitespace-nowrap" data-interactive>Let&apos;s Build Together</Button>
               </Link>
               <Link href="#vision" className="w-full sm:w-auto">
-                <Button variant="secondary" className="w-full sm:w-auto" data-interactive>Explore Our Vision</Button>
+                <Button variant="secondary" className="w-full sm:w-auto whitespace-nowrap" data-interactive>Explore Our Vision</Button>
               </Link>
             </motion.div>
           </div>
