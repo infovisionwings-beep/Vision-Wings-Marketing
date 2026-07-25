@@ -1,15 +1,23 @@
-import { db } from "@/db"
-import { userProfiles } from "@/db/schema"
-import { desc } from "drizzle-orm"
 import { format } from "date-fns"
 
 export const dynamic = "force-dynamic"
 
 export default async function AdminLeadsPage() {
-  const leads = await db
-    .select()
-    .from(userProfiles)
-    .orderBy(desc(userProfiles.createdAt))
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  let leads = [];
+  try {
+    // Note: We need an endpoint for user-profiles
+    // We added /api/user-profiles for getting by ID in backend. We need to add one for getting all leads.
+    // Assuming backend returns an array of profiles for GET /api/user-profiles
+    const res = await fetch(`${API_URL}/api/user-profiles`, { cache: 'no-store' });
+    if (res.ok) {
+      leads = await res.json();
+      // Sort by descending createdAt
+      leads.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+  } catch (error) {
+    console.error("Failed to fetch leads");
+  }
 
   return (
     <div className="space-y-6">
@@ -41,7 +49,7 @@ export default async function AdminLeadsPage() {
                   </td>
                 </tr>
               ) : (
-                leads.map((lead) => {
+                leads.map((lead: any) => {
                   const address = lead.address as any || {}
                   const isCompany = lead.type === 'company'
                   return (
@@ -75,7 +83,7 @@ export default async function AdminLeadsPage() {
                       </td>
                       <td className="p-4 align-top">
                         <div className="flex flex-wrap gap-1">
-                          {(lead.interests as string[])?.map((interest, idx) => (
+                          {(lead.interests as string[])?.map((interest: string, idx: number) => (
                             <span key={idx} className="bg-warm-100 border border-navy-100 text-navy-700 text-xs px-2 py-1 rounded-sm">
                               {interest}
                             </span>

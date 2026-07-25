@@ -1,8 +1,8 @@
 'use server'
 
-import { db } from '@/db'
-import { userProfiles } from '@/db/schema'
 import { auth } from '@/lib/auth/server'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export async function saveOnboardingProfile(formData: FormData) {
   // 1. Check if user is authenticated
@@ -43,9 +43,9 @@ export async function saveOnboardingProfile(formData: FormData) {
     // Ignore parse error
   }
 
-  // 3. Save to database
+  // 3. Save to backend database
   try {
-    await db.insert(userProfiles).values({
+    const bodyPayload = {
       userId,
       type,
       name,
@@ -55,13 +55,19 @@ export async function saveOnboardingProfile(formData: FormData) {
       employeesCount: type === 'company' ? employeesCount : null,
       interests,
       source,
+    };
+
+    const res = await fetch(`${API_URL}/api/user-profiles`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(bodyPayload)
     });
+
+    if (!res.ok) {
+        throw new Error('Failed to save profile on backend');
+    }
   } catch (error: any) {
     console.error("Failed to save onboarding profile:", error);
-    // If it's a unique constraint violation, they already completed it
-    if (error.code === '23505') {
-      return { success: true };
-    }
     return { error: "An error occurred while saving your profile." };
   }
 

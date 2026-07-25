@@ -1,7 +1,4 @@
 import ProjectForm from "@/components/admin/ProjectForm";
-import { db } from "@/db";
-import { projects } from "@/db/schema";
-import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 
 export default async function EditProjectPage({ params }: { params: { id: string } }) {
@@ -10,8 +7,14 @@ export default async function EditProjectPage({ params }: { params: { id: string
     return notFound();
   }
 
-  const result = await db.select().from(projects).where(eq(projects.id, projectId));
-  const project = result[0];
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const res = await fetch(`${API_URL}/api/projects`, { cache: 'no-store' });
+  if (!res.ok) {
+    return notFound();
+  }
+  
+  const projects = await res.json();
+  const project = projects.find((p: any) => p.id === projectId);
 
   if (!project) {
     return notFound();
