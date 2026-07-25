@@ -1,22 +1,19 @@
-import { format } from "date-fns"
+import { format } from "date-fns";
+import { db } from "@/lib/db";
+import { userProfiles } from "@/lib/db/schema";
+import { desc } from "drizzle-orm";
 
-export const dynamic = "force-dynamic"
+export const dynamic = "force-dynamic";
 
 export default async function AdminLeadsPage() {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-  let leads = [];
+  let leads: any[] = [];
   try {
-    // Note: We need an endpoint for user-profiles
-    // We added /api/user-profiles for getting by ID in backend. We need to add one for getting all leads.
-    // Assuming backend returns an array of profiles for GET /api/user-profiles
-    const res = await fetch(`${API_URL}/api/user-profiles`, { cache: 'no-store' });
-    if (res.ok) {
-      leads = await res.json();
-      // Sort by descending createdAt
-      leads.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    }
+    leads = await db
+      .select()
+      .from(userProfiles)
+      .orderBy(desc(userProfiles.createdAt));
   } catch (error) {
-    console.error("Failed to fetch leads");
+    console.error("Failed to fetch leads from Neon DB:", error);
   }
 
   return (
@@ -50,8 +47,8 @@ export default async function AdminLeadsPage() {
                 </tr>
               ) : (
                 leads.map((lead: any) => {
-                  const address = lead.address as any || {}
-                  const isCompany = lead.type === 'company'
+                  const address = lead.address as any || {};
+                  const isCompany = lead.type === "company";
                   return (
                     <tr key={lead.id} className="hover:bg-warm-50/50 transition-colors">
                       <td className="p-4 align-top">
@@ -77,7 +74,7 @@ export default async function AdminLeadsPage() {
                         <div className="text-navy-500 mt-1 text-xs">
                           {isCompany 
                             ? address.fullAddress 
-                            : `${address.city || ''}, ${address.country || ''}`
+                            : `${address.city || ""}, ${address.country || ""}`
                           }
                         </div>
                       </td>
@@ -94,10 +91,10 @@ export default async function AdminLeadsPage() {
                         {lead.source}
                       </td>
                       <td className="p-4 align-top text-sm text-navy-500">
-                        {lead.createdAt ? format(new Date(lead.createdAt), "MMM d, yyyy") : '-'}
+                        {lead.createdAt ? format(new Date(lead.createdAt), "MMM d, yyyy") : "-"}
                       </td>
                     </tr>
-                  )
+                  );
                 })
               )}
             </tbody>
@@ -105,5 +102,5 @@ export default async function AdminLeadsPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

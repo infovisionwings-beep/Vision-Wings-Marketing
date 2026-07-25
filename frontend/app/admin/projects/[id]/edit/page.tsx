@@ -1,5 +1,8 @@
 import ProjectForm from "@/components/admin/ProjectForm";
 import { notFound } from "next/navigation";
+import { db } from "@/lib/db";
+import { projects } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 
 export default async function EditProjectPage({ params }: { params: { id: string } }) {
   const projectId = parseInt(params.id, 10);
@@ -7,23 +10,27 @@ export default async function EditProjectPage({ params }: { params: { id: string
     return notFound();
   }
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-  const res = await fetch(`${API_URL}/api/projects`, { cache: 'no-store' });
-  if (!res.ok) {
+  try {
+    const list = await db
+      .select()
+      .from(projects)
+      .where(eq(projects.id, projectId))
+      .limit(1);
+
+    const project = list[0];
+
+    if (!project) {
+      return notFound();
+    }
+
+    return (
+      <div>
+        <h1 className="text-h2 text-navy-950 mb-8">Edit Project</h1>
+        <ProjectForm project={project} />
+      </div>
+    );
+  } catch (err) {
+    console.error("Failed to fetch project for editing:", err);
     return notFound();
   }
-  
-  const projects = await res.json();
-  const project = projects.find((p: any) => p.id === projectId);
-
-  if (!project) {
-    return notFound();
-  }
-
-  return (
-    <div>
-      <h1 className="text-h2 text-navy-950 mb-8">Edit Project</h1>
-      <ProjectForm project={project} />
-    </div>
-  );
 }

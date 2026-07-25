@@ -1,79 +1,313 @@
 "use client";
 
+import { useState } from "react";
 import RevealOnScroll from "@/components/motion/RevealOnScroll";
-import { ArrowUpRight } from "lucide-react";
-import { Link } from "@/components/ui/Link";
+import { 
+  Sparkles, 
+  Code, 
+  TrendingUp, 
+  PenTool, 
+  Video, 
+  Camera, 
+  Megaphone, 
+  Check,
+  ChevronRight,
+  Activity,
+  Layers,
+  ArrowRight
+} from "lucide-react";
 
-const services = [
+const serviceCategories = [
   {
-    id: "strategy",
-    title: "Brand Strategy",
-    description: "Positioning, messaging, and market analysis to uncover your unfair advantage.",
+    id: "branding",
+    title: "Branding",
+    icon: Sparkles,
+    description: "Building premium brand identities that command authority and leave a lasting impression in the market.",
+    items: [
+      "Logo Design",
+      "Brand Identity & Visual System",
+      "Comprehensive Brand Guidelines",
+      "Business Card & Stationery Design",
+      "Letterhead & Corporate Templates",
+      "Packaging Design",
+      "Brand Strategy & Positioning",
+      "Naming & Voice Definition",
+      "Custom Color Palette Selection",
+      "Typography System Rules"
+    ],
+    tools: ["Figma", "Adobe Illustrator", "Photoshop", "Brand Guidelines"]
   },
   {
-    id: "identity",
-    title: "Visual Identity",
-    description: "Logos, color systems, typography, and brand guidelines that command authority.",
+    id: "websites",
+    title: "Website Development",
+    icon: Code,
+    description: "High-performance digital experiences and custom web applications engineered for speed, responsiveness, and conversion.",
+    items: [
+      "Custom React & Next.js Websites",
+      "WordPress CMS Implementations",
+      "High-Converting Landing Pages",
+      "E-commerce Storefronts",
+      "Premium Portfolios & Showcases",
+      "Corporate & Business Websites",
+      "Custom Booking Systems",
+      "Responsive & Mobile-First Design",
+      "On-page SEO & Structured Schema",
+      "API Integrations & Payment Gateways"
+    ],
+    tools: ["Next.js", "React", "WordPress", "Tailwind CSS", "Vercel"]
   },
   {
-    id: "digital",
-    title: "Digital Experience",
-    description: "High-performance websites and applications engineered for conversion and delight.",
+    id: "digital-marketing",
+    title: "Digital Marketing",
+    icon: TrendingUp,
+    description: "Data-driven performance campaigns, search optimization, and automated marketing funnels to scale qualified lead generation.",
+    items: [
+      "Social Media Management",
+      "Facebook & Instagram Ads Management",
+      "Google Ads (Search, Display, Shopping)",
+      "Search Engine Optimization (SEO)",
+      "Local SEO & Google Business Profile",
+      "Email Marketing Campaigns & Flows",
+      "WhatsApp Marketing Automation",
+      "Lead Generation Systems",
+      "Advanced Web & Conversion Analytics",
+      "Remarketing & Audience Retargeting",
+      "YouTube & LinkedIn B2B Marketing"
+    ],
+    tools: ["Meta Ads Manager", "Google Ads", "Google Analytics", "Mailchimp"]
   },
   {
-    id: "growth",
-    title: "Growth Marketing",
-    description: "Data-driven campaigns, SEO, and content strategies that scale your revenue.",
+    id: "graphic-design",
+    title: "Graphic Design",
+    icon: PenTool,
+    description: "Stunning marketing collateral and editorial design systems that elevate your offline and online presence.",
+    items: [
+      "Social Media Posts & Creatives",
+      "Posters, Flyers & Brochures",
+      "Sales Catalogues & Pitch Decks",
+      "Banners & Exhibition Standees",
+      "Outdoor Hoardings & Billboard Ads",
+      "Menu Cards & Print Ephemera",
+      "Certificates & Award Layouts",
+      "Corporate Presentations",
+      "Data-Dense Infographics"
+    ],
+    tools: ["Figma", "Adobe Photoshop", "Illustrator", "Indesign", "Canva"]
   },
+  {
+    id: "video-services",
+    title: "Video Services",
+    icon: Video,
+    description: "Cinematic post-production, motion graphics, and engaging vertical content optimized for social platforms and corporate presentations.",
+    items: [
+      "Professional Video Editing",
+      "Motion Graphics & Title Animations",
+      "Instagram Reels & TikTok Content",
+      "YouTube Video Editing",
+      "Corporate Overview Videos",
+      "High-Impact Commercial Ads",
+      "Product Demonstration Videos",
+      "Explainer Videos & Walkthroughs"
+    ],
+    tools: ["Premiere Pro", "After Effects", "Davinci Resolve"]
+  },
+  {
+    id: "photography",
+    title: "Photography",
+    icon: Camera,
+    description: "High-end product, corporate portraiture, and event photography captured using professional-grade gear.",
+    items: [
+      "Product Photography & E-comm Shoots",
+      "Corporate Headshots & Team Portraits",
+      "Event Coverage & Brand Activations",
+      "Food & Restaurant Menu Photography",
+      "Real Estate & Architectural Shoots",
+      "Fashion & Editorial Model Shoots",
+      "Drone / Aerial Photography",
+      "Professional Retouching & Post-processing"
+    ],
+    tools: ["Sony/Canon Bodies", "Studio Lighting", "Adobe Lightroom"]
+  },
+  {
+    id: "traditional-marketing",
+    title: "Traditional Marketing",
+    icon: Megaphone,
+    description: "Tangible brand placements, outdoor activations, and print media designed to capture localized attention and build offline credibility.",
+    items: [
+      "Outdoor Billboard Ads & Banners",
+      "Print Advertisements (Newspapers & Magazines)",
+      "Pamphlets & Direct Mail Flyers",
+      "Radio Ad Placement & Production",
+      "Physical Brand Activation Events",
+      "Exhibition & Trade Show Support"
+    ],
+    tools: ["Print Production", "Media Buying", "Event Management"]
+  }
+];
+
+const industries = [
+  "Retail", "Healthcare", "Education", "Restaurants", "Real Estate", 
+  "Startups", "Corporate", "Manufacturing", "Jewellery", "Fashion", "Automobile"
+];
+
+const strengths = [
+  { title: "Fast Turnaround", desc: "Rapid execution cycles without sacrificing premium visual and structural quality." },
+  { title: "Transparent Pricing", desc: "No hidden line items or surprise fees. What we scope is exactly what you pay." },
+  { title: "Custom Solutions", desc: "We design and build from scratch. No cookie-cutter templates or generic grids." },
+  { title: "Experienced Team", desc: "Partner directly with senior strategists and creatives. No junior hand-offs." },
+  { title: "Dedicated Support", desc: "Direct communication channels for seamless project management and updates." },
+  { title: "In-House Design", desc: "100% of our creative and code output is produced by our core internal studio team." },
+  { title: "End-to-End Execution", desc: "From blank-canvas brand strategy to production code deployment." }
 ];
 
 export default function Services() {
+  const [activeTab, setActiveTab] = useState("branding");
+  const currentCategory = serviceCategories.find((cat) => cat.id === activeTab) || serviceCategories[0];
+  const IconComponent = currentCategory.icon;
+
   return (
     <section id="strategy" className="py-16 md:py-24 lg:py-32 px-5 md:px-10 xl:px-20 bg-navy-950 text-warm-50">
-      <div className="max-w-[1280px] mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 md:mb-16 lg:mb-24 gap-6 md:gap-8">
+      <div className="max-w-[1280px] mx-auto space-y-16 md:space-y-24 lg:space-y-32">
+        
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-8 border-b border-navy-700 pb-12">
           <RevealOnScroll>
-            <span className="text-h4 text-bronze-500 block mb-3 md:mb-4">EXPERTISE</span>
+            <span className="text-h4 text-bronze-500 block mb-3 md:mb-4">WHAT WE ACTUALLY DO</span>
             <h2 className="text-h2 text-warm-50 max-w-2xl">
-              Specialized expertise for complex challenges
+              Concentrated expertise. Absolute transparency.
             </h2>
           </RevealOnScroll>
           <RevealOnScroll delay={0.1}>
             <p className="text-body text-navy-300 max-w-sm">
-              We offer a concentrated suite of services designed to move the needle for ambitious brands.
+              We focus only on services we execute at a master level. No outsourced bulk templates, just high-craft strategy, code, and creative production.
             </p>
           </RevealOnScroll>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-navy-700 border border-navy-700">
-          {services.map((service, index) => (
-            <RevealOnScroll
-              key={service.id}
-              delay={index * 0.1}
-              className="h-full"
-            >
-              <Link
-                href={`#${service.id}`}
-                className="group relative flex flex-col justify-between h-full bg-navy-950 p-6 md:p-8 lg:p-16 hover:bg-navy-900 transition-colors duration-300 min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-bronze-500"
-                aria-label={`Learn more about ${service.title}`}
-              >
-                <div>
-                  <div className="flex justify-between items-start mb-8 md:mb-12">
-                    <span className="text-h4 text-bronze-500">0{index + 1}</span>
-                    <span className="p-3 bg-navy-900 rounded-full group-hover:bg-bronze-500 group-hover:text-warm-50 transition-colors duration-300 text-warm-50 inline-flex items-center justify-center w-11 h-11">
-                      <ArrowUpRight className="w-5 h-5" />
-                    </span>
-                  </div>
-                  <h3 className="text-h3 text-warm-50 mb-4">{service.title}</h3>
-                  <p className="text-body text-navy-300 max-w-md">{service.description}</p>
+        {/* Tabbed Interactive Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+          
+          {/* Tab Navigation */}
+          <div className="lg:col-span-4 flex flex-row lg:flex-col overflow-x-auto lg:overflow-x-visible gap-2 pb-4 lg:pb-0 border-b border-navy-900 lg:border-none scrollbar-none">
+            {serviceCategories.map((cat, index) => {
+              const CatIcon = cat.icon;
+              const isActive = cat.id === activeTab;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveTab(cat.id)}
+                  className={`flex items-center gap-4 px-5 py-4 rounded-xl text-left whitespace-nowrap lg:whitespace-normal transition-all font-medium text-sm lg:text-base border cursor-pointer ${
+                    isActive
+                      ? "bg-bronze-500 border-bronze-500 text-warm-50 shadow-md font-semibold"
+                      : "bg-navy-900 border-navy-900 text-navy-300 hover:text-warm-50 hover:bg-navy-900/60"
+                  }`}
+                  role="tab"
+                  aria-selected={isActive}
+                  aria-controls={`panel-${cat.id}`}
+                  id={`tab-${cat.id}`}
+                >
+                  <CatIcon className="w-5 h-5 flex-shrink-0" />
+                  <span>{cat.title}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Active Tab Panel */}
+          <div 
+            className="lg:col-span-8 bg-navy-900 rounded-2xl p-6 md:p-10 lg:p-12 border border-navy-700 space-y-8"
+            id={`panel-${currentCategory.id}`}
+            role="tabpanel"
+            aria-labelledby={`tab-${currentCategory.id}`}
+          >
+            <div className="flex flex-col md:flex-row justify-between items-start gap-6 border-b border-navy-700 pb-6">
+              <div className="space-y-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-bronze-900/40 text-bronze-300 border border-bronze-700/30 text-xs font-semibold">
+                  <IconComponent className="w-3.5 h-3.5" />
+                  <span>{currentCategory.title} Capabilities</span>
                 </div>
-              </Link>
-            </RevealOnScroll>
-          ))}
+                <h3 className="text-h3 text-warm-50 font-bold">{currentCategory.title}</h3>
+                <p className="text-body text-navy-300 max-w-xl">{currentCategory.description}</p>
+              </div>
+            </div>
+
+            {/* Deliverables List */}
+            <div className="space-y-4">
+              <span className="text-h4 text-bronze-500 block mb-2">Inclusions & Deliverables</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                {currentCategory.items.map((item, idx) => (
+                  <div key={idx} className="flex items-start gap-3 text-body-sm text-warm-100">
+                    <Check className="w-4 h-4 text-bronze-500 mt-1 flex-shrink-0" />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Tools/Platforms */}
+            <div className="pt-6 border-t border-navy-700">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span className="text-xs font-semibold text-navy-300 uppercase tracking-wider mr-2">Key Tools:</span>
+                {currentCategory.tools.map((tool, idx) => (
+                  <span 
+                    key={idx}
+                    className="px-3 py-1 rounded-md bg-navy-950 text-navy-100 text-xs font-mono border border-navy-700/60"
+                  >
+                    {tool}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
+
+        {/* Why Choose Us */}
+        <div className="space-y-10 pt-12 border-t border-navy-700/60">
+          <div>
+            <span className="text-h4 text-bronze-500 block mb-3">WHY CHOOSE US</span>
+            <h3 className="text-h2 text-warm-50">Our Operational Strengths</h3>
+            <p className="text-body text-navy-300 max-w-xl mt-2">
+              Ambitious brands choose us because we replace account director pitches with senior execution.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {strengths.map((s, idx) => (
+              <div 
+                key={idx}
+                className="bg-navy-900/40 border border-navy-900 rounded-xl p-6 hover:border-bronze-500/30 transition-all duration-300 space-y-2.5"
+              >
+                <div className="w-8 h-8 rounded-full bg-bronze-900/30 text-bronze-400 flex items-center justify-center font-bold text-sm">
+                  {idx + 1}
+                </div>
+                <h4 className="text-base font-bold text-warm-50">{s.title}</h4>
+                <p className="text-xs leading-relaxed text-navy-300">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Industries Served */}
+        <div className="space-y-8 pt-12 border-t border-navy-700/60">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <span className="text-h4 text-bronze-500 block mb-2">INDUSTRIES WE SERVE</span>
+              <h3 className="text-h3 text-warm-50 font-bold">Proven Experience Across Sectors</h3>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2.5">
+            {industries.map((ind, idx) => (
+              <span 
+                key={idx}
+                className="px-4.5 py-2.5 rounded-full bg-navy-900 text-warm-100 text-sm font-medium border border-navy-700 hover:border-bronze-500 transition-colors"
+              >
+                {ind}
+              </span>
+            ))}
+          </div>
+        </div>
+
       </div>
     </section>
   );
 }
-
-

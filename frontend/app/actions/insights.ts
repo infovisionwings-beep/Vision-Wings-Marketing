@@ -3,68 +3,108 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth/rbac";
 import { logAdminAction } from "@/lib/auth/audit-log";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+import { db } from "@/lib/db";
+import { insights } from "@/lib/db/schema";
+import { eq, desc } from "drizzle-orm";
 
 export async function getInsights() {
   try {
-    const res = await fetch(`${API_URL}/api/insights`, { cache: 'no-store' });
-    if (!res.ok) return [];
-    return await res.json();
+    return await db
+      .select()
+      .from(insights)
+      .orderBy(desc(insights.createdAt));
   } catch (err) {
-    console.error("Failed to fetch insights:", err);
+    console.error("Failed to fetch insights from Neon DB:", err);
     return [];
   }
 }
 
-
 export async function getInsightBySlug(slug: string) {
-  const insights = await getInsights();
-  return insights.find((i: any) => i.slug === slug);
+  try {
+    const list = await db
+      .select()
+      .from(insights)
+      .where(eq(insights.slug, slug))
+      .limit(1);
+    return list[0] || null;
+  } catch (err) {
+    console.error(`Failed to fetch insight by slug (${slug}):`, err);
+    return null;
+  }
 }
 
 export async function createInsight(data: any) {
   const user = await requireAdmin();
-  
-  const res = await fetch(`${API_URL}/api/insights`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  });
-  
-  if (!res.ok) throw new Error('Failed to create insight');
-  
-  logAdminAction("insight.create", user.id ?? "unknown", user.email ?? "unknown", { slug: data.slug, title: data.title });
+
+  const [inserted] = await db
+    .insert(insights)
+    .values({
+      title: data.title,
+      slug: data.slug,
+      category: data.category,
+      coverImage: data.coverImage || "",
+      content: data.content || "",
+      isPublished: data.isPublished ?? false,
+      publishedAt: data.isPublished ? new Date() : null,
+    })
+    .returning();
+
+  logAdminAction(
+    "insight.create", 
+    user.id ?? "unknown", 
+    user.email ?? "unknown", 
+    { slug: data.slug, title: data.title }
+  );
+
   revalidatePath("/");
   revalidatePath("/admin/insights");
+  return inserted;
 }
 
 export async function updateInsight(id: number, data: any) {
   const user = await requireAdmin();
-  
-  const res = await fetch(`${API_URL}/api/insights/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  });
-  
-  if (!res.ok) throw new Error('Failed to update insight');
-  
-  logAdminAction("insight.update", user.id ?? "unknown", user.email ?? "unknown", { insightId: id });
+
+  const [updated] = await db
+    .update(insights)
+    .set({
+      title: data.title,
+      slug: data.slug,
+      category: data.category,
+      coverImage: data.coverImage,
+      content: data.content,
+      isPublished: data.isPublished,
+      publishedAt: data.isPublished ? new Date() : null,
+      updatedAt: new Date(),
+    })
+    .where(eq(insights.id, id))
+    .returning();
+
+  logAdminAction(
+    "insight.update", 
+    user.id ?? "unknown", 
+    user.email ?? "unknown", 
+    { insightId: id }
+  );
+
   revalidatePath("/");
   revalidatePath("/admin/insights");
+  return updated;
 }
 
 export async function deleteInsight(id: number) {
   const user = await requireAdmin();
-  
-  const res = await fetch(`${API_URL}/api/insights/${id}`, {
-    method: 'DELETE'
-  });
-  
-  if (!res.ok) throw new Error('Failed to delete insight');
-  
-  logAdminAction("insight.delete", user.id ?? "unknown", user.email ?? "unknown", { insightId: id });
+
+  await db
+    .delete(insights)
+    .where(eq(insights.id, id));
+
+  logAdminAction(
+    "insight.delete", 
+    user.id ?? "unknown", 
+    user.email ?? "unknown", 
+    { insightId: id }
+  );
+
   revalidatePath("/");
   revalidatePath("/admin/insights");
 }

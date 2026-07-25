@@ -9,11 +9,11 @@ interface InsightItem {
   title: string;
   slug: string;
   category: string;
-  coverImage?: string;
+  coverImage?: string | null;
   content: string;
-  isPublished?: boolean;
-  publishedAt?: string;
-  createdAt?: string;
+  isPublished?: boolean | null;
+  publishedAt?: string | Date | null;
+  createdAt?: string | Date | null;
 }
 
 export const AdminInsightsManager: React.FC = () => {
