@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Upload, Film, Trash2, CheckCircle2, AlertCircle, Loader2, RefreshCw } from "lucide-react";
+import { upload } from "@vercel/blob/client";
 import { LazyVideoPlayer } from "../video/LazyVideoPlayer";
 
 interface VideoRecord {
@@ -21,7 +22,6 @@ interface VideoRecord {
 }
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "";
-
 
 export const AdminVideoManager: React.FC = () => {
   const [videos, setVideos] = useState<VideoRecord[]>([]);
@@ -63,7 +63,7 @@ export const AdminVideoManager: React.FC = () => {
     }
   };
 
-  const uploadFile = (file: File) => {
+  const uploadFile = async (file: File) => {
     // Client-side validation
     const allowedTypes = ["video/mp4", "video/quicktime", "video/webm"];
     const ext = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
@@ -83,44 +83,27 @@ export const AdminVideoManager: React.FC = () => {
     setIsUploading(true);
     setUploadProgress(0);
 
-    const formData = new FormData();
-    formData.append("video", file);
-    formData.append("userId", "admin");
+    try {
+      await upload(file.name, file, {
+        access: "public",
+        handleUploadUrl: "/api/videos/upload",
+        onUploadProgress: (progress) => {
+          setUploadProgress(progress.percentage);
+        },
+      });
 
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", `${BACKEND_URL}/api/videos`);
-
-    xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable) {
-        const percent = Math.round((event.loaded / event.total) * 100);
-        setUploadProgress(percent);
-      }
-    };
-
-    xhr.onload = () => {
       setIsUploading(false);
       setUploadProgress(null);
-      if (xhr.status >= 200 && xhr.status < 300) {
-        fetchVideos();
-        if (fileInputRef.current) fileInputRef.current.value = "";
-      } else {
-        try {
-          const errData = JSON.parse(xhr.responseText);
-          setUploadError(errData.error || "Upload failed.");
-        } catch {
-          setUploadError("Upload failed with status code " + xhr.status);
-        }
-      }
-    };
-
-    xhr.onerror = () => {
+      fetchVideos();
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    } catch (err: any) {
+      console.error("Vercel Blob direct upload error:", err);
       setIsUploading(false);
       setUploadProgress(null);
-      setUploadError("Network error occurred during video upload.");
-    };
-
-    xhr.send(formData);
+      setUploadError(err.message || "Failed to upload video.");
+    }
   };
+
 
   // Delete Video
   const handleDelete = async (id: string) => {
