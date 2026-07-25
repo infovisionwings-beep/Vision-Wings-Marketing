@@ -18,12 +18,12 @@ export default function Button({
   disabled,
   ...props
 }: ButtonProps) {
-  const baseClasses = "relative inline-flex items-center justify-center font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-950 focus-visible:ring-offset-2 transition-colors duration-200 text-body";
+  const baseClasses = "relative inline-flex items-center justify-center font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-950 focus-visible:ring-offset-2 transition-all duration-200 text-body active:scale-[0.98] active:-translate-y-[1px]";
   
   const variantClasses = {
-    primary: "bg-bronze-500 text-warm-50 rounded-sm hover:bg-bronze-700 active:bg-bronze-900 px-8 py-4",
-    secondary: "bg-transparent text-navy-950 border border-navy-950 rounded-sm hover:bg-bronze-700 hover:text-warm-50 hover:border-bronze-700 active:bg-bronze-900 px-8 py-4",
-    ghost: "bg-transparent text-navy-950 rounded-sm hover:bg-navy-100 active:bg-navy-300 px-2 py-1",
+    primary: "bg-bronze-500 text-warm-50 rounded-lg hover:bg-bronze-600 active:bg-bronze-700 px-8 py-4 shadow-sm hover:shadow-md",
+    secondary: "bg-white/80 text-navy-950 border border-navy-200 rounded-lg hover:bg-navy-950 hover:text-warm-50 hover:border-navy-950 active:bg-navy-900 px-8 py-4 shadow-sm",
+    ghost: "bg-transparent text-navy-950 rounded-lg hover:bg-navy-100/80 active:bg-navy-200 px-3 py-2",
   };
 
   return (
