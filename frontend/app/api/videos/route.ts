@@ -3,7 +3,7 @@ import { put } from '@vercel/blob';
 import { v4 as uuidv4 } from 'uuid';
 import { db } from '@/lib/db';
 import { videos } from '@/lib/db/schema';
-import { desc } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import { enqueueVideoJob } from '@/lib/queue';
 
 export const dynamic = 'force-dynamic';
@@ -23,63 +23,75 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const formData = await req.formData();
-    const file = formData.get('video') as File | null;
-    const userId = (formData.get('userId') as string) || 'admin';
+    const contentType = req.headers.get('content-type') || '';
+    let inputUrl = '';
+    let originalFileName = 'video.mp4';
+    let originalSize = 0;
+    let userId = 'admin';
 
-    if (!file) {
-      return NextResponse.json({ error: 'No video file provided' }, { status: 400 });
+    if (contentType.includes('application/json')) {
+      const body = await req.json();
+      inputUrl = body.inputUrl;
+      originalFileName = body.originalFileName || 'video.mp4';
+      originalSize = body.originalSize || 0;
+      userId = body.userId || 'admin';
+    } else {
+      const formData = await req.formData();
+      const file = formData.get('video') as File | null;
+      userId = (formData.get('userId') as string) || 'admin';
+
+      if (!file) {
+        return NextResponse.json({ error: 'No video file provided' }, { status: 400 });
+      }
+
+      const videoIdTemp = uuidv4();
+      const ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase() || '.mp4';
+      const blobPath = `videos/${userId}/${videoIdTemp}/original${ext}`;
+
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      const blob = await put(blobPath, buffer, {
+        access: 'public',
+        contentType: file.type || 'video/mp4',
+        token: process.env.BLOB_READ_WRITE_TOKEN,
+      });
+
+      inputUrl = blob.url;
+      originalFileName = file.name;
+      originalSize = file.size;
     }
 
-    const allowedExtensions = ['.mp4', '.mov', '.webm'];
-    const ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase() || '.mp4';
-    if (!allowedExtensions.includes(ext) && !file.type.startsWith('video/')) {
-      return NextResponse.json(
-        { error: 'Invalid file type. Allowed formats: .mp4, .mov, .webm' },
-        { status: 400 }
-      );
-    }
-
-    if (file.size > 100 * 1024 * 1024) {
-      return NextResponse.json({ error: 'File size exceeds 100MB limit' }, { status: 400 });
+    if (!inputUrl) {
+      return NextResponse.json({ error: 'Invalid inputUrl for video' }, { status: 400 });
     }
 
     const videoId = uuidv4();
-    const blobPath = `videos/${userId}/${videoId}/original${ext}`;
 
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    // Upload to Vercel Blob
-    const blob = await put(blobPath, buffer, {
-      access: 'public',
-      contentType: file.type || 'video/mp4',
-      token: process.env.BLOB_READ_WRITE_TOKEN,
-    });
-
-    // Create DB record
+    // Insert record with mp4Path = inputUrl so original video can be played immediately!
     const [insertedVideo] = await db
       .insert(videos)
       .values({
         id: videoId,
         userId,
-        originalFileName: file.name,
-        originalSize: file.size,
-        status: 'uploaded',
-        inputPath: blob.url,
+        originalFileName,
+        originalSize,
+        status: 'queued',
+        inputPath: inputUrl,
+        mp4Path: inputUrl, // Playable immediately using original uploaded video URL
       })
       .returning();
 
-    // Enqueue processing job to Upstash Redis
+    // Dispatch background transcoding task to Upstash Redis
     try {
       await enqueueVideoJob({
         videoId,
         userId,
-        inputUrl: blob.url,
-        originalFileName: file.name,
+        inputUrl,
+        originalFileName,
       });
     } catch (err) {
-      console.warn('Job dispatch warning:', err);
+      console.warn('Queue dispatch warning:', err);
     }
 
     return NextResponse.json(
