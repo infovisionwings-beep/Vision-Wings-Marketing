@@ -29,6 +29,10 @@ export default function Navbar({ user }: { user: any }) {
     }
   });
 
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
+
   const isActive = (path: string, hash: string) => {
     // If it's a hash link on the homepage
     if (path === "/") {

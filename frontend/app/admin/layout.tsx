@@ -19,12 +19,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         
         {/* Brand Header */}
         <div className="p-6 border-b border-navy-800/80 flex items-center justify-between">
-          <Link href="/admin" className="flex items-center gap-2.5 group" data-interactive>
-            <div className="w-8 h-8 rounded-lg bg-navy-900 border border-navy-700 flex items-center justify-center group-hover:border-bronze-500 transition-colors">
-              <Eye className="w-4 h-4 text-bronze-400 group-hover:scale-110 transition-transform" />
+          <Link href="/admin" className="flex items-center gap-3.5 group" data-interactive>
+            <div className="px-2.5 py-2 rounded-xl bg-navy-900 border border-navy-700 flex flex-col items-center justify-center group-hover:border-bronze-500 transition-all shadow-inner">
+              <img src="/logo-svg/Dark%20BG%20ICON.svg" alt="VW Icon" className="h-6 w-auto group-hover:scale-105 transition-transform" />
+              <span className="text-[8px] font-mono font-black tracking-widest text-bronze-400 mt-1 leading-none uppercase">
+                ADMIN
+              </span>
             </div>
             <div className="flex flex-col">
-              <span className="font-display font-bold text-base leading-none tracking-tight text-warm-50">Vision Wings</span>
+              <span className="font-display font-bold text-lg leading-none tracking-tight text-warm-50">Vision Wings</span>
               <span className="text-[10px] font-mono uppercase tracking-widest text-bronze-500 mt-1">Mission Control</span>
             </div>
           </Link>
