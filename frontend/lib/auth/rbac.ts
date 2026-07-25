@@ -26,35 +26,42 @@ const ADMIN_RATE_LIMIT_WINDOW_MS = 60_000;
  * @returns The authenticated user object.
  */
 export async function requireAdmin() {
-  const sessionRes = await auth.getSession();
+  try {
+    const sessionRes = await auth.getSession();
 
-  if (!sessionRes.data?.user) {
+    if (!sessionRes?.data?.user) {
+      redirect('/login');
+    }
+
+    const user = sessionRes.data.user;
+    const userEmail = (user.email ?? '').toLowerCase();
+
+    // Check ADMIN_EMAILS allowlist
+    const adminEmailsRaw = process.env.ADMIN_EMAILS || '';
+    const adminEmails = adminEmailsRaw
+      .split(',')
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+
+    if (adminEmails.length > 0 && !adminEmails.includes(userEmail)) {
+      redirect('/login');
+    }
+
+    // Rate limiting per user
+    const rateLimitKey = `admin:${user.id || userEmail}`;
+    const result = checkRateLimit(rateLimitKey, ADMIN_RATE_LIMIT_MAX, ADMIN_RATE_LIMIT_WINDOW_MS);
+
+    if (!result.allowed) {
+      redirect('/login');
+    }
+
+    return user;
+  } catch (err: any) {
+    if (err?.digest?.startsWith('NEXT_REDIRECT') || err?.message === 'NEXT_REDIRECT') {
+      throw err;
+    }
+    console.error('requireAdmin authentication check failed:', err);
     redirect('/login');
   }
-
-  const user = sessionRes.data.user;
-  const userEmail = (user.email ?? '').toLowerCase();
-
-  // Check ADMIN_EMAILS allowlist
-  const adminEmailsRaw = process.env.ADMIN_EMAILS || '';
-  const adminEmails = adminEmailsRaw
-    .split(',')
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean);
-
-  if (adminEmails.length > 0 && !adminEmails.includes(userEmail)) {
-    throw new Error('Unauthorized: Admin access required.');
-  }
-
-  // Rate limiting per user
-  const rateLimitKey = `admin:${user.id || userEmail}`;
-  const result = checkRateLimit(rateLimitKey, ADMIN_RATE_LIMIT_MAX, ADMIN_RATE_LIMIT_WINDOW_MS);
-
-  if (!result.allowed) {
-    throw new Error(
-      `Rate limited. Too many requests. Please retry after ${Math.ceil(result.retryAfterMs / 1000)} seconds.`
-    );
-  }
-
-  return user;
 }
+

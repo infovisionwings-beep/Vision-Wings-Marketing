@@ -7,10 +7,16 @@ import { logAdminAction } from "@/lib/auth/audit-log";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export async function getInsights() {
-  const res = await fetch(`${API_URL}/api/insights`, { cache: 'no-store' });
-  if (!res.ok) throw new Error('Failed to fetch insights');
-  return res.json();
+  try {
+    const res = await fetch(`${API_URL}/api/insights`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (err) {
+    console.error("Failed to fetch insights:", err);
+    return [];
+  }
 }
+
 
 export async function getInsightBySlug(slug: string) {
   const insights = await getInsights();
