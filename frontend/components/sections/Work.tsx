@@ -1,5 +1,10 @@
 "use client";
 
+// Reading this as: Portfolio case study showcase for an editorial agency, featuring large typographic contrast, interactive project cards, and clean visual structure.
+// DESIGN_VARIANCE: 8
+// MOTION_INTENSITY: 6
+// VISUAL_DENSITY: 3
+
 import { useEffect, useState } from "react";
 import RevealOnScroll from "@/components/motion/RevealOnScroll";
 import Button from "@/components/ui/Button";
@@ -55,7 +60,6 @@ export default function Work() {
     <section id="work" className="py-16 md:py-24 lg:py-32 px-5 md:px-10 xl:px-20 bg-warm-50">
       <div className="max-w-[1280px] mx-auto">
         <RevealOnScroll className="flex flex-col items-start text-left mb-12 md:mb-16 lg:mb-24 max-w-3xl">
-          <span className="text-h4 text-bronze-900 mb-3 block">FEATURED WORK</span>
           <h2 className="text-h2 text-navy-950 mb-4 md:mb-6">
             Selected Projects
           </h2>

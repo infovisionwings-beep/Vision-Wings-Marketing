@@ -1,5 +1,10 @@
 "use client";
 
+// Reading this as: Editorial perspectives and knowledge-sharing section for a strategic branding agency, using high-contrast minimal list design.
+// DESIGN_VARIANCE: 8
+// MOTION_INTENSITY: 6
+// VISUAL_DENSITY: 3
+
 import { useEffect, useState } from "react";
 import RevealOnScroll from "@/components/motion/RevealOnScroll";
 import { Link } from "@/components/ui/Link";
@@ -62,7 +67,6 @@ export default function Insights() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8">
           <RevealOnScroll>
             <div className="flex flex-col gap-4">
-              <span className="text-h4 text-bronze-900">INSIGHTS</span>
               <h2 className="text-h2 text-navy-950">
                 Thinking & Perspectives
               </h2>

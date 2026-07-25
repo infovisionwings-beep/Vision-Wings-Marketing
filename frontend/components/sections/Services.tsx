@@ -1,5 +1,10 @@
 "use client";
 
+// Reading this as: Core capabilities and offerings section for a high-end branding agency, using interactive tabs and bento detail panels with restrained typography and clear information hierarchy.
+// DESIGN_VARIANCE: 8
+// MOTION_INTENSITY: 6
+// VISUAL_DENSITY: 4
+
 import { useState } from "react";
 import RevealOnScroll from "@/components/motion/RevealOnScroll";
 import { 
@@ -233,7 +238,7 @@ export default function Services() {
 
             {/* Deliverables List */}
             <div className="space-y-4">
-              <span className="text-h4 text-bronze-500 block mb-2">Inclusions & Deliverables</span>
+              <h4 className="text-base font-bold text-warm-50 mb-3">Inclusions & Deliverables</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                 {currentCategory.items.map((item, idx) => (
                   <div key={idx} className="flex items-start gap-3 text-body-sm text-warm-100">
@@ -264,7 +269,6 @@ export default function Services() {
         {/* Why Choose Us */}
         <div className="space-y-10 pt-12 border-t border-navy-700/60">
           <div>
-            <span className="text-h4 text-bronze-500 block mb-3">WHY CHOOSE US</span>
             <h3 className="text-h2 text-warm-50">Our Operational Strengths</h3>
             <p className="text-body text-navy-300 max-w-xl mt-2">
               Ambitious brands choose us because we replace account director pitches with senior execution.
@@ -291,7 +295,6 @@ export default function Services() {
         <div className="space-y-8 pt-12 border-t border-navy-700/60">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <span className="text-h4 text-bronze-500 block mb-2">INDUSTRIES WE SERVE</span>
               <h3 className="text-h3 text-warm-50 font-bold">Proven Experience Across Sectors</h3>
             </div>
           </div>
