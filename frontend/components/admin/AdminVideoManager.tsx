@@ -84,12 +84,24 @@ export const AdminVideoManager: React.FC = () => {
     setUploadProgress(0);
 
     try {
-      await upload(file.name, file, {
+      const newBlob = await upload(file.name, file, {
         access: "public",
         handleUploadUrl: "/api/videos/upload",
         onUploadProgress: (progress) => {
           setUploadProgress(progress.percentage);
         },
+      });
+
+      // Register video in DB and queue job
+      await fetch(`${BACKEND_URL}/api/videos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          inputUrl: newBlob.url,
+          originalFileName: file.name,
+          originalSize: file.size,
+          userId: "admin",
+        }),
       });
 
       setIsUploading(false);
@@ -229,7 +241,7 @@ export const AdminVideoManager: React.FC = () => {
                     )}
 
                     {(v.status === "processing" || v.status === "queued" || v.status === "uploaded") && (
-                      <span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold flex items-center gap-1.5 animate-pulse">
+                      <span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold flex items-center gap-1.5">
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
                         {v.status === "processing" ? "Transcoding..." : "Queued"}
                       </span>
@@ -237,33 +249,20 @@ export const AdminVideoManager: React.FC = () => {
 
                     {v.status === "failed" && (
                       <span className="px-2.5 py-1 rounded-full bg-red-50 text-red-700 border border-red-200 text-xs font-bold flex items-center gap-1.5">
-                        <AlertCircle className="w-3.5 h-3.5" /> Failed
+                        <AlertCircle className="w-3.5 h-3.5" /> Transcode Failed
                       </span>
                     )}
                   </div>
 
-                  {/* Player or Processing View */}
-                  {v.status === "completed" ? (
-                    <LazyVideoPlayer
-                      webmUrl={v.webmPath}
-                      mp4Url={v.mp4Path}
-                      posterUrl={v.thumbnailPath}
-                      title={v.originalFileName}
-                    />
-                  ) : v.status === "failed" ? (
-                    <div className="aspect-video bg-red-50/50 rounded-xl border border-red-100 flex flex-col items-center justify-center p-6 text-center text-red-600">
-                      <AlertCircle className="w-10 h-10 mb-2 stroke-[1.5]" />
-                      <p className="text-sm font-semibold mb-1">Processing Failed</p>
-                      <p className="text-xs text-red-500 max-w-xs">{v.errorMessage || "Unknown transcoding error."}</p>
-                    </div>
-                  ) : (
-                    <div className="aspect-video bg-navy-900 rounded-xl flex flex-col items-center justify-center p-6 text-center text-warm-50">
-                      <Loader2 className="w-10 h-10 mb-3 animate-spin text-bronze-400" />
-                      <p className="text-sm font-semibold">Transcoding in progress...</p>
-                      <p className="text-xs text-navy-400 mt-1">Generating WebM & MP4 renditions + thumbnail</p>
-                    </div>
-                  )}
+                  {/* Player View */}
+                  <LazyVideoPlayer
+                    webmUrl={v.webmPath}
+                    mp4Url={v.mp4Path || v.inputPath}
+                    posterUrl={v.thumbnailPath}
+                    title={v.originalFileName}
+                  />
                 </div>
+
 
                 {/* Footer details & Actions */}
                 <div className="pt-3 border-t border-navy-100 flex items-center justify-between text-xs text-navy-500">
