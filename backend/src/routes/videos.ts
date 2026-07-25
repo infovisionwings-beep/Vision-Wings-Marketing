@@ -1,0 +1,204 @@
+import { Router, Request, Response } from 'express';
+import multer from 'multer';
+import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
+import { db } from '../db';
+import { videos } from '../db/schema';
+import { eq, desc } from 'drizzle-orm';
+import { StorageService } from '../storage';
+import { enqueueVideoJob } from '../queue';
+import { config } from '../config';
+
+const router = Router();
+
+// Multer memory storage configuration (holds file in buffer for streaming upload to Vercel Blob)
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: config.video.maxSizeBytes,
+  },
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (config.video.allowedExtensions.includes(ext) || config.video.allowedMimetypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error(`Invalid file type. Allowed formats: ${config.video.allowedExtensions.join(', ')}`));
+    }
+  },
+});
+
+/**
+ * POST /api/videos
+ * Upload original MP4 video to Vercel Blob, create DB record, and enqueue processing job.
+ */
+router.post('/', upload.single('video'), async (req: Request, res: Response) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No video file provided' });
+    }
+
+    const userId = (req.body.userId as string) || 'admin';
+    const videoId = uuidv4();
+    const originalFileName = req.file.originalname;
+    const ext = path.extname(originalFileName) || '.mp4';
+    
+    // Key format: videos/{userId}/{videoId}/original.<ext>
+    const blobPath = `videos/${userId}/${videoId}/original${ext}`;
+
+    // Upload original file to Vercel Blob
+    const inputUrl = await StorageService.uploadBlob(
+      blobPath,
+      req.file.buffer,
+      req.file.mimetype || 'video/mp4'
+    );
+
+    // Create DB Record
+    const [insertedVideo] = await db
+      .insert(videos)
+      .values({
+        id: videoId,
+        userId,
+        originalFileName,
+        originalSize: req.file.size,
+        status: 'uploaded',
+        inputPath: inputUrl,
+      })
+      .returning();
+
+    // Enqueue background processing job
+    try {
+      await enqueueVideoJob({
+        videoId,
+        userId,
+        inputUrl,
+        originalFileName,
+      });
+
+      // Update status to queued
+      await db
+        .update(videos)
+        .set({ status: 'queued' })
+        .where(eq(videos.id, videoId));
+      
+      insertedVideo.status = 'queued';
+    } catch (queueErr) {
+      console.error('Queue dispatch failed, job queued status pending worker poll:', queueErr);
+    }
+
+    res.status(201).json({
+      success: true,
+      video: insertedVideo,
+    });
+  } catch (error: any) {
+    console.error('Video upload endpoint error:', error);
+    res.status(500).json({
+      error: error.message || 'Failed to upload video',
+    });
+  }
+});
+
+/**
+ * GET /api/videos
+ * List all uploaded videos
+ */
+router.get('/', async (req: Request, res: Response) => {
+  try {
+    const videoList = await db
+      .select()
+      .from(videos)
+      .orderBy(desc(videos.createdAt));
+    res.json(videoList);
+  } catch (error) {
+    console.error('Failed to fetch videos:', error);
+    res.status(500).json({ error: 'Failed to fetch videos' });
+  }
+});
+
+/**
+ * GET /api/videos/:id/status
+ * Lightweight polling endpoint for video status
+ */
+router.get('/:id/status', async (req: Request, res: Response) => {
+  try {
+    const videoId = String(req.params.id);
+    const result = await db
+      .select({
+        id: videos.id,
+        status: videos.status,
+        errorMessage: videos.errorMessage,
+        durationSeconds: videos.durationSeconds,
+        processedAt: videos.processedAt,
+      })
+      .from(videos)
+      .where(eq(videos.id, videoId));
+
+    if (result.length === 0) {
+      return res.status(404).json({ error: 'Video not found' });
+    }
+
+    res.json(result[0]);
+  } catch (error) {
+    console.error('Failed to fetch video status:', error);
+    res.status(500).json({ error: 'Failed to fetch video status' });
+  }
+});
+
+/**
+ * GET /api/videos/:id
+ * Full metadata for a video (including WebM URL, MP4 URL, thumbnail URL)
+ */
+router.get('/:id', async (req: Request, res: Response) => {
+  try {
+    const videoId = String(req.params.id);
+    const result = await db
+      .select()
+      .from(videos)
+      .where(eq(videos.id, videoId));
+
+    if (result.length === 0) {
+      return res.status(404).json({ error: 'Video not found' });
+    }
+
+    res.json(result[0]);
+  } catch (error) {
+    console.error('Failed to fetch video metadata:', error);
+    res.status(500).json({ error: 'Failed to fetch video details' });
+  }
+});
+
+/**
+ * DELETE /api/videos/:id
+ * Delete video metadata and associated Vercel Blob assets
+ */
+router.delete('/:id', async (req: Request, res: Response) => {
+  try {
+    const videoId = String(req.params.id);
+    const result = await db
+      .select()
+      .from(videos)
+      .where(eq(videos.id, videoId));
+
+    if (result.length === 0) {
+      return res.status(404).json({ error: 'Video not found' });
+    }
+
+    const video = result[0];
+
+    // Clean up Vercel Blobs asynchronously
+    if (video.inputPath) StorageService.deleteBlob(video.inputPath);
+    if (video.webmPath) StorageService.deleteBlob(video.webmPath);
+    if (video.mp4Path) StorageService.deleteBlob(video.mp4Path);
+    if (video.thumbnailPath) StorageService.deleteBlob(video.thumbnailPath);
+
+    // Delete DB record
+    await db.delete(videos).where(eq(videos.id, videoId));
+
+    res.json({ success: true, message: 'Video deleted successfully' });
+  } catch (error) {
+    console.error('Failed to delete video:', error);
+    res.status(500).json({ error: 'Failed to delete video' });
+  }
+});
+
+
+export default router;

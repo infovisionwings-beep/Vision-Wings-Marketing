@@ -14,12 +14,20 @@
   "dependencies": {
     "@neondatabase/auth": "^0.4.2-beta",
     "@neondatabase/serverless": "^0.10.4",
+    "@types/multer": "^2.2.0",
+    "@types/uuid": "^10.0.0",
+    "@upstash/redis": "^1.38.0",
+    "@vercel/blob": "^2.6.1",
+    "bullmq": "^5.81.2",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "express": "^5.2.1",
+    "ioredis": "^5.11.1",
+    "multer": "^2.2.0",
     "pg": "^8.22.0",
-    "postgres": "^3.4.9"
+    "postgres": "^3.4.9",
+    "uuid": "^14.0.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

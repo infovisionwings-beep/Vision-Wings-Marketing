@@ -1,5 +1,5 @@
 import { Link } from "@/components/ui/Link";
-import { Eye, Briefcase, FileText, LogOut, User } from "lucide-react";
+import { Eye, Briefcase, FileText, LogOut, User, Video } from "lucide-react";
 import { requireAdmin } from "@/lib/auth/rbac";
 
 export const dynamic = "force-dynamic";
@@ -27,11 +27,16 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <FileText className="w-5 h-5 text-bronze-500" />
             <span className="font-medium">Insights</span>
           </Link>
+          <Link href="/admin/videos" className="flex items-center gap-3 p-3 rounded-sm hover:bg-navy-900 transition-colors">
+            <Video className="w-5 h-5 text-bronze-500" />
+            <span className="font-medium">Videos</span>
+          </Link>
           <Link href="/admin/leads" className="flex items-center gap-3 p-3 rounded-sm hover:bg-navy-900 transition-colors">
             <User className="w-5 h-5 text-bronze-500" />
             <span className="font-medium">Leads</span>
           </Link>
         </nav>
+
         
         <div className="p-4 border-t border-navy-700">
           <button className="flex items-center gap-3 p-3 rounded-sm hover:bg-navy-900 transition-colors w-full text-left text-navy-300 hover:text-warm-50">

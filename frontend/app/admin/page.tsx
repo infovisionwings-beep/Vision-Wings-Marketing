@@ -12,7 +12,7 @@ export default async function AdminDashboard() {
       <div>
         <h1 className="text-h2 text-navy-950 mb-8">Dashboard Overview</h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="bg-white p-8 rounded-sm shadow-sm border border-navy-100">
             <h2 className="text-h4 text-navy-900 mb-2">Projects</h2>
             <p className="text-display text-bronze-500 mb-6">{projects.length}</p>
@@ -28,8 +28,17 @@ export default async function AdminDashboard() {
               Manage Insights <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
+
+          <div className="bg-white p-8 rounded-sm shadow-sm border border-navy-100">
+            <h2 className="text-h4 text-navy-900 mb-2">Video Pipeline</h2>
+            <p className="text-display text-bronze-500 mb-6">Cloud</p>
+            <Link href="/admin/videos" className="text-navy-700 hover:text-bronze-500 font-medium flex items-center gap-2 transition-colors">
+              Manage Videos <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
       </div>
+
     );
   } catch (e: any) {
     console.log("=== EXACT DB ERROR ===");

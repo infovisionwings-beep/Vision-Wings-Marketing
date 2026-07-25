@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { db } from './db';
 import { projects, insights, userProfiles } from './db/schema';
 import { eq } from 'drizzle-orm';
+import videoRoutes from './routes/videos';
 
 dotenv.config();
 
@@ -18,10 +19,14 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Video Processing API
+app.use('/api/videos', videoRoutes);
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
 });
+
 
 // Projects API
 app.get('/api/projects', async (req, res) => {

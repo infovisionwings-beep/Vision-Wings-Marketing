@@ -1,0 +1,24 @@
+FROM node:20-alpine
+
+# Install FFmpeg and FFprobe dependencies
+RUN apk add --no-cache ffmpeg
+
+WORKDIR /app
+
+# Copy dependency definitions
+COPY package*.json ./
+
+# Install production dependencies
+RUN npm ci --only=production
+
+# Copy application source code
+COPY . .
+
+# Build TypeScript code
+RUN npm run build
+
+# Run container as non-root user
+USER node
+
+# Start background worker
+CMD ["node", "dist/worker.js"]
