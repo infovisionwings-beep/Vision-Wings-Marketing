@@ -2,22 +2,32 @@
 
 import { useState, useTransition } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, ArrowLeft, Briefcase, User, Check } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Briefcase, User, Check, Sparkles, Building2, Globe, Share2, Users, Newspaper, Mic, HelpCircle, CheckCircle2 } from 'lucide-react'
 import Button from "@/components/ui/Button"
+import Input from "@/components/ui/Input"
+import Textarea from "@/components/ui/Textarea"
 import { saveOnboardingProfile } from '@/app/actions/onboarding'
 import { useRouter } from 'next/navigation'
+import { Link } from "@/components/ui/Link"
 
 const SERVICES = [
-  "Social Media Marketing",
-  "SEO Optimization", 
-  "Content Creation",
-  "PPC Advertising",
-  "Email Marketing",
-  "Web Design & Development",
-  "Brand Strategy",
-  "Public Relations",
-  "Video Production",
-  "Influencer Marketing"
+  "Brand Strategy & Architecture",
+  "Digital Experience & Web Design",
+  "Full-Stack Web Development",
+  "Growth Marketing & SEO",
+  "Video Production & Motion Graphics",
+  "Executive Positioning & PR",
+  "Performance PPC & Acquisition",
+  "Conversion Rate Optimization (CRO)"
+]
+
+const SOURCES = [
+  { id: 'google', label: 'Google Search / Organic', icon: Globe },
+  { id: 'referral', label: 'Executive Referral / Colleague', icon: Users },
+  { id: 'social', label: 'Social Media (LinkedIn / X)', icon: Share2 },
+  { id: 'blog', label: 'Industry Essay / Case Study', icon: Newspaper },
+  { id: 'podcast', label: 'Podcast / Feature Interview', icon: Mic },
+  { id: 'other', label: 'Other Direct Channel', icon: HelpCircle },
 ]
 
 export default function OnboardingPage() {
@@ -49,20 +59,23 @@ export default function OnboardingPage() {
   const [source, setSource] = useState('')
 
   const handleNext = () => {
-    // Basic validation for step 1
     if (step === 1) {
       if (!name || !phone) {
-        setError("Please fill in your name and phone number.")
+        setError("Please provide your full name and verified contact number.")
         return
       }
       if (type === 'company' && (!companyName || !employeesCount || !fullAddress)) {
-        setError("Please fill in all company details.")
+        setError("Please complete all required company dossier specifications.")
         return
       }
       if (type === 'individual' && (!country || !state || !city || !pincode)) {
-        setError("Please fill in your complete address.")
+        setError("Please provide your complete location coordinates.")
         return
       }
+    }
+    if (step === 2 && interests.length === 0) {
+      setError("Please select at least one strategic service mandate.")
+      return
     }
     setError(null)
     setStep(s => Math.min(s + 1, 3))
@@ -74,6 +87,7 @@ export default function OnboardingPage() {
   }
 
   const toggleInterest = (service: string) => {
+    setError(null)
     setInterests(prev => 
       prev.includes(service)
         ? prev.filter(i => i !== service)
@@ -83,7 +97,7 @@ export default function OnboardingPage() {
 
   const handleSubmit = () => {
     if (!source) {
-      setError("Please let us know where you heard about us.")
+      setError("Please select your primary attribution channel.")
       return
     }
 
@@ -117,7 +131,7 @@ export default function OnboardingPage() {
 
   const slideVariants = {
     enter: (direction: number) => ({
-      x: direction > 0 ? 50 : -50,
+      x: direction > 0 ? 30 : -30,
       opacity: 0
     }),
     center: {
@@ -125,30 +139,74 @@ export default function OnboardingPage() {
       opacity: 1
     },
     exit: (direction: number) => ({
-      x: direction < 0 ? 50 : -50,
+      x: direction < 0 ? 30 : -30,
       opacity: 0
     })
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-warm-50 relative overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-warm-100 rounded-bl-[100px] -z-10 opacity-50" />
-      <div className="absolute bottom-0 left-0 w-[40%] h-[40%] bg-warm-100 rounded-tr-[100px] -z-10 opacity-50" />
+    <div className="min-h-screen w-full flex items-center justify-center p-4 py-20 bg-warm-50 font-sans relative overflow-hidden">
+      
+      {/* Background Atmospheric Glow */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-bronze-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-navy-950/5 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="w-full max-w-[600px] relative z-10">
+      <div className="w-full max-w-[720px] relative z-10">
         
-        {/* Progress bar */}
-        <div className="mb-8 flex justify-between items-center px-2">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="flex-1 flex items-center">
-              <div className={`h-2 flex-1 rounded-full transition-colors duration-300 ${step >= i ? 'bg-bronze-500' : 'bg-navy-100'}`} />
-              {i < 3 && <div className="w-2" />}
+        {/* Top Header & Brand */}
+        <div className="flex items-center justify-between mb-8 pb-6 border-b border-navy-200/60">
+          <Link href="/" className="flex items-center gap-3 group" data-interactive>
+            <img src="/logo-svg/Primary%20ICON.svg" alt="VW Logo" className="h-9 w-auto group-hover:scale-105 transition-transform" />
+            <div className="flex flex-col">
+              <span className="font-display font-bold text-xl leading-none text-navy-950">Vision Wings</span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-bronze-600 mt-1">Client Dossier Setup</span>
             </div>
-          ))}
+          </Link>
+          <div className="flex items-center gap-1.5 px-3 py-1 bg-navy-950 text-warm-50 rounded-full text-[10px] font-mono tracking-widest uppercase">
+            <Sparkles className="w-3 h-3 text-bronze-400" />
+            <span>STEP 0{step} / 03</span>
+          </div>
         </div>
 
-        <div className="bg-white border border-navy-100 p-6 sm:p-10 rounded-sm shadow-[0_8px_30px_rgb(0,0,0,0.04)] min-h-[450px] flex flex-col">
+        {/* Editorial Progress Stepper */}
+        <div className="grid grid-cols-3 gap-3 mb-10">
+          {[
+            { num: 1, label: "Entity Profile", sub: "Identity & Contacts" },
+            { num: 2, label: "Strategic Mandate", sub: "Service Scope" },
+            { num: 3, label: "Attribution Intel", sub: "Source Discovery" }
+          ].map(s => {
+            const isActive = step === s.num
+            const isDone = step > s.num
+            return (
+              <div 
+                key={s.num} 
+                className={`p-3.5 rounded-xl border transition-all flex flex-col justify-between ${
+                  isActive 
+                    ? "bg-white border-bronze-500 shadow-sm" 
+                    : isDone 
+                    ? "bg-navy-950/5 border-navy-200/80" 
+                    : "bg-warm-100/50 border-transparent opacity-60"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${isActive ? "text-bronze-600" : isDone ? "text-navy-950" : "text-navy-400"}`}>
+                    0{s.num} // STEP
+                  </span>
+                  {isDone && <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />}
+                </div>
+                <div>
+                  <h4 className={`text-caption font-bold ${isActive || isDone ? "text-navy-950" : "text-navy-500"}`}>
+                    {s.label}
+                  </h4>
+                  <p className="text-[10px] text-navy-400 hidden sm:block mt-0.5">{s.sub}</p>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Main Card Console */}
+        <div className="bg-white/95 backdrop-blur-md border border-navy-200/80 p-6 sm:p-12 rounded-2xl shadow-[0_12px_40px_rgba(15,23,42,0.05)] min-h-[500px] flex flex-col justify-between">
           
           <div className="flex-1">
             <AnimatePresence mode="wait" custom={1}>
@@ -160,82 +218,113 @@ export default function OnboardingPage() {
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  transition={{ duration: 0.3 }}
-                  className="space-y-6"
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  className="space-y-8"
                 >
                   <div>
-                    <h2 className="text-2xl font-display font-bold text-navy-950 mb-2">Let's build your profile</h2>
-                    <p className="text-navy-500 font-medium">Tell us a bit about yourself to get started.</p>
+                    <h2 className="text-2xl sm:text-3xl font-display font-bold text-navy-950 mb-2">Configure Entity Profile</h2>
+                    <p className="text-navy-500 font-medium text-body-sm">Specify whether you are onboarding as an individual principal or representing an enterprise brand.</p>
                   </div>
 
-                  <div className="flex gap-4 mb-6">
+                  {/* Tactile Selection Tiles (Individual vs Company) */}
+                  <div className="grid grid-cols-2 gap-4">
                     <button
-                      onClick={() => setType('individual')}
-                      className={`flex-1 flex flex-col items-center justify-center p-4 border rounded-sm transition-all ${type === 'individual' ? 'border-bronze-500 bg-bronze-50 text-bronze-700' : 'border-navy-100 bg-white text-navy-500 hover:border-navy-300'}`}
+                      type="button"
+                      onClick={() => { setType('individual'); setError(null); }}
+                      className={`p-5 rounded-xl border-2 transition-all flex flex-col items-start text-left relative group ${
+                        type === 'individual' 
+                          ? 'border-bronze-500 bg-bronze-50/40 text-navy-950 shadow-sm' 
+                          : 'border-navy-200/80 bg-white hover:border-navy-400 text-navy-600'
+                      }`}
                     >
-                      <User className="w-6 h-6 mb-2" />
-                      <span className="font-medium text-sm">Individual</span>
+                      <div className="flex items-center justify-between w-full mb-3">
+                        <div className={`p-2.5 rounded-lg ${type === 'individual' ? 'bg-bronze-500 text-white' : 'bg-warm-100 text-navy-600'}`}>
+                          <User className="w-5 h-5" />
+                        </div>
+                        {type === 'individual' && <CheckCircle2 className="w-5 h-5 text-bronze-600" />}
+                      </div>
+                      <span className="font-bold text-base text-navy-950 mb-1">Individual Principal</span>
+                      <span className="text-caption text-navy-500 leading-normal">Independent consultant, creator, or standalone executive.</span>
                     </button>
+
                     <button
-                      onClick={() => setType('company')}
-                      className={`flex-1 flex flex-col items-center justify-center p-4 border rounded-sm transition-all ${type === 'company' ? 'border-bronze-500 bg-bronze-50 text-bronze-700' : 'border-navy-100 bg-white text-navy-500 hover:border-navy-300'}`}
+                      type="button"
+                      onClick={() => { setType('company'); setError(null); }}
+                      className={`p-5 rounded-xl border-2 transition-all flex flex-col items-start text-left relative group ${
+                        type === 'company' 
+                          ? 'border-bronze-500 bg-bronze-50/40 text-navy-950 shadow-sm' 
+                          : 'border-navy-200/80 bg-white hover:border-navy-400 text-navy-600'
+                      }`}
                     >
-                      <Briefcase className="w-6 h-6 mb-2" />
-                      <span className="font-medium text-sm">Company</span>
+                      <div className="flex items-center justify-between w-full mb-3">
+                        <div className={`p-2.5 rounded-lg ${type === 'company' ? 'bg-bronze-500 text-white' : 'bg-warm-100 text-navy-600'}`}>
+                          <Building2 className="w-5 h-5" />
+                        </div>
+                        {type === 'company' && <CheckCircle2 className="w-5 h-5 text-bronze-600" />}
+                      </div>
+                      <span className="font-bold text-base text-navy-950 mb-1">Enterprise Brand</span>
+                      <span className="text-caption text-navy-500 leading-normal">Corporation, funded startup, or business partnership.</span>
                     </button>
                   </div>
 
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-navy-700 mb-1">Full Name</label>
-                      <input type="text" value={name} onChange={e => setName(e.target.value)} className="w-full px-4 py-3 bg-warm-50 border border-navy-100 rounded-sm focus:outline-none focus:border-bronze-500 text-navy-950" placeholder="John Doe" />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-navy-700 mb-1">Phone Number (with Country Code)</label>
-                      <input type="text" value={phone} onChange={e => setPhone(e.target.value)} className="w-full px-4 py-3 bg-warm-50 border border-navy-100 rounded-sm focus:outline-none focus:border-bronze-500 text-navy-950" placeholder="+1 234 567 8900" />
+                  <div className="space-y-5 pt-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <Input 
+                        label="Primary Representative Name" 
+                        required 
+                        placeholder="e.g. Alexander Vance" 
+                        value={name} 
+                        onChange={e => setName(e.target.value)} 
+                      />
+                      <Input 
+                        label="Verified Phone (with Country Code)" 
+                        required 
+                        placeholder="e.g. +1 (555) 019-2831" 
+                        value={phone} 
+                        onChange={e => setPhone(e.target.value)} 
+                      />
                     </div>
 
                     {type === 'individual' ? (
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="col-span-2">
-                          <label className="block text-sm font-medium text-navy-700 mb-1">Country</label>
-                          <input type="text" value={country} onChange={e => setCountry(e.target.value)} className="w-full px-4 py-3 bg-warm-50 border border-navy-100 rounded-sm focus:outline-none focus:border-bronze-500 text-navy-950" placeholder="United States" />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-navy-700 mb-1">State</label>
-                          <input type="text" value={state} onChange={e => setState(e.target.value)} className="w-full px-4 py-3 bg-warm-50 border border-navy-100 rounded-sm focus:outline-none focus:border-bronze-500 text-navy-950" placeholder="CA" />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-navy-700 mb-1">City</label>
-                          <input type="text" value={city} onChange={e => setCity(e.target.value)} className="w-full px-4 py-3 bg-warm-50 border border-navy-100 rounded-sm focus:outline-none focus:border-bronze-500 text-navy-950" placeholder="San Francisco" />
-                        </div>
-                        <div className="col-span-2">
-                          <label className="block text-sm font-medium text-navy-700 mb-1">Pincode / Zip</label>
-                          <input type="text" value={pincode} onChange={e => setPincode(e.target.value)} className="w-full px-4 py-3 bg-warm-50 border border-navy-100 rounded-sm focus:outline-none focus:border-bronze-500 text-navy-950" placeholder="94105" />
-                        </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2 border-t border-navy-100">
+                        <Input label="Country of Residence" required placeholder="United States" value={country} onChange={e => setCountry(e.target.value)} />
+                        <Input label="State / Province" required placeholder="California" value={state} onChange={e => setState(e.target.value)} />
+                        <Input label="City / Municipality" required placeholder="San Francisco" value={city} onChange={e => setCity(e.target.value)} />
+                        <Input label="Postal / Zip Code" required placeholder="94105" value={pincode} onChange={e => setPincode(e.target.value)} />
                       </div>
                     ) : (
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-navy-700 mb-1">Company Name</label>
-                          <input type="text" value={companyName} onChange={e => setCompanyName(e.target.value)} className="w-full px-4 py-3 bg-warm-50 border border-navy-100 rounded-sm focus:outline-none focus:border-bronze-500 text-navy-950" placeholder="Acme Inc." />
+                      <div className="space-y-5 pt-2 border-t border-navy-100">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                          <Input label="Registered Entity Name" required placeholder="e.g. Lumina Health Systems Inc." value={companyName} onChange={e => setCompanyName(e.target.value)} />
+                          
+                          <div className="flex flex-col gap-1.5 w-full">
+                            <label className="text-[11px] font-mono font-semibold uppercase tracking-wider text-navy-700 flex items-center justify-between">
+                              <span>Workforce Scale (Employees)</span>
+                              <span className="text-[9px] text-bronze-600 font-mono">REQUIRED</span>
+                            </label>
+                            <select 
+                              value={employeesCount} 
+                              onChange={e => setEmployeesCount(e.target.value)} 
+                              className="w-full px-4 py-3.5 bg-white/90 border border-navy-200/80 rounded-lg text-body text-navy-950 focus:outline-none focus:border-bronze-500 focus:ring-4 focus:ring-bronze-500/15 transition-all font-medium"
+                            >
+                              <option value="">Select organizational tier...</option>
+                              <option value="1-10">1 - 10 Employees (Seed / Boutique)</option>
+                              <option value="11-50">11 - 50 Employees (Growth Stage)</option>
+                              <option value="51-200">51 - 200 Employees (Mid-Market)</option>
+                              <option value="201-500">201 - 500 Employees (Upper Mid-Market)</option>
+                              <option value="500+">500+ Employees (Enterprise)</option>
+                            </select>
+                          </div>
                         </div>
-                        <div>
-                          <label className="block text-sm font-medium text-navy-700 mb-1">Number of Employees</label>
-                          <select value={employeesCount} onChange={e => setEmployeesCount(e.target.value)} className="w-full px-4 py-3 bg-warm-50 border border-navy-100 rounded-sm focus:outline-none focus:border-bronze-500 text-navy-950">
-                            <option value="">Select size...</option>
-                            <option value="1-10">1-10</option>
-                            <option value="11-50">11-50</option>
-                            <option value="51-200">51-200</option>
-                            <option value="201-500">201-500</option>
-                            <option value="500+">500+</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-navy-700 mb-1">Full Company Address</label>
-                          <textarea value={fullAddress} onChange={e => setFullAddress(e.target.value)} rows={3} className="w-full px-4 py-3 bg-warm-50 border border-navy-100 rounded-sm focus:outline-none focus:border-bronze-500 text-navy-950 resize-none" placeholder="123 Business Rd, Suite 100&#10;City, State, Zip&#10;Country" />
-                        </div>
+
+                        <Textarea 
+                          label="Complete Corporate Headquarters Address" 
+                          required 
+                          placeholder="Street Address, Suite / Floor&#10;City, State / Province, Postal Code&#10;Country" 
+                          rows={3}
+                          value={fullAddress} 
+                          onChange={e => setFullAddress(e.target.value)} 
+                        />
                       </div>
                     )}
                   </div>
@@ -250,29 +339,32 @@ export default function OnboardingPage() {
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  transition={{ duration: 0.3 }}
-                  className="space-y-6"
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  className="space-y-8"
                 >
                   <div>
-                    <h2 className="text-2xl font-display font-bold text-navy-950 mb-2">What interests you?</h2>
-                    <p className="text-navy-500 font-medium">Select all the marketing services you're looking for.</p>
+                    <h2 className="text-2xl sm:text-3xl font-display font-bold text-navy-950 mb-2">Define Strategic Mandate</h2>
+                    <p className="text-navy-500 font-medium text-body-sm">Select all strategic disciplines and execution capabilities required for your upcoming growth cycle.</p>
                   </div>
 
-                  <div className="flex flex-wrap gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {SERVICES.map(service => {
                       const isSelected = interests.includes(service)
                       return (
                         <button
                           key={service}
+                          type="button"
                           onClick={() => toggleInterest(service)}
-                          className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 border ${
+                          className={`p-4 rounded-xl text-left font-medium transition-all flex items-center justify-between gap-3 border-2 ${
                             isSelected 
-                              ? 'bg-bronze-500 text-white border-bronze-500' 
-                              : 'bg-warm-50 text-navy-600 border-navy-200 hover:border-bronze-300'
+                              ? 'bg-bronze-500 text-white border-bronze-500 shadow-md scale-[1.01]' 
+                              : 'bg-white text-navy-800 border-navy-200/80 hover:border-bronze-400 hover:bg-warm-50/50'
                           }`}
                         >
-                          {isSelected && <Check className="w-4 h-4" />}
-                          {service}
+                          <span className="text-body-sm font-semibold">{service}</span>
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${isSelected ? 'bg-white text-bronze-600' : 'bg-warm-100 text-transparent border border-navy-200'}`}>
+                            <Check className="w-3.5 h-3.5" />
+                          </div>
                         </button>
                       )
                     })}
@@ -288,30 +380,38 @@ export default function OnboardingPage() {
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  transition={{ duration: 0.3 }}
-                  className="space-y-6"
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  className="space-y-8"
                 >
                   <div>
-                    <h2 className="text-2xl font-display font-bold text-navy-950 mb-2">How did you hear about us?</h2>
-                    <p className="text-navy-500 font-medium">We'd love to know where you found us.</p>
+                    <h2 className="text-2xl sm:text-3xl font-display font-bold text-navy-950 mb-2">Attribution &amp; Discovery</h2>
+                    <p className="text-navy-500 font-medium text-body-sm">Select the primary channel through which you originally discovered or were referred to Vision Wings.</p>
                   </div>
 
-                  <div>
-                    <select 
-                      value={source} 
-                      onChange={e => setSource(e.target.value)} 
-                      className="w-full px-4 py-4 bg-warm-50 border border-navy-100 rounded-sm focus:outline-none focus:border-bronze-500 text-navy-950 text-lg"
-                    >
-                      <option value="">Please select an option...</option>
-                      <option value="google">Google Search</option>
-                      <option value="social">Social Media</option>
-                      <option value="referral">Friend or Colleague</option>
-                      <option value="blog">Blog or Article</option>
-                      <option value="podcast">Podcast</option>
-                      <option value="other">Other</option>
-                    </select>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {SOURCES.map(s => {
+                      const Icon = s.icon
+                      const isSelected = source === s.id
+                      return (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => { setSource(s.id); setError(null); }}
+                          className={`p-4 rounded-xl text-left font-medium transition-all flex items-center gap-3.5 border-2 ${
+                            isSelected 
+                              ? 'bg-navy-950 text-warm-50 border-navy-950 shadow-md' 
+                              : 'bg-white text-navy-800 border-navy-200/80 hover:border-navy-400 hover:bg-warm-50/50'
+                          }`}
+                        >
+                          <div className={`p-2.5 rounded-lg ${isSelected ? 'bg-bronze-500 text-white' : 'bg-warm-100 text-navy-600'}`}>
+                            <Icon className="w-5 h-5" />
+                          </div>
+                          <span className="text-body-sm font-bold flex-1">{s.label}</span>
+                          {isSelected && <CheckCircle2 className="w-5 h-5 text-bronze-400 shrink-0" />}
+                        </button>
+                      )
+                    })}
                   </div>
-
                 </motion.div>
               )}
             </AnimatePresence>
@@ -323,39 +423,42 @@ export default function OnboardingPage() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="text-red-600 text-sm font-medium text-center bg-red-50 py-3 px-4 rounded-sm border border-red-100 mt-6"
+                className="text-red-600 text-caption font-mono uppercase tracking-wider text-center bg-red-50/80 py-3 px-4 rounded-lg border border-red-200/80 flex items-center justify-center gap-1.5 mt-6"
               >
-                {error}
+                <span>⚠</span> {error}
               </motion.div>
             )}
           </AnimatePresence>
 
-          <div className="mt-8 pt-6 border-t border-navy-100 flex justify-between items-center gap-4">
+          {/* Navigation Controls */}
+          <div className="mt-10 pt-6 border-t border-navy-200/60 flex justify-between items-center gap-4">
             {step > 1 ? (
               <button
+                type="button"
                 onClick={handleBack}
                 disabled={isPending}
-                className="px-6 py-3 text-navy-500 font-medium hover:text-navy-950 transition-colors flex items-center gap-2"
+                className="px-5 py-3 text-caption font-mono uppercase tracking-wider font-bold text-navy-600 hover:text-navy-950 transition-colors flex items-center gap-2 group"
               >
-                <ArrowLeft className="w-4 h-4" />
-                Back
+                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                Previous Mandate Step
               </button>
             ) : (
               <div /> // Spacer
             )}
             
             {step < 3 ? (
-              <Button onClick={handleNext} className="flex items-center gap-2 px-8">
-                Next
+              <Button type="button" onClick={handleNext} className="flex items-center gap-2 px-8 shadow-md">
+                <span>Continue Mandate</span>
                 <ArrowRight className="w-4 h-4" />
               </Button>
             ) : (
-              <Button onClick={handleSubmit} isLoading={isPending} className="flex items-center gap-2 px-8">
-                Complete Setup
+              <Button type="button" onClick={handleSubmit} isLoading={isPending} className="flex items-center gap-2 px-8 shadow-lg bg-bronze-500 hover:bg-bronze-600">
+                <span>Authorize &amp; Execute Setup</span>
                 {!isPending && <Check className="w-4 h-4" />}
               </Button>
             )}
           </div>
+
         </div>
       </div>
     </div>
