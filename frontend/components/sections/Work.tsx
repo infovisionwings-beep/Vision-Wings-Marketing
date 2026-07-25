@@ -1,41 +1,48 @@
 "use client";
 
-// Reading this as: Portfolio case study showcase for an editorial agency, featuring large typographic contrast, interactive project cards, and clean visual structure.
-// DESIGN_VARIANCE: 8
-// MOTION_INTENSITY: 6
+// Reading this as: Portfolio showcase section for an elite design agency, using an Asymmetric Exhibition Gallery layout with cinematic photography, hover physics, and high typographic contrast.
+// DESIGN_VARIANCE: 9
+// MOTION_INTENSITY: 7
 // VISUAL_DENSITY: 3
 
 import { useEffect, useState } from "react";
 import RevealOnScroll from "@/components/motion/RevealOnScroll";
 import Button from "@/components/ui/Button";
 import { Link } from "@/components/ui/Link";
-import { ArrowRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
+import Image from "next/image";
 import { getProjects } from "@/app/actions/projects";
 
 const fallbackProjects = [
   {
     id: 1,
     title: "Lumina Health",
-    category: "Brand Strategy & Digital",
-    year: "2023",
+    category: "Brand Architecture & Design System",
+    year: "2024",
     slug: "lumina",
-    coverImage: ""
+    desc: "Reimagining the digital presence for a next-generation genomic healthcare platform.",
+    coverImage: "https://picsum.photos/seed/vw-lumina-health/1600/1000",
+    isFeatured: true,
   },
   {
     id: 2,
     title: "Aero Dynamics",
-    category: "Visual Identity",
+    category: "Visual Identity & Motion",
     year: "2023",
     slug: "aero",
-    coverImage: ""
+    desc: "Precision branding and 3D product visualization for an autonomous drone manufacturer.",
+    coverImage: "https://picsum.photos/seed/vw-aero-dynamics/1000/1200",
+    isFeatured: false,
   },
   {
     id: 3,
     title: "Vertex Capital",
-    category: "Web Experience",
+    category: "Web Experience & Strategy",
     year: "2024",
     slug: "vertex",
-    coverImage: ""
+    desc: "High-trust digital flagship for a $1.2B venture fund investing in hard tech.",
+    coverImage: "https://picsum.photos/seed/vw-vertex-capital/1200/1000",
+    isFeatured: false,
   }
 ];
 
@@ -47,7 +54,14 @@ export default function Work() {
       try {
         const data = await getProjects();
         if (data && data.length > 0) {
-          setProjects(data);
+          // If DB projects lack images, augment with high-res placeholder photography per Rule 4.8
+          const augmented = data.map((p: any, idx: number) => ({
+            ...p,
+            coverImage: p.coverImage || `https://picsum.photos/seed/vw-project-${p.slug || idx}/1600/1000`,
+            isFeatured: idx === 0,
+            desc: p.description || p.subtitle || (p.content && p.content.slice(0, 130) + "...") || "Strategic brand elevation and digital flagship design.",
+          }));
+          setProjects(augmented);
         }
       } catch (err) {
         console.error("Failed to load projects client-side:", err);
@@ -57,66 +71,97 @@ export default function Work() {
   }, []);
 
   return (
-    <section id="work" className="py-16 md:py-24 lg:py-32 px-5 md:px-10 xl:px-20 bg-warm-50">
-      <div className="max-w-[1280px] mx-auto">
-        <RevealOnScroll className="flex flex-col items-start text-left mb-12 md:mb-16 lg:mb-24 max-w-3xl">
-          <h2 className="text-h2 text-navy-950 mb-4 md:mb-6">
-            Selected Projects
-          </h2>
-          <p className="text-body-lg text-navy-700">
-            A selection of recent partnerships where strategy and design drove outsized business results.
-          </p>
-        </RevealOnScroll>
+    <section id="work" className="py-20 md:py-32 lg:py-40 px-5 md:px-10 xl:px-20 bg-warm-50 text-navy-950 overflow-hidden">
+      <div className="max-w-[1280px] mx-auto space-y-16 md:space-y-24">
+        
+        {/* Section Header (No eyebrow per Rule 4.7 max 1 eyebrow per 3 sections) */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 border-b border-navy-200 pb-10">
+          <RevealOnScroll className="max-w-2xl">
+            <h2 className="text-display sm:text-h1 font-bold text-navy-950 tracking-tight leading-[1.05]">
+              Selected Works &amp; Commissions.
+            </h2>
+          </RevealOnScroll>
+          <RevealOnScroll delay={0.1}>
+            <Link href="/work" className="inline-block">
+              <Button variant="secondary" className="whitespace-nowrap group" data-interactive>
+                <span>View Full Archive</span>
+                <ArrowUpRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </Button>
+            </Link>
+          </RevealOnScroll>
+        </div>
 
-        <div className="flex flex-col gap-12 md:gap-16 lg:gap-24">
-          {projects.map((project, index) => (
-            <RevealOnScroll key={project.id} delay={index * 0.1}>
-              <Link href={`/work/${project.slug || project.id}`} className="group block" data-interactive>
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 lg:gap-12 items-center">
-                  <div className="lg:col-span-7 bg-navy-100 aspect-video relative overflow-hidden rounded-xl border border-navy-200 shadow-sm">
+        {/* Exhibition Gallery Grid (Asymmetric Layout: 1 Hero Full-Width Card + 2 Half-Width Cards) */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12">
+          {projects.map((project, index) => {
+            const isHero = index === 0 || project.isFeatured;
+            const colSpan = isHero ? "md:col-span-12" : "md:col-span-6";
+            const aspectClass = isHero ? "aspect-[16/9] sm:aspect-[21/9]" : "aspect-[4/3] sm:aspect-[16/10]";
+
+            return (
+              <RevealOnScroll 
+                key={project.id || index} 
+                delay={index * 0.1}
+                className={`${colSpan} group block`}
+              >
+                <Link href={`/work/${project.slug || project.id}`} className="block space-y-6" data-interactive>
+                  
+                  {/* Image Showcase Container with Tactile Hover Physics */}
+                  <div className={`relative w-full ${aspectClass} rounded-2xl overflow-hidden bg-navy-900 border border-navy-200/60 shadow-md`}>
                     {project.coverImage ? (
-                      <img 
-                        src={project.coverImage} 
-                        alt={project.title} 
-                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-102 transition-transform duration-500 ease-out-expo"
+                      <Image
+                        src={project.coverImage}
+                        alt={project.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                        sizes={isHero ? "100vw" : "(max-width: 768px) 100vw, 50vw"}
+                        priority={index === 0}
                       />
                     ) : (
-                      <div className="absolute inset-0 bg-gradient-to-tr from-navy-950/20 to-navy-950/5 flex items-center justify-center">
-                        <span className="text-display opacity-10 text-navy-950 select-none tracking-tighter">VW</span>
+                      <div className="absolute inset-0 bg-navy-950 flex items-center justify-center">
+                        <span className="text-display text-navy-800 font-bold select-none tracking-tighter">VW</span>
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-navy-950/5 group-hover:bg-transparent transition-colors duration-300 pointer-events-none" />
-                  </div>
-                  <div className="lg:col-span-5 flex flex-col justify-center">
-                    <div className="flex justify-between items-center mb-3 md:mb-4 border-b border-navy-100 pb-3 md:pb-4">
-                      <span className="text-caption text-navy-500 uppercase tracking-widest font-semibold">
-                        {project.category}
-                      </span>
-                      <span className="text-caption text-navy-500 font-mono">
+                    
+                    {/* Subtle Gradient Overlay & Floating Badge */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-navy-950/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
+                    
+                    <div className="absolute top-6 right-6 z-10">
+                      <span className="px-3.5 py-1.5 rounded-full bg-navy-950/90 text-warm-50 text-xs font-mono font-semibold backdrop-blur-md border border-warm-50/10">
                         {project.year}
                       </span>
                     </div>
-                    <h3 className="text-h3 text-navy-950 mb-4 md:mb-6 group-hover:text-bronze-500 transition-colors">
-                      {project.title}
-                    </h3>
-                    <div className="inline-flex items-center gap-2 text-navy-950 font-semibold group-hover:text-bronze-500 transition-colors min-h-[44px]">
-                      <span>View Case Study</span>
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-300" />
+
+                    {/* Hover Arrow Indicator */}
+                    <div className="absolute bottom-6 right-6 z-10 w-12 h-12 rounded-full bg-warm-50 text-navy-950 flex items-center justify-center translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 shadow-lg">
+                      <ArrowUpRight className="w-5 h-5" />
                     </div>
                   </div>
-                </div>
-              </Link>
-            </RevealOnScroll>
-          ))}
+
+                  {/* Project Metadata & Typography */}
+                  <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 pt-2">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-mono font-semibold text-bronze-600 uppercase tracking-wider">
+                          {project.category}
+                        </span>
+                      </div>
+                      <h3 className="text-h2 font-bold text-navy-950 group-hover:text-bronze-600 transition-colors">
+                        {project.title}
+                      </h3>
+                    </div>
+                    {project.desc && isHero && (
+                      <p className="text-body text-navy-600 max-w-md sm:text-right leading-relaxed">
+                        {project.desc}
+                      </p>
+                    )}
+                  </div>
+                </Link>
+              </RevealOnScroll>
+            );
+          })}
         </div>
 
-        <RevealOnScroll delay={0.2} className="mt-16 md:mt-20 lg:mt-24 flex justify-center">
-          <Link href="/work" className="w-full sm:w-auto">
-            <Button variant="secondary" className="w-full sm:w-auto cursor-pointer" data-interactive>
-              View All Projects
-            </Button>
-          </Link>
-        </RevealOnScroll>
       </div>
     </section>
   );
