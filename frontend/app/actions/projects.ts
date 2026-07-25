@@ -7,10 +7,16 @@ import { logAdminAction } from "@/lib/auth/audit-log";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export async function getProjects() {
-  const res = await fetch(`${API_URL}/api/projects`, { cache: 'no-store' });
-  if (!res.ok) throw new Error('Failed to fetch projects');
-  return res.json();
+  try {
+    const res = await fetch(`${API_URL}/api/projects`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (err) {
+    console.error("Failed to fetch projects:", err);
+    return [];
+  }
 }
+
 
 export async function getProjectBySlug(slug: string) {
   // We can fetch all and filter or add an endpoint for slug
