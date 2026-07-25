@@ -1,4 +1,4 @@
-import { pgTable, serial, text, varchar, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, varchar, timestamp, boolean, jsonb, uuid, bigint } from "drizzle-orm/pg-core";
 
 export const projects = pgTable("projects", {
   id: serial("id").primaryKey(),
@@ -40,3 +40,20 @@ export const userProfiles = pgTable("user_profiles", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+export const videos = pgTable("videos", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  originalFileName: text("original_file_name").notNull(),
+  originalSize: bigint("original_size", { mode: "number" }).notNull(),
+  durationSeconds: varchar("duration_seconds", { length: 50 }),
+  status: varchar("status", { length: 50 }).notNull().default("uploaded"), // uploaded, queued, processing, completed, failed, retrying
+  inputPath: text("input_path").notNull(),
+  webmPath: text("webm_path"),
+  mp4Path: text("mp4_path"),
+  thumbnailPath: text("thumbnail_path"),
+  errorMessage: text("error_message"),
+  createdAt: timestamp("created_at").defaultNow(),
+  processedAt: timestamp("processed_at"),
+});
+
