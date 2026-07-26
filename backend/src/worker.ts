@@ -10,6 +10,7 @@ import { eq } from 'drizzle-orm';
 import { StorageService } from './storage';
 import { config } from './config';
 import { VideoJobData } from './queue';
+import { PipelineLogger } from './logger';
 
 const execFileAsync = util.promisify(execFile);
 
@@ -52,6 +53,8 @@ async function processVideoJob(job: Job<VideoJobData>): Promise<void> {
     .set({ status: 'processing', errorMessage: null })
     .where(eq(videos.id, videoId));
 
+  await PipelineLogger.log(videoId, 'WORKER', 'Job picked up by worker concurrency engine.');
+
   const tempDir = StorageService.createTempDir(videoId);
   const inputFilePath = path.join(tempDir, 'input.mp4');
   const webmOutputPath = path.join(tempDir, 'output.webm');
@@ -61,14 +64,17 @@ async function processVideoJob(job: Job<VideoJobData>): Promise<void> {
   try {
     // 2. Download original file from Vercel Blob
     console.log(`[Worker ${videoId}] Downloading original video...`);
+    await PipelineLogger.log(videoId, 'WORKER', 'Downloading original video from Vercel Blob...');
     await downloadFile(inputUrl, inputFilePath);
 
     // 3. Inspect duration using ffprobe
     const durationSeconds = await probeDuration(inputFilePath);
     console.log(`[Worker ${videoId}] Video duration: ${durationSeconds} seconds`);
+    await PipelineLogger.log(videoId, 'WORKER', `Inspected media duration: ${durationSeconds}s using ffprobe.`);
 
     // 4. Transcode to WebM (VP9 - lightweight primary format)
     console.log(`[Worker ${videoId}] Transcoding WebM...`);
+    await PipelineLogger.log(videoId, 'WORKER', 'Transcoding to WebM (VP9 codec - lightweight primary format)...');
     await execFileAsync('ffmpeg', [
       '-y',
       '-i', inputFilePath,
@@ -78,6 +84,7 @@ async function processVideoJob(job: Job<VideoJobData>): Promise<void> {
 
     // 5. Transcode to MP4 (H.264 - universal fallback format)
     console.log(`[Worker ${videoId}] Transcoding MP4...`);
+    await PipelineLogger.log(videoId, 'WORKER', 'Transcoding to MP4 (H.264 codec - universal fallback format)...');
     await execFileAsync('ffmpeg', [
       '-y',
       '-i', inputFilePath,
@@ -87,6 +94,7 @@ async function processVideoJob(job: Job<VideoJobData>): Promise<void> {
 
     // 6. Generate single poster thumbnail
     console.log(`[Worker ${videoId}] Extracting thumbnail poster image...`);
+    await PipelineLogger.log(videoId, 'WORKER', 'Extracting poster thumbnail frame...');
     await execFileAsync('ffmpeg', [
       '-y',
       '-ss', config.video.thumbnailTime,
@@ -107,6 +115,7 @@ async function processVideoJob(job: Job<VideoJobData>): Promise<void> {
 
     // 8. Upload outputs to Vercel Blob storage
     console.log(`[Worker ${videoId}] Uploading output renditions to Vercel Blob...`);
+    await PipelineLogger.log(videoId, 'WORKER', 'Uploading transcoded renditions to Vercel Blob CDN...');
     const webmBuffer = await fs.promises.readFile(webmOutputPath);
     const mp4Buffer = await fs.promises.readFile(mp4OutputPath);
     const thumbBuffer = await fs.promises.readFile(thumbnailPath);
@@ -142,9 +151,11 @@ async function processVideoJob(job: Job<VideoJobData>): Promise<void> {
       })
       .where(eq(videos.id, videoId));
 
+    await PipelineLogger.log(videoId, 'SUCCESS', '🎉 Transcoding pipeline completed successfully! CDN renditions ready.');
     console.log(`[Worker ${videoId}] Successfully processed video! WebM: ${webmUrl}, MP4: ${mp4Url}`);
   } catch (error: any) {
     console.error(`[Worker ${videoId}] Processing failed:`, error.message);
+    await PipelineLogger.log(videoId, 'ERROR', `❌ Processing failed: ${error.message || 'Unknown error'}`);
 
     await db
       .update(videos)
