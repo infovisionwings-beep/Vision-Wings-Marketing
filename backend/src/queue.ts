@@ -19,6 +19,14 @@ try {
     maxRetriesPerRequest: null,
     tls: config.redisUrl.startsWith('rediss://') ? { rejectUnauthorized: false } : undefined,
   });
+
+  redisConnection.on('error', (err) => {
+    console.error('[BullMQ Queue] Redis connection error:', err.message);
+  });
+
+  redisConnection.on('ready', () => {
+    console.log('[BullMQ Queue] Redis connection ready!');
+  });
 } catch (error) {
   console.warn('Failed to initialize Redis connection for BullMQ:', error);
 }

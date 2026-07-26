@@ -5,6 +5,7 @@ import { db } from './db';
 import { projects, insights, userProfiles } from './db/schema';
 import { eq } from 'drizzle-orm';
 import videoRoutes from './routes/videos';
+import './worker';
 
 dotenv.config();
 

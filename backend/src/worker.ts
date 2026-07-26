@@ -168,6 +168,14 @@ try {
     maxRetriesPerRequest: null,
     tls: config.redisUrl.startsWith('rediss://') ? { rejectUnauthorized: false } : undefined,
   });
+
+  redisConnection.on('error', (err) => {
+    console.error('[BullMQ Worker] Redis connection error:', err.message);
+  });
+
+  redisConnection.on('ready', () => {
+    console.log('[BullMQ Worker] Redis connection ready!');
+  });
 } catch (err) {
   console.error('Redis worker connection failed:', err);
 }
