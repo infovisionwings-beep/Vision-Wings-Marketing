@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { videos } from '@/lib/db/schema';
 import { desc, eq } from 'drizzle-orm';
 import { enqueueVideoJob } from '@/lib/queue';
+import { PipelineLogger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +15,15 @@ export async function GET() {
       .select()
       .from(videos)
       .orderBy(desc(videos.createdAt));
-    return NextResponse.json(videoList);
+
+    const withLogs = await Promise.all(
+      videoList.map(async (v) => ({
+        ...v,
+        logs: await PipelineLogger.getLogs(v.id),
+      }))
+    );
+
+    return NextResponse.json(withLogs);
   } catch (error: any) {
     console.error('Failed to fetch videos:', error);
     return NextResponse.json({ error: 'Failed to fetch videos' }, { status: 500 });
@@ -68,6 +77,8 @@ export async function POST(req: NextRequest) {
 
     const videoId = uuidv4();
 
+    await PipelineLogger.log(videoId, 'API', `Received video upload payload (${originalFileName}) from Vercel Blob CDN.`);
+
     // Insert record with mp4Path = inputUrl so original video can be played immediately!
     const [insertedVideo] = await db
       .insert(videos)
@@ -90,12 +101,19 @@ export async function POST(req: NextRequest) {
         inputUrl,
         originalFileName,
       });
-    } catch (err) {
+      await PipelineLogger.log(videoId, 'QUEUE', 'Enqueued video job to Upstash Redis for serverless worker.');
+    } catch (err: any) {
       console.warn('Queue dispatch warning:', err);
+      await PipelineLogger.log(videoId, 'ERROR', `Failed to enqueue job to Upstash Redis: ${err.message || 'Unknown error'}`);
     }
 
+    const videoWithLogs = {
+      ...insertedVideo,
+      logs: await PipelineLogger.getLogs(videoId),
+    };
+
     return NextResponse.json(
-      { success: true, video: insertedVideo },
+      { success: true, video: videoWithLogs },
       { status: 201 }
     );
   } catch (error: any) {

@@ -12,18 +12,23 @@ export const config = {
     allowedMimetypes: ['video/mp4', 'video/quicktime', 'video/webm'],
     allowedExtensions: ['.mp4', '.mov', '.webm'],
     thumbnailTime: '00:00:01.000',
-    // WebM (VP9 - lightweight primary format)
+    // WebM (VP9 - lightweight primary format, optimized for high-speed encoding)
     webmParams: [
       '-c:v', 'libvpx-vp9',
+      '-deadline', 'realtime',
+      '-cpu-used', '4',
+      '-row-mt', '1',
+      '-threads', '2',
       '-b:v', '1M',
       '-crf', '30',
       '-c:a', 'libopus',
       '-b:a', '128k'
     ],
-    // MP4 (H.264 - universal fallback format)
+    // MP4 (H.264 - universal fallback format, optimized for high-speed encoding)
     mp4Params: [
       '-c:v', 'libx264',
-      '-preset', 'fast',
+      '-preset', 'veryfast',
+      '-threads', '2',
       '-crf', '23',
       '-c:a', 'aac',
       '-b:a', '128k',

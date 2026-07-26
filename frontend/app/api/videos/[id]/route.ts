@@ -3,6 +3,7 @@ import { del } from '@vercel/blob';
 import { db } from '@/lib/db';
 import { videos } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { PipelineLogger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,7 +22,12 @@ export async function GET(
       return NextResponse.json({ error: 'Video not found' }, { status: 404 });
     }
 
-    return NextResponse.json(result[0]);
+    const videoWithLogs = {
+      ...result[0],
+      logs: await PipelineLogger.getLogs(id),
+    };
+
+    return NextResponse.json(videoWithLogs);
   } catch (error: any) {
     console.error('Failed to fetch video details:', error);
     return NextResponse.json({ error: 'Failed to fetch video details' }, { status: 500 });
@@ -61,8 +67,9 @@ export async function DELETE(
       }
     }
 
-    // Delete DB record
+    // Delete DB record and Redis logs
     await db.delete(videos).where(eq(videos.id, id));
+    await PipelineLogger.deleteLogs(id);
 
     return NextResponse.json({ success: true, message: 'Video deleted successfully' });
   } catch (error: any) {
