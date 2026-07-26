@@ -35,6 +35,7 @@ export default function Footer() {
             <h4 className="text-h4 text-bronze-500 mb-2">AGENCY</h4>
             <Link href="#about" className="text-body hover:text-bronze-300 transition-colors w-fit py-2" data-interactive>About Us</Link>
             <Link href="#work" className="text-body hover:text-bronze-300 transition-colors w-fit py-2" data-interactive>Featured Work</Link>
+            <Link href="/videos" className="text-body hover:text-bronze-300 transition-colors w-fit py-2" data-interactive>Video Tours</Link>
             <Link href="#insights" className="text-body hover:text-bronze-300 transition-colors w-fit py-2" data-interactive>Insights</Link>
             <Link href="#contact" className="text-body hover:text-bronze-300 transition-colors w-fit py-2" data-interactive>Contact</Link>
           </div>
