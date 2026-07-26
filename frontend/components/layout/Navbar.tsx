@@ -84,13 +84,6 @@ export default function Navbar({ user }: { user: any }) {
               Work
             </Link>
             <Link 
-              href="/videos" 
-              className={`text-body font-medium transition-all px-4 py-2 rounded-full ${pathname === "/videos" ? "bg-navy-950 text-warm-50" : "hover:text-bronze-500 hover:bg-warm-100"}`} 
-              data-interactive
-            >
-              Videos
-            </Link>
-            <Link 
               href="/#insights" 
               className={`text-body font-medium transition-all px-4 py-2 rounded-full ${isActive("/", "insights") ? "bg-navy-950 text-warm-50" : "hover:text-bronze-500 hover:bg-warm-100"}`} 
               data-interactive
