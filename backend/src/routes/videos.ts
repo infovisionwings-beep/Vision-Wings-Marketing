@@ -8,6 +8,7 @@ import { eq, desc } from 'drizzle-orm';
 import { StorageService } from '../storage';
 import { enqueueVideoJob } from '../queue';
 import { config } from '../config';
+import { PipelineLogger } from '../logger';
 
 const router = Router();
 
@@ -65,6 +66,12 @@ router.post('/', upload.single('video'), async (req: Request, res: Response) => 
       })
       .returning();
 
+    await PipelineLogger.log(
+      videoId,
+      'API',
+      `Received payload (${(req.file.size / (1024 * 1024)).toFixed(2)} MB). Stored original file in Vercel Blob CDN.`
+    );
+
     // Enqueue background processing job
     try {
       await enqueueVideoJob({
@@ -73,6 +80,8 @@ router.post('/', upload.single('video'), async (req: Request, res: Response) => 
         inputUrl,
         originalFileName,
       });
+
+      await PipelineLogger.log(videoId, 'QUEUE', 'Enqueued job to BullMQ processing queue in Upstash Redis.');
 
       // Update status to queued
       await db
@@ -83,6 +92,7 @@ router.post('/', upload.single('video'), async (req: Request, res: Response) => 
       insertedVideo.status = 'queued';
     } catch (queueErr) {
       console.error('Queue dispatch failed, job queued status pending worker poll:', queueErr);
+      await PipelineLogger.log(videoId, 'ERROR', `Failed to enqueue job: ${queueErr}`);
     }
 
     res.status(201).json({
@@ -107,7 +117,15 @@ router.get('/', async (req: Request, res: Response) => {
       .select()
       .from(videos)
       .orderBy(desc(videos.createdAt));
-    res.json(videoList);
+    
+    const videosWithLogs = await Promise.all(
+      videoList.map(async (v) => ({
+        ...v,
+        logs: await PipelineLogger.getLogs(v.id),
+      }))
+    );
+
+    res.json(videosWithLogs);
   } catch (error) {
     console.error('Failed to fetch videos:', error);
     res.status(500).json({ error: 'Failed to fetch videos' });
@@ -159,7 +177,8 @@ router.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Video not found' });
     }
 
-    res.json(result[0]);
+    const logs = await PipelineLogger.getLogs(videoId);
+    res.json({ ...result[0], logs });
   } catch (error) {
     console.error('Failed to fetch video metadata:', error);
     res.status(500).json({ error: 'Failed to fetch video details' });
@@ -189,6 +208,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
     if (video.webmPath) StorageService.deleteBlob(video.webmPath);
     if (video.mp4Path) StorageService.deleteBlob(video.mp4Path);
     if (video.thumbnailPath) StorageService.deleteBlob(video.thumbnailPath);
+
+    // Clean up Redis logs
+    PipelineLogger.deleteLogs(videoId);
 
     // Delete DB record
     await db.delete(videos).where(eq(videos.id, videoId));
