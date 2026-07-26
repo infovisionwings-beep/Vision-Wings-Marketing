@@ -88,7 +88,7 @@ export default function Navbar({ user }: { user: any }) {
               className={`text-body font-medium transition-all px-4 py-2 rounded-full ${isActive("/", "insights") ? "bg-navy-950 text-warm-50" : "hover:text-bronze-500 hover:bg-warm-100"}`} 
               data-interactive
             >
-              Insights
+              Perspectives
             </Link>
             <div className="ml-6 flex items-center gap-4">
               {user ? (
@@ -144,7 +144,7 @@ export default function Navbar({ user }: { user: any }) {
 
           <Link href="/#insights" className="flex flex-col items-center gap-1 group" data-interactive>
             <FileText className={`w-6 h-6 transition-colors ${isActive("/", "insights") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`} />
-            <span className={`text-[10px] font-medium tracking-wide uppercase transition-colors ${isActive("/", "insights") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`}>Insights</span>
+            <span className={`text-[10px] font-medium tracking-wide uppercase transition-colors ${isActive("/", "insights") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`}>Perspectives</span>
           </Link>
 
           <Link href="/contact" className="flex flex-col items-center gap-1 group" data-interactive>

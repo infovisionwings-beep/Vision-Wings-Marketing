@@ -1,91 +1,309 @@
 import { getInsights } from "@/app/actions/insights";
 import RevealOnScroll from "@/components/motion/RevealOnScroll";
 import { Link } from "@/components/ui/Link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Plus, ArrowRight, Sparkles, BookOpen } from "lucide-react";
 import { format } from "date-fns";
 
 export const metadata = {
-  title: "Insights & Perspectives - Vision Wings",
+  title: "Thinking & Perspectives (Essays) - Vision Wings",
   description: "Senior strategic and creative viewpoints on brand architecture, growth marketing, and digital design craft.",
 };
 
-const fallbackInsights = [
+export const dynamic = "force-dynamic";
+
+const fallbackEssays = [
   {
-    id: 1,
-    title: "The New Rules of Brand Architecture",
-    category: "Strategy",
+    id: "feat-1",
+    title: "The New Rules of Brand Architecture in an AI Era",
+    category: "Strategy & Architecture",
     date: "Oct 12, 2024",
-    slug: "brand-architecture"
+    slug: "brand-architecture",
+    coverImage: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1600&q=80",
+    readTime: "6 min read",
+    excerpt: "Why traditional house-of-brands models are collapsing under the weight of generative noise, and how to build monolithic brand equity.",
+    author: "Amélie Laurent",
+    authorRole: "Partner, Brand Architecture",
+    authorAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
   },
   {
-    id: 2,
-    title: "Designing for Conversion Without Sacrificing Brand",
-    category: "Design",
+    id: "feat-2",
+    title: "Real talk in a corporate world: Why traditional B2B positioning is dead",
+    category: "Monograph & Dispatch",
     date: "Sep 28, 2024",
-    slug: "conversion-design"
+    slug: "market-positioning",
+    coverImage: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80",
+    readTime: "5 min read",
+    excerpt: "Stop selling feature checklists to procurement teams. How to re-anchor executive buyers around business transformation.",
+    author: "Oliva Nacelle",
+    authorRole: "Content Strategist",
+    authorAvatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80",
   },
   {
-    id: 3,
-    title: "Why Most B2B Positioning Fails",
-    category: "Insights",
+    id: "feat-3",
+    title: "Designing for Conversion Without Sacrificing Luxury Brand Prestige",
+    category: "Design Craft",
     date: "Sep 15, 2024",
-    slug: "market-positioning"
+    slug: "conversion-design",
+    coverImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1200&q=80",
+    readTime: "7 min read",
+    excerpt: "The false dichotomy between performance marketing tactics and luxury brand building—and the design frameworks that harmonize both.",
+    author: "Mia di Silva",
+    authorRole: "Creative Director",
+    authorAvatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80",
+  },
+  {
+    id: "feat-4",
+    title: "The Spatial Soul of Real Estate Branding",
+    category: "Property Marketing",
+    date: "Aug 30, 2024",
+    slug: "spatial-soul-real-estate",
+    coverImage: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80",
+    readTime: "4 min read",
+    excerpt: "How cinematic drone tours and bespoke soundscapes convert international HNWI buyers faster than architectural renderings.",
+    author: "Amélie Laurent",
+    authorRole: "Partner, Brand Architecture",
+    authorAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
   }
 ];
 
-export default async function InsightsPage() {
-  let list = fallbackInsights;
+export default async function EssaysLandingPage() {
+  let list = fallbackEssays;
   try {
     const dbInsights = await getInsights();
     if (dbInsights && dbInsights.length > 0) {
-      list = dbInsights.map((item: any) => ({
-        id: item.id,
-        title: item.title,
-        category: item.category,
-        slug: item.slug,
+      list = dbInsights.map((item: any, idx: number) => ({
+        id: item.id || `db-${idx}`,
+        title: item.title || fallbackEssays[idx]?.title || "Strategic Perspective",
+        category: item.category || fallbackEssays[idx]?.category || "Strategy & Architecture",
+        slug: item.slug || item.id || `essay-${idx}`,
         date: item.publishedAt 
           ? format(new Date(item.publishedAt), "MMM d, yyyy") 
-          : (item.createdAt 
-              ? format(new Date(item.createdAt), "MMM d, yyyy") 
-              : format(new Date(), "MMM d, yyyy"))
+          : (item.createdAt ? format(new Date(item.createdAt), "MMM d, yyyy") : format(new Date(), "MMM d, yyyy")),
+        coverImage: item.coverImage || fallbackEssays[idx % fallbackEssays.length].coverImage,
+        readTime: `${Math.max(3, Math.ceil((item.content?.length || 1500) / 500))} min read`,
+        excerpt: item.excerpt || fallbackEssays[idx % fallbackEssays.length].excerpt,
+        author: item.authorName || fallbackEssays[idx % fallbackEssays.length].author,
+        authorRole: item.authorRole || fallbackEssays[idx % fallbackEssays.length].authorRole,
+        authorAvatar: item.authorAvatar || fallbackEssays[idx % fallbackEssays.length].authorAvatar,
       }));
     }
   } catch (err) {
-    console.error("Failed to load insights list:", err);
+    console.error("Failed to fetch essays list:", err);
   }
 
+  // Ensure we have at least 3 items for our Asymmetric Bento Hero
+  while (list.length < 3) {
+    list.push(fallbackEssays[list.length % fallbackEssays.length]);
+  }
+
+  const [heroEssay, secondEssay, thirdEssay, ...remainingEssays] = list;
+
   return (
-    <main className="min-h-screen bg-warm-100 pt-32 pb-24 px-5 md:px-10 xl:px-20">
-      <div className="max-w-[1280px] mx-auto space-y-16">
+    <main className="min-h-screen bg-warm-50 pt-32 pb-28 px-5 md:px-10 xl:px-20 text-navy-950 overflow-hidden">
+      <div className="max-w-[1280px] mx-auto space-y-16 lg:space-y-24">
         
-        {/* Header */}
-        <div className="max-w-3xl space-y-6">
-          <span className="text-h4 text-bronze-900 block font-semibold">THE THINKING HANDBOOK</span>
-          <h1 className="text-display text-navy-950">Insights & Perspective</h1>
-          <p className="text-body-lg text-navy-700">
-            Plain-English essays on strategy, design, and conversions. We avoid buzzwords and fake claims, focusing instead on structural lessons from the growth coalface.
-          </p>
+        {/* Editorial Title Banner - Exact to Reference 2: "Best of the week" / "Thinking & Perspectives" with italic emphasis */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-navy-200 pb-10">
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="px-3 py-1 rounded-full bg-navy-950 text-warm-50 text-xs font-mono font-bold uppercase tracking-wider">
+                Agency Monograph
+              </span>
+              <span className="text-xs font-mono text-navy-500 uppercase tracking-wider">
+                Volume IV · 2025
+              </span>
+            </div>
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold font-display tracking-tight text-navy-950 leading-[0.95]">
+              Thinking &amp; <span className="italic font-serif font-normal text-navy-900">Perspectives.</span>
+            </h1>
+          </div>
+
+          <Link href="#archive" className="group inline-flex items-center gap-2 text-sm font-bold font-display text-navy-900 hover:text-bronze-600 transition-colors pb-2" data-interactive>
+            <span>See all essays</span>
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+          </Link>
         </div>
 
-        {/* Editorial Index Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {list.map((item) => (
+        {/* Asymmetric Bento Hero Grid - Inspired by Reference 2 */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+          
+          {/* Left Hero Card (Spans 8 columns on large screens) */}
+          <div className="lg:col-span-8 flex flex-col">
             <Link 
-              key={item.id}
-              href={`/insights/${item.slug}`} 
-              className="group block bg-warm-50 border border-navy-100 hover:shadow-[0_6px_16px_rgba(15,23,42,0.06)] transition-all duration-300 p-8 rounded-xl" 
+              href={`/insights/${heroEssay.slug}`}
+              className="group block relative w-full h-full min-h-[460px] md:min-h-[560px] rounded-[32px] overflow-hidden bg-navy-900 border border-navy-200/60 shadow-xl"
               data-interactive
             >
-              <div className="flex justify-between items-start mb-10">
-                <span className="text-caption text-bronze-900 font-bold uppercase tracking-wider">{item.category}</span>
-                <div className="p-2 bg-warm-100 rounded-full group-hover:bg-bronze-950 group-hover:text-warm-50 transition-colors duration-300">
-                  <ArrowUpRight className="w-4.5 h-4.5" />
+              <img 
+                src={heroEssay.coverImage} 
+                alt={heroEssay.title}
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-90"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-navy-950/80 via-navy-950/20 to-transparent" />
+
+              {/* Top Floating Pills */}
+              <div className="absolute top-6 left-6 right-6 flex flex-wrap items-center gap-2.5 z-10 pointer-events-none">
+                <span className="px-3.5 py-1.5 rounded-full bg-white/95 text-navy-950 font-mono text-xs font-bold shadow-md backdrop-blur-md">
+                  {heroEssay.date}
+                </span>
+                <span className="px-3.5 py-1.5 rounded-full bg-navy-950/80 text-warm-50 font-mono text-xs font-semibold backdrop-blur-md border border-warm-50/20">
+                  · {heroEssay.category}
+                </span>
+              </div>
+
+              {/* Center/Bottom White Pill Title Box Overlay (Signature element from Reference 2) */}
+              <div className="absolute bottom-10 left-6 right-20 sm:left-10 sm:right-28 z-10">
+                <div className="inline-block bg-white/95 backdrop-blur-md p-6 sm:p-8 rounded-3xl shadow-2xl border border-navy-100 max-w-xl group-hover:bg-white transition-colors duration-300 transform group-hover:-translate-y-1">
+                  <span className="text-xs font-mono font-bold text-bronze-600 uppercase tracking-widest block mb-2">
+                    Featured Monograph
+                  </span>
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-display text-navy-950 leading-tight tracking-tight">
+                    {heroEssay.title}
+                  </h2>
+                  <p className="text-body-sm text-navy-600 mt-3 line-clamp-2 leading-relaxed font-normal">
+                    {heroEssay.excerpt}
+                  </p>
+                  <div className="flex items-center gap-3 mt-4 pt-4 border-t border-navy-100">
+                    <img src={heroEssay.authorAvatar} alt={heroEssay.author} className="w-6 h-6 rounded-full object-cover" />
+                    <span className="text-xs font-bold text-navy-900">{heroEssay.author}</span>
+                    <span className="text-xs font-mono text-navy-400">· {heroEssay.readTime}</span>
+                  </div>
                 </div>
               </div>
-              <h3 className="text-h3 text-navy-950 mb-6 group-hover:text-bronze-500 transition-colors leading-snug">{item.title}</h3>
-              <p className="text-caption text-navy-500 font-mono">{item.date}</p>
+
+              {/* Bottom Right Circular Arrow Button */}
+              <div className="absolute bottom-6 right-6 sm:bottom-10 sm:right-10 z-10 w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white text-navy-950 flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:bg-navy-950 group-hover:text-warm-50 transition-all duration-300">
+                <ArrowUpRight className="w-6 h-6 sm:w-7 sm:h-7" />
+              </div>
             </Link>
-          ))}
+          </div>
+
+          {/* Right Stacked Cards (Spans 4 columns) */}
+          <div className="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-8 flex-col justify-between">
+            
+            {/* Top Right Card: Sage/Tinted Editorial Announcement Box */}
+            <Link 
+              href={`/insights/${secondEssay.slug}`}
+              className="group block relative rounded-[32px] bg-[#E2E8F0] hover:bg-[#CBD5E1] text-navy-950 p-8 flex flex-col justify-between transition-colors duration-300 min-h-[260px] border border-navy-200 shadow-lg overflow-hidden"
+              data-interactive
+            >
+              <div className="flex justify-between items-start">
+                <span className="px-3 py-1 rounded-full bg-navy-950/10 text-navy-900 font-mono text-[11px] font-bold uppercase tracking-wider">
+                  • DISPATCH
+                </span>
+                <div className="w-9 h-9 rounded-full bg-white text-navy-950 flex items-center justify-center shadow-sm group-hover:rotate-90 transition-transform duration-300">
+                  <Plus className="w-5 h-5" />
+                </div>
+              </div>
+
+              <div className="space-y-3 mt-6">
+                <span className="text-xs font-mono text-navy-600 font-semibold">{secondEssay.category}</span>
+                <h3 className="text-xl sm:text-2xl font-bold font-display tracking-tight text-navy-950 leading-snug">
+                  {secondEssay.title}
+                </h3>
+              </div>
+
+              <div className="pt-6 mt-4 border-t border-navy-300/40 flex items-center justify-between text-xs font-bold text-navy-900 group-hover:text-bronze-600 transition-colors">
+                <span>Read monograph</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+
+            {/* Bottom Right Card: Vertical Photo Showcase */}
+            <Link 
+              href={`/insights/${thirdEssay.slug}`}
+              className="group block relative rounded-[32px] overflow-hidden bg-navy-900 min-h-[260px] shadow-lg border border-navy-200/60"
+              data-interactive
+            >
+              <img 
+                src={thirdEssay.coverImage} 
+                alt={thirdEssay.title}
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-85"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/30 to-transparent" />
+
+              <div className="absolute top-6 left-6 right-6 flex justify-between items-center pointer-events-none">
+                <span className="w-8 h-8 rounded-full border border-white/40 flex items-center justify-center text-warm-50 text-xs font-mono font-bold backdrop-blur-sm">
+                  03
+                </span>
+                <span className="px-2.5 py-1 rounded bg-navy-950/80 text-warm-50 text-[10px] font-mono font-bold backdrop-blur-md">
+                  {thirdEssay.readTime}
+                </span>
+              </div>
+
+              <div className="absolute bottom-6 left-6 right-6 space-y-3 text-warm-50">
+                <span className="text-xs font-mono text-bronze-400 font-bold uppercase tracking-wider block">
+                  {thirdEssay.category}
+                </span>
+                <h3 className="text-lg sm:text-xl font-bold font-display tracking-tight leading-snug group-hover:text-bronze-300 transition-colors">
+                  {thirdEssay.title}
+                </h3>
+                <div className="pt-2">
+                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-navy-950 text-xs font-bold group-hover:bg-bronze-500 group-hover:text-warm-50 transition-colors shadow-md">
+                    <span>See perspective</span>
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </span>
+                </div>
+              </div>
+            </Link>
+
+          </div>
+
+        </div>
+
+        {/* Remaining Archive Grid (Section 2) */}
+        <div id="archive" className="pt-12 border-t border-navy-200 space-y-10">
+          <div className="flex justify-between items-end">
+            <div>
+              <span className="text-xs font-mono font-bold text-bronze-600 uppercase tracking-widest block mb-2">
+                COMPLETE INDEX
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-bold font-display text-navy-950 tracking-tight">
+                Published Essays &amp; Monographs.
+              </h2>
+            </div>
+            <span className="text-sm font-mono text-navy-500 hidden sm:block">
+              Showing {list.length} perspectives
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {list.map((item, idx) => (
+              <Link 
+                key={item.id || idx}
+                href={`/insights/${item.slug}`}
+                className="group flex flex-col justify-between bg-white border border-navy-200/70 hover:border-bronze-500/50 hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)] transition-all duration-300 p-8 rounded-2xl"
+                data-interactive
+              >
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center text-xs font-mono text-navy-500">
+                    <span className="px-2.5 py-1 rounded bg-warm-100 text-navy-900 font-bold">
+                      {item.category}
+                    </span>
+                    <span>{item.date}</span>
+                  </div>
+
+                  <h3 className="text-xl font-bold font-display text-navy-950 group-hover:text-bronze-600 transition-colors leading-snug">
+                    {item.title}
+                  </h3>
+
+                  <p className="text-body-sm text-navy-600 line-clamp-3 leading-relaxed font-normal">
+                    {item.excerpt}
+                  </p>
+                </div>
+
+                <div className="pt-6 mt-6 border-t border-navy-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <img src={item.authorAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80"} alt={item.author || "Author"} className="w-7 h-7 rounded-full object-cover" />
+                    <span className="text-xs font-semibold text-navy-900">{item.author || "Amélie Laurent"}</span>
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-warm-100 group-hover:bg-navy-950 group-hover:text-warm-50 flex items-center justify-center transition-colors">
+                    <ArrowUpRight className="w-4 h-4" />
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
 
       </div>
