@@ -4,7 +4,7 @@
 // VISUAL_DENSITY: 5
 
 import { Link } from "@/components/ui/Link";
-import { Eye, Briefcase, FileText, LogOut, User, Video, ShieldCheck, Activity, Terminal } from "lucide-react";
+import { Eye, Briefcase, FileText, LogOut, User, Video, ShieldCheck, Activity, Terminal, Image as ImageIcon } from "lucide-react";
 import { requireAdmin } from "@/lib/auth/rbac";
 
 export const dynamic = "force-dynamic";
@@ -80,6 +80,18 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </Link>
 
           <Link 
+            href="/admin/photos" 
+            className="flex items-center justify-between p-3 rounded-lg hover:bg-navy-900/90 text-navy-200 hover:text-warm-50 transition-all group border border-transparent hover:border-navy-800"
+            data-interactive
+          >
+            <div className="flex items-center gap-3">
+              <ImageIcon className="w-4 h-4 text-bronze-400 group-hover:text-bronze-300 transition-colors" />
+              <span className="text-sm font-medium">Image Pipeline</span>
+            </div>
+            <span className="text-[10px] font-mono text-navy-500 group-hover:text-bronze-400">04</span>
+          </Link>
+
+          <Link 
             href="/admin/leads" 
             className="flex items-center justify-between p-3 rounded-lg hover:bg-navy-900/90 text-navy-200 hover:text-warm-50 transition-all group border border-transparent hover:border-navy-800"
             data-interactive
@@ -88,7 +100,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <User className="w-4 h-4 text-bronze-400 group-hover:text-bronze-300 transition-colors" />
               <span className="text-sm font-medium">Client Leads</span>
             </div>
-            <span className="text-[10px] font-mono text-navy-500 group-hover:text-bronze-400">04</span>
+            <span className="text-[10px] font-mono text-navy-500 group-hover:text-bronze-400">05</span>
           </Link>
         </nav>
 

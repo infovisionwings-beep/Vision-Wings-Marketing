@@ -57,3 +57,20 @@ export const videos = pgTable("videos", {
   processedAt: timestamp("processed_at"),
 });
 
+export const photos = pgTable("photos", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  originalFileName: text("original_file_name").notNull(),
+  originalSize: bigint("original_size", { mode: "number" }).notNull(),
+  originalMimeType: varchar("original_mime_type", { length: 100 }).notNull(),
+  width: bigint("width", { mode: "number" }),
+  height: bigint("height", { mode: "number" }),
+  status: varchar("status", { length: 50 }).notNull().default("uploaded"), // uploaded, queued, processing, completed, failed
+  inputPath: text("input_path").notNull(),
+  webpPath: text("webp_path"),
+  thumbnailPath: text("thumbnail_path"),
+  errorMessage: text("error_message"),
+  createdAt: timestamp("created_at").defaultNow(),
+  processedAt: timestamp("processed_at"),
+});
+
