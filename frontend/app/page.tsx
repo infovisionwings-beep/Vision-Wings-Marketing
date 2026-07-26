@@ -2,6 +2,7 @@ import Hero from "@/components/sections/Hero";
 import AboutVision from "@/components/sections/AboutVision";
 import Services from "@/components/sections/Services";
 import Work from "@/components/sections/Work";
+import VideoTeaser from "@/components/sections/VideoTeaser";
 import Insights from "@/components/sections/Insights";
 import Contact from "@/components/sections/Contact";
 
@@ -12,6 +13,7 @@ export default function Home() {
       <AboutVision />
       <Services />
       <Work />
+      <VideoTeaser />
       <Insights />
       <Contact />
     </>
