@@ -8,7 +8,6 @@
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { Plus, Trash2, Edit3, FileText, Loader2, RefreshCw, Sparkles, BookOpen, Clock, ArrowUpRight, Image as ImageIcon } from "lucide-react";
-import { getInsights, createInsight, updateInsight, deleteInsight } from "@/app/actions/insights";
 import "react-quill-new/dist/quill.snow.css";
 
 // Dynamically import ReactQuill to avoid SSR window errors in Next.js 16 / React 19
@@ -78,8 +77,13 @@ export const AdminInsightsManager: React.FC = () => {
   const fetchInsightData = async () => {
     try {
       setIsLoading(true);
-      const data = await getInsights();
-      setInsights(data || []);
+      const res = await fetch("/api/insights");
+      if (res.ok) {
+        const data = await res.json();
+        setInsights(data || []);
+      } else {
+        console.error("Failed to load essays from API:", res.statusText);
+      }
     } catch (err) {
       console.error("Failed to load essays:", err);
     } finally {
@@ -133,15 +137,32 @@ export const AdminInsightsManager: React.FC = () => {
     try {
       setIsSubmitting(true);
       if (editingId) {
-        await updateInsight(editingId, formData);
+        const res = await fetch(`/api/insights/${editingId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || "Failed to update essay");
+        }
       } else {
-        await createInsight(formData);
+        const res = await fetch("/api/insights", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || "Failed to create essay");
+        }
       }
       setShowModal(false);
       setEditingId(null);
       fetchInsightData();
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to save essay:", err);
+      alert("Error saving essay: " + (err.message || "Unknown error"));
     } finally {
       setIsSubmitting(false);
     }
@@ -150,8 +171,13 @@ export const AdminInsightsManager: React.FC = () => {
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to retract and delete this published essay?")) return;
     try {
-      await deleteInsight(id);
-      setInsights((prev) => prev.filter((item) => item.id !== id));
+      const res = await fetch(`/api/insights/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setInsights((prev) => prev.filter((item) => item.id !== id));
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        alert("Failed to delete essay: " + (errData.error || res.statusText));
+      }
     } catch (err) {
       console.error("Failed to delete essay:", err);
     }
