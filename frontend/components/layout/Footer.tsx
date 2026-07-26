@@ -36,7 +36,7 @@ export default function Footer() {
             <Link href="#about" className="text-body hover:text-bronze-300 transition-colors w-fit py-2" data-interactive>About Us</Link>
             <Link href="#work" className="text-body hover:text-bronze-300 transition-colors w-fit py-2" data-interactive>Featured Work</Link>
             <Link href="/videos" className="text-body hover:text-bronze-300 transition-colors w-fit py-2" data-interactive>Video Tours</Link>
-            <Link href="#insights" className="text-body hover:text-bronze-300 transition-colors w-fit py-2" data-interactive>Insights</Link>
+            <Link href="/insights" className="text-body hover:text-bronze-300 transition-colors w-fit py-2" data-interactive>Thinking & Perspectives</Link>
             <Link href="#contact" className="text-body hover:text-bronze-300 transition-colors w-fit py-2" data-interactive>Contact</Link>
           </div>
 
