@@ -5,7 +5,9 @@ import { db } from './db';
 import { projects, insights, userProfiles } from './db/schema';
 import { eq } from 'drizzle-orm';
 import videoRoutes from './routes/videos';
+import photoRoutes from './routes/photos';
 import './worker';
+import './photoWorker';
 
 dotenv.config();
 
@@ -22,6 +24,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // Video Processing API
 app.use('/api/videos', videoRoutes);
+
+// Photo Processing API
+app.use('/api/photos', photoRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

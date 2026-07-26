@@ -54,3 +54,37 @@ export async function enqueueVideoJob(jobData: VideoJobData) {
     throw error;
   }
 }
+
+export interface PhotoJobData {
+  photoId: string;
+  userId: string;
+  inputUrl: string;
+  originalFileName: string;
+  originalMimeType: string;
+}
+
+const PHOTO_QUEUE_NAME = 'photo-processing-queue';
+
+export const photoQueue = new Queue<PhotoJobData>(PHOTO_QUEUE_NAME, {
+  connection: redisConnection!,
+  defaultJobOptions: {
+    attempts: 2,
+    backoff: {
+      type: 'exponential',
+      delay: 3000,
+    },
+    removeOnComplete: true,
+    removeOnFail: false,
+  },
+});
+
+export async function enqueuePhotoJob(jobData: PhotoJobData) {
+  try {
+    const job = await photoQueue.add('transcode-photo', jobData);
+    console.log(`Enqueued photo job ${job.id} for photoId: ${jobData.photoId}`);
+    return job;
+  } catch (error) {
+    console.error('Failed to enqueue photo job:', error);
+    throw error;
+  }
+}

@@ -46,3 +46,39 @@ export async function enqueueVideoJob(jobData: VideoJobData) {
     console.error('Failed to enqueue video job:', error);
   }
 }
+
+export interface PhotoJobData {
+  photoId: string;
+  userId: string;
+  inputUrl: string;
+  originalFileName: string;
+  originalMimeType: string;
+}
+
+const PHOTO_QUEUE_NAME = 'photo-processing-queue';
+
+export const photoQueue = redisConnection
+  ? new Queue<PhotoJobData>(PHOTO_QUEUE_NAME, {
+      connection: redisConnection,
+      defaultJobOptions: {
+        attempts: 2,
+        backoff: { type: 'exponential', delay: 3000 },
+        removeOnComplete: true,
+        removeOnFail: false,
+      },
+    })
+  : null;
+
+export async function enqueuePhotoJob(jobData: PhotoJobData) {
+  if (!photoQueue) {
+    console.warn('photoQueue not available, job pending worker poll');
+    return;
+  }
+  try {
+    const job = await photoQueue.add('transcode-photo', jobData);
+    console.log(`Enqueued photo job ${job.id} for photoId: ${jobData.photoId}`);
+    return job;
+  } catch (error) {
+    console.error('Failed to enqueue photo job:', error);
+  }
+}

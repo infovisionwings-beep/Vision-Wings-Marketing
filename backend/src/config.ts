@@ -34,5 +34,20 @@ export const config = {
       '-b:a', '128k',
       '-movflags', '+faststart'
     ]
+  },
+
+  photo: {
+    maxSizeBytes: 50 * 1024 * 1024, // 50MB
+    allowedMimetypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+    allowedExtensions: ['.jpg', '.jpeg', '.png', '.gif', '.webp'],
+    // FFmpeg GIF to Animated WebP parameters
+    gifToWebpParams: [
+      '-vcodec', 'libwebp',
+      '-lossless', '0',
+      '-qscale', '75',
+      '-loop', '0',
+      '-an',
+      '-vsync', '0'
+    ]
   }
 };
