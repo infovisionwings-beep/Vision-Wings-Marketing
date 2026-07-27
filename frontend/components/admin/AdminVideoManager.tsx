@@ -37,7 +37,7 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "";
 
 interface AdminVideoManagerProps {
   isModal?: boolean;
-  onSelectVideo?: (url: string) => void;
+  onSelectVideo?: (url: string, videoObj?: VideoRecord) => void;
 }
 
 export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = false, onSelectVideo }) => {
@@ -205,7 +205,7 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
             <button
               onClick={() => {
                 if (onSelectVideo) {
-                  onSelectVideo(selectedVideo.mp4Path || selectedVideo.inputPath);
+                  onSelectVideo(selectedVideo.webmPath || selectedVideo.mp4Path || selectedVideo.inputPath, selectedVideo);
                 }
               }}
               className="w-full md:w-auto px-6 py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-mono font-bold text-xs rounded-xl shadow-md border border-emerald-600 hover:scale-102 active:scale-95 transition-all flex items-center justify-center gap-2 flex-shrink-0 group/btn"
@@ -429,7 +429,7 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                onSelectVideo(v.mp4Path || v.inputPath);
+                                onSelectVideo(v.webmPath || v.mp4Path || v.inputPath, v);
                               }}
                               className="px-2.5 py-1 bg-emerald-950/90 hover:bg-emerald-900 text-emerald-300 font-mono text-[10px] font-bold rounded border border-emerald-600/60 shadow-sm transition-all hover:scale-105"
                               title="Inject this video directly"
@@ -581,7 +581,7 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
               <div className="bg-navy-900/90 border-t border-navy-800 px-5 py-3 flex flex-col gap-2">
                 {selectedVideo && onSelectVideo && (
                   <button
-                    onClick={() => onSelectVideo(selectedVideo.mp4Path || selectedVideo.inputPath)}
+                    onClick={() => onSelectVideo(selectedVideo.webmPath || selectedVideo.mp4Path || selectedVideo.inputPath, selectedVideo)}
                     className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 active:scale-95"
                   >
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />

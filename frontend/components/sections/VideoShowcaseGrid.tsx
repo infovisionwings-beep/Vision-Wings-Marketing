@@ -98,7 +98,7 @@ export default function VideoShowcaseGrid({ dbVideos = [] }: VideoShowcaseGridPr
     date: v.processedAt ? new Date(v.processedAt).toLocaleDateString("en-US", { month: "short", year: "numeric" }).toUpperCase() : "LIVE",
     duration: v.durationSeconds ? `${Math.floor(Number(v.durationSeconds) / 60)}:${String(Math.floor(Number(v.durationSeconds) % 60)).padStart(2, "0")}` : "HD 4K",
     coverImage: v.thumbnailPath || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80",
-    videoUrl: v.mp4Path || v.webmPath || v.inputPath,
+    videoUrl: v.webmPath || v.mp4Path || v.inputPath,
     description: `High-definition media pipeline rendition processed via Upstash BullMQ and Vercel Blob CDN. Original size: ${(Number(v.originalSize) / (1024 * 1024)).toFixed(1)} MB.`,
     isLiveDb: true
   }));
