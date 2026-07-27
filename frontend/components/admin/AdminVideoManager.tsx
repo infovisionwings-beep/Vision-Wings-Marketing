@@ -191,14 +191,14 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
     <div className="space-y-12">
       {/* Modal Selection Banner */}
       {(isModal || onSelectVideo) && (
-        <div className="bg-gradient-to-r from-bronze-600 via-amber-600 to-navy-900 text-warm-50 p-6 sm:p-8 rounded-3xl shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-2 border-bronze-400/60 animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="bg-gradient-to-r from-emerald-50 via-warm-100 to-white text-navy-950 p-6 sm:p-8 rounded-3xl shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-2 border-emerald-300 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="space-y-1">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-navy-950/80 border border-bronze-400/40 text-[11px] font-mono font-black text-bronze-300 tracking-widest uppercase">
-              ⚡ MODAL VIDEO PIPELINE INJECTION ACTIVE
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-600 text-white border border-emerald-400 text-[11px] font-mono font-black tracking-widest uppercase shadow-sm">
+              ⚡ MODAL VIDEO PIPELINE INJECTION ACTIVE (LIGHT SCHEME)
             </span>
-            <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-white">Select Cloud Video for Dossier</h3>
-            <p className="text-xs sm:text-sm text-warm-100 max-w-2xl leading-relaxed">
-              Upload a new video below or click on any existing transcoded MP4/WebM asset in your archive, then click <strong className="text-white underline">&ldquo;USE THIS VIDEO&rdquo;</strong> to inject it into your editorial content or exhibition.
+            <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-navy-950 font-display">Select Cloud Video for Dossier</h3>
+            <p className="text-xs sm:text-sm text-navy-600 max-w-2xl leading-relaxed">
+              Upload a new video below or click on any existing transcoded MP4/WebM asset in your archive, then click <strong className="text-navy-950 underline">&ldquo;USE THIS VIDEO&rdquo;</strong> to inject it into your editorial content or exhibition.
             </p>
           </div>
           {selectedVideo ? (
@@ -208,13 +208,13 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
                   onSelectVideo(selectedVideo.mp4Path || selectedVideo.inputPath);
                 }
               }}
-              className="w-full md:w-auto px-8 py-4 bg-navy-950 hover:bg-emerald-950 text-warm-50 hover:text-emerald-300 font-mono font-bold text-xs sm:text-sm rounded-2xl shadow-2xl border-2 border-emerald-500/60 hover:border-emerald-400 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2.5 flex-shrink-0 group/btn"
+              className="w-full md:w-auto px-8 py-4 bg-emerald-700 hover:bg-emerald-800 text-white font-mono font-bold text-xs sm:text-sm rounded-2xl shadow-lg border border-emerald-600 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2.5 flex-shrink-0 group/btn"
             >
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 group-hover/btn:rotate-12 transition-transform" />
+              <CheckCircle2 className="w-5 h-5 text-white group-hover/btn:rotate-12 transition-transform" />
               <span>USE SELECTED: &ldquo;{selectedVideo.originalFileName.slice(0, 16)}&rdquo;</span>
             </button>
           ) : (
-            <div className="w-full md:w-auto px-6 py-3 bg-navy-900/60 text-navy-400 font-mono text-xs rounded-xl border border-navy-700/60 text-center flex-shrink-0">
+            <div className="w-full md:w-auto px-6 py-3 bg-white text-navy-500 font-mono text-xs rounded-xl border border-navy-200 shadow-sm text-center flex-shrink-0 font-bold">
               👈 CLICK ANY VIDEO BELOW TO SELECT
             </div>
           )}
@@ -250,17 +250,17 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
         {/* LEFT COLUMN: Dropzone & Cloud Assets (8 cols on Desktop) */}
         <div className="lg:col-span-7 xl:col-span-8 space-y-10">
           
-          {/* Executive Dark Cloud Dropzone */}
-          <div className="bg-navy-950 text-warm-50 p-8 md:p-10 rounded-2xl border-2 border-dashed border-navy-800 hover:border-bronze-500 transition-all shadow-2xl relative overflow-hidden group">
+          {/* Executive Cloud Dropzone */}
+          <div className={`${isModal ? "bg-warm-50 text-navy-950 border-navy-300" : "bg-navy-950 text-warm-50 border-navy-800"} p-8 md:p-10 rounded-2xl border-2 border-dashed hover:border-bronze-500 transition-all shadow-md relative overflow-hidden group`}>
             <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-bronze-500/10 blur-3xl pointer-events-none" />
 
             <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto relative z-10">
-              <div className="w-14 h-14 rounded-2xl bg-navy-900 border border-navy-700 flex items-center justify-center text-bronze-400 mb-5 group-hover:scale-110 group-hover:border-bronze-500 transition-all shadow-inner">
+              <div className={`w-14 h-14 rounded-2xl ${isModal ? "bg-white border-navy-200 text-bronze-600 shadow-sm" : "bg-navy-900 border-navy-700 text-bronze-400 shadow-inner"} border flex items-center justify-center mb-5 group-hover:scale-110 group-hover:border-bronze-500 transition-all`}>
                 <Upload className="w-7 h-7" />
               </div>
-              <span className="text-xs font-mono uppercase tracking-widest text-bronze-400 mb-2">VERCEL BLOB CDN + UPSTASH QUEUE</span>
-              <h3 className="text-h3 font-bold text-warm-50 mb-2">Deploy Media Asset</h3>
-              <p className="text-sm text-navy-300 mb-6 leading-relaxed">
+              <span className="text-xs font-mono uppercase tracking-widest text-bronze-600 mb-2 font-bold">VERCEL BLOB CDN + UPSTASH QUEUE</span>
+              <h3 className={`text-h3 font-bold ${isModal ? "text-navy-950" : "text-warm-50"} mb-2`}>Deploy Media Asset</h3>
+              <p className={`text-sm ${isModal ? "text-navy-600" : "text-navy-300"} mb-6 leading-relaxed`}>
                 Drag &amp; drop high-resolution MP4, MOV, or WebM video file, or initialize local browser selection (Max 100MB payload).
               </p>
 
