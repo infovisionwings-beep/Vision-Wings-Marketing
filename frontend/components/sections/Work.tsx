@@ -82,8 +82,8 @@ export default function Work() {
             </h2>
           </RevealOnScroll>
           <RevealOnScroll delay={0.1}>
-            <Link href="/work" className="inline-block">
-              <Button variant="secondary" className="whitespace-nowrap group" data-interactive>
+            <Link href="/work" className="inline-block min-h-[44px] rounded-full focus-visible:ring-2 focus-visible:ring-bronze-500 outline-none">
+              <Button variant="secondary" className="whitespace-nowrap group min-h-[44px]" data-interactive>
                 <span>View Full Archive</span>
                 <ArrowUpRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </Button>
@@ -104,7 +104,7 @@ export default function Work() {
                 delay={index * 0.1}
                 className={`${colSpan} group block`}
               >
-                <Link href={`/work/${project.slug || project.id}`} className="block space-y-6" data-interactive>
+                <Link href={`/work/${project.slug || project.id}`} className="block space-y-6 focus-visible:ring-2 focus-visible:ring-bronze-500 rounded-2xl outline-none p-1 -m-1" data-interactive>
                   
                   {/* Image Showcase Container with Tactile Hover Physics */}
                   <div className={`relative w-full ${aspectClass} rounded-2xl overflow-hidden bg-navy-900 border border-navy-200/60 shadow-md`}>
@@ -114,7 +114,7 @@ export default function Work() {
                         alt={project.title}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                        sizes={isHero ? "100vw" : "(max-width: 768px) 100vw, 50vw"}
+                        sizes={isHero ? "(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1280px" : "(max-width: 768px) 100vw, 50vw"}
                         priority={index === 0}
                       />
                     ) : (

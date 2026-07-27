@@ -87,7 +87,7 @@ export default function Hero() {
             </motion.h1>
 
             <motion.p
-              className="text-body-lg text-navy-700 mb-10 max-w-2xl mx-auto lg:mx-0"
+              className="text-body-lg text-navy-700 mb-10 max-w-[45ch] md:max-w-2xl mx-auto lg:mx-0"
               initial={{ opacity: 0, y: 20 }}
               animate={showContent ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
@@ -96,21 +96,21 @@ export default function Hero() {
             </motion.p>
 
             <motion.div
-              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
+              className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start w-full sm:w-auto"
               initial={{ opacity: 0, y: 20 }}
               animate={showContent ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             >
               <Link href="/contact" className="w-full sm:w-auto">
-                <Button variant="primary" className="w-full sm:w-auto whitespace-nowrap" data-interactive>Let&apos;s Build Together</Button>
+                <Button variant="primary" className="w-full sm:w-auto min-h-[48px] justify-center whitespace-nowrap" data-interactive>Let&apos;s Build Together</Button>
               </Link>
               <Link href="#vision" className="w-full sm:w-auto">
-                <Button variant="secondary" className="w-full sm:w-auto whitespace-nowrap" data-interactive>Explore Our Vision</Button>
+                <Button variant="secondary" className="w-full sm:w-auto min-h-[48px] justify-center whitespace-nowrap" data-interactive>Explore Our Vision</Button>
               </Link>
             </motion.div>
           </div>
 
-          <div className="order-first lg:order-last lg:col-span-5 flex justify-center items-center">
+          <div className="order-first lg:order-last lg:col-span-5 flex justify-center items-center min-h-[300px] sm:min-h-[360px] lg:min-h-[420px] w-full">
             <AnimatedLogo
               onComplete={handleLogoComplete}
               isReducedMotion={!!(prefersReducedMotion || skipAnimation)}

@@ -109,8 +109,8 @@ export default function FeaturedVideosSection({ dbVideos = [] }: FeaturedVideosP
             </p>
             
             {/* Clicking opens /videos directly per user request */}
-            <Link href="/videos" className="inline-block" data-interactive>
-              <Button variant="primary" className="w-full sm:w-auto justify-center whitespace-nowrap shadow-2xl group py-3.5 px-6" data-interactive>
+            <Link href="/videos" className="inline-block min-h-[44px] rounded-full focus-visible:ring-2 focus-visible:ring-bronze-400 outline-none" data-interactive>
+              <Button variant="primary" className="w-full sm:w-auto justify-center whitespace-nowrap shadow-2xl group py-3.5 px-6 min-h-[44px]" data-interactive>
                 <Video className="w-4 h-4 mr-2.5 fill-current" />
                 <span className="font-bold">Explore Video Exhibition</span>
                 <ArrowUpRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -124,14 +124,16 @@ export default function FeaturedVideosSection({ dbVideos = [] }: FeaturedVideosP
           
           {/* Card 1: Widescreen Featured Hero (Spans 7 Columns on Large Screens) */}
           <RevealOnScroll className="lg:col-span-7 group block">
-            <Link href="/videos" className="block space-y-5" data-interactive>
+            <Link href="/videos" className="block space-y-5 focus-visible:ring-2 focus-visible:ring-bronze-400 rounded-2xl outline-none" data-interactive>
               
               {/* Image Container with Cinematic Hover Physics */}
               <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] rounded-2xl overflow-hidden bg-navy-900 border border-navy-800 shadow-2xl">
-                <img
+                <Image
                   src={heroVideo.thumbnail}
                   alt={heroVideo.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-90"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-90"
+                  sizes="(max-width: 1024px) 100vw, 60vw"
                 />
                 
                 {/* Multi-tier Gradient Overlay */}
@@ -190,14 +192,16 @@ export default function FeaturedVideosSection({ dbVideos = [] }: FeaturedVideosP
           <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-8">
             {subVideos.map((vid, idx) => (
               <RevealOnScroll key={vid.id || idx} delay={(idx + 1) * 0.15} className="group block">
-                <Link href="/videos" className="block space-y-3" data-interactive>
+                <Link href="/videos" className="block space-y-3 focus-visible:ring-2 focus-visible:ring-bronze-400 rounded-xl outline-none" data-interactive>
                   
                   {/* Image Showcase */}
                   <div className="relative w-full aspect-[16/10] sm:aspect-[4/3] lg:aspect-[21/10] rounded-xl overflow-hidden bg-navy-900 border border-navy-800 shadow-xl">
-                    <img
+                    <Image
                       src={vid.thumbnail}
                       alt={vid.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-90"
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-90"
+                      sizes="(max-width: 1024px) 100vw, 40vw"
                     />
                     
                     <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/20 to-transparent opacity-80 group-hover:opacity-40 transition-opacity duration-500" />
@@ -253,7 +257,7 @@ export default function FeaturedVideosSection({ dbVideos = [] }: FeaturedVideosP
             <span>CINEMATIC COLOR GRADIENT</span>
           </div>
 
-          <Link href="/videos" className="group inline-flex items-center gap-2 text-sm font-bold font-display text-warm-50 hover:text-bronze-400 transition-colors" data-interactive>
+          <Link href="/videos" className="group inline-flex items-center gap-2 text-sm font-bold font-display text-warm-50 hover:text-bronze-400 transition-colors min-h-[44px]" data-interactive>
             <span>Enter Complete Exhibition Gallery</span>
             <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 text-bronze-400" />
           </Link>

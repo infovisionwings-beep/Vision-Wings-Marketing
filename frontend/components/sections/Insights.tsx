@@ -81,8 +81,8 @@ export default function Insights() {
             </h2>
           </RevealOnScroll>
           <RevealOnScroll delay={0.1}>
-            <Link href="/insights" className="inline-block">
-              <Button variant="secondary" className="whitespace-nowrap group" data-interactive>
+            <Link href="/insights" className="inline-block min-h-[44px] rounded-full focus-visible:ring-2 focus-visible:ring-bronze-600 outline-none">
+              <Button variant="secondary" className="whitespace-nowrap group min-h-[44px]" data-interactive>
                 <span>Read All Essays</span>
                 <ArrowUpRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </Button>
@@ -99,7 +99,7 @@ export default function Insights() {
             >
               <Link 
                 href={`/insights/${item.slug}`}
-                className="group py-8 md:py-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-baseline hover:bg-warm-50/60 -mx-5 px-5 md:-mx-10 md:px-10 rounded-xl transition-colors duration-300"
+                className="group py-8 md:py-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-baseline hover:bg-warm-50/60 -mx-5 px-5 md:-mx-10 md:px-10 rounded-xl transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-bronze-600 outline-none"
                 data-interactive
               >
                 {/* Index & Category */}

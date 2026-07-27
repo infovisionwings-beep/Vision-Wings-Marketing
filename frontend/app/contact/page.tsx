@@ -133,7 +133,7 @@ export default function ContactPage() {
             />
 
             <div className="pt-2">
-              <Button variant="primary" type="submit" className="w-full justify-center gap-2 shadow-md hover:shadow-lg" data-interactive>
+              <Button variant="primary" type="submit" className="w-full justify-center gap-2 shadow-md hover:shadow-lg min-h-[44px]" data-interactive>
                 <span>Transmit Strategic Inquiry</span>
                 <ArrowRight className="w-4 h-4" />
               </Button>
