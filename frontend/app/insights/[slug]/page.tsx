@@ -16,6 +16,7 @@ interface Article {
   author: string;
   authorRole: string;
   authorAvatar: string;
+  contributors?: { name: string; role: string; avatar: string }[] | null;
   readTime: string;
 }
 
@@ -79,6 +80,7 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
         author: (dbInsight as any).authorName || "Amélie Laurent",
         authorRole: (dbInsight as any).authorRole || "Partner, Brand Architecture",
         authorAvatar: (dbInsight as any).authorAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+        contributors: (dbInsight as any).contributors || null,
         readTime: `${Math.max(3, Math.ceil((dbInsight.content?.length || 1500) / 500))} min read`
       };
     } else if (fallbackContentMap[slug]) {
@@ -176,27 +178,41 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
               </h1>
             </div>
 
-            {/* Feature Photo with Circular Contributor Avatar Bubbles (Inspired by Reference 1) */}
+            {/* Feature Photo with Vertically Aligned Contributor Stack on Bottom Left */}
             <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] rounded-3xl overflow-hidden bg-navy-900 border border-navy-200/80 shadow-xl">
               <img 
                 src={article.coverImage || "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1600&q=80"} 
                 alt={article.title}
                 className="w-full h-full object-cover opacity-90"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-navy-950/40 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-navy-950/70 via-navy-950/20 to-transparent" />
 
-              {/* Floating Contributor Avatars (Signature feature from Reference 1) */}
-              <div className="absolute top-6 left-12 w-11 h-11 rounded-full border-2 border-white overflow-hidden shadow-lg transform -rotate-6 hover:scale-110 transition-transform hidden sm:block" title="Amélie Laurent · Lead Strategy">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="Contributor" className="w-full h-full object-cover" />
-              </div>
-              <div className="absolute top-10 right-16 w-12 h-12 rounded-full border-2 border-white overflow-hidden shadow-lg transform rotate-12 hover:scale-110 transition-transform hidden sm:block" title="Oliva Nacelle · Research">
-                <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80" alt="Contributor" className="w-full h-full object-cover" />
-              </div>
-              <div className="absolute bottom-12 left-20 w-12 h-12 rounded-full border-2 border-white overflow-hidden shadow-lg transform rotate-6 hover:scale-110 transition-transform hidden sm:block" title="Mia di Silva · Art Direction">
-                <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=150&q=80" alt="Contributor" className="w-full h-full object-cover" />
-              </div>
-              <div className="absolute bottom-8 right-28 w-10 h-10 rounded-full border-2 border-white overflow-hidden shadow-lg transform -rotate-12 hover:scale-110 transition-transform hidden sm:block" title="Julian Vance · Engineering">
-                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" alt="Contributor" className="w-full h-full object-cover" />
+              {/* Vertically aligned contributors on bottom-left of blog poster */}
+              <div className="absolute bottom-6 left-6 z-10 flex flex-col gap-2.5 bg-navy-950/85 backdrop-blur-md p-3.5 rounded-2xl border border-white/15 shadow-2xl max-w-[260px] sm:max-w-xs">
+                <div className="text-[10px] font-mono font-bold text-bronze-400 uppercase tracking-widest px-1">
+                  Editorial Board &amp; Contributors
+                </div>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2.5 group cursor-default">
+                    <img src={article.authorAvatar} alt={article.author} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-bronze-500 shadow-md group-hover:scale-105 transition-transform flex-shrink-0" />
+                    <div className="text-left overflow-hidden">
+                      <div className="text-xs font-bold text-white truncate font-display">{article.author}</div>
+                      <div className="text-[10px] font-mono text-bronze-300 truncate">{article.authorRole} (Lead)</div>
+                    </div>
+                  </div>
+                  {(article.contributors && article.contributors.length > 0 ? article.contributors : [
+                    { name: "Oliva Nacelle", role: "Strategy+Curiosity", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80" },
+                    { name: "Mia di Silva", role: "Art Direction", avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=150&q=80" }
+                  ]).map((c, idx) => (
+                    <div key={idx} className="flex items-center gap-2.5 group cursor-default">
+                      <img src={c.avatar} alt={c.name} className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border border-white/40 shadow-md group-hover:scale-105 transition-transform flex-shrink-0" />
+                      <div className="text-left overflow-hidden">
+                        <div className="text-xs font-semibold text-warm-100 truncate">{c.name}</div>
+                        <div className="text-[10px] font-mono text-navy-300 truncate">{c.role}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -282,20 +298,18 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
                 Contributors
               </h4>
               <div className="space-y-3.5">
-                <div className="flex items-center gap-3">
-                  <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=120&q=80" alt="Oliva Nacelle" className="w-10 h-10 rounded-full object-cover border border-navy-200" />
-                  <div>
-                    <h6 className="text-sm font-bold text-navy-900">Oliva Nacelle</h6>
-                    <span className="text-xs font-mono text-navy-500">Content, Strategy+Curiosity</span>
+                {(article.contributors && article.contributors.length > 0 ? article.contributors : [
+                  { name: "Oliva Nacelle", role: "Content, Strategy+Curiosity", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=120&q=80" },
+                  { name: "Mia di Silva", role: "Art Direction, Design Engineering", avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=120&q=80" }
+                ]).map((c, idx) => (
+                  <div key={idx} className="flex items-center gap-3">
+                    <img src={c.avatar} alt={c.name} className="w-10 h-10 rounded-full object-cover border border-navy-200 shadow-sm" />
+                    <div>
+                      <h6 className="text-sm font-bold text-navy-900 font-display">{c.name}</h6>
+                      <span className="text-xs font-mono text-navy-500">{c.role}</span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=120&q=80" alt="Mia di Silva" className="w-10 h-10 rounded-full object-cover border border-navy-200" />
-                  <div>
-                    <h6 className="text-sm font-bold text-navy-900">Mia di Silva</h6>
-                    <span className="text-xs font-mono text-navy-500">Art Direction, Design Engineering</span>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
 
