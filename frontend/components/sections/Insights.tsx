@@ -16,30 +16,30 @@ import { format } from "date-fns";
 const fallbackInsights = [
   {
     id: 1,
-    title: "The New Rules of Brand Architecture in an AI-Saturated Era",
-    category: "Strategy & Positioning",
+    title: "Giving Wings to Your Brand: The New Rules of Performance Marketing",
+    category: "Growth Marketing & Ads",
     date: "Oct 12, 2024",
     readTime: "5 min read",
     slug: "brand-architecture",
-    excerpt: "Why traditional house-of-brands models are collapsing under the weight of generative noise, and how to build monolithic brand equity."
+    excerpt: "Why traditional ad funnels are failing in an AI-saturated era, and how to build omnichannel marketing campaigns that scale customer acquisition."
   },
   {
     id: 2,
-    title: "Designing for Conversion Without Sacrificing Brand Prestige",
-    category: "Design Engineering",
+    title: "Conversion Rate Engineering: Turning Website Traffic into Predictable Revenue",
+    category: "CRO & Digital Funnels",
     date: "Sep 28, 2024",
     readTime: "7 min read",
     slug: "conversion-design",
-    excerpt: "The false dichotomy between performance marketing tactics and luxury brand building—and the design frameworks that harmonize both."
+    excerpt: "The proven frameworks we use to optimize user experience, eliminate friction, and multiply conversion rates without sacrificing brand prestige."
   },
   {
     id: 3,
-    title: "Why Most B2B Tech Positioning Fails to Command Premium Pricing",
-    category: "Market Psychology",
+    title: "The Psychology of Category Dominance: Why Premium Brands Win",
+    category: "Brand Acceleration",
     date: "Sep 15, 2024",
     readTime: "4 min read",
     slug: "market-positioning",
-    excerpt: "Stop selling feature checklists to procurement teams. How to re-anchor executive buyers around business transformation."
+    excerpt: "Stop competing on price and feature checklists. How to position your business as the undisputed industry authority and command premium pricing."
   }
 ];
 
@@ -77,13 +77,13 @@ export default function Insights() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 border-b border-navy-200 pb-10">
           <RevealOnScroll className="max-w-2xl">
             <h2 className="text-display sm:text-h1 font-bold text-navy-950 tracking-tight leading-[1.05]">
-              Thinking &amp; Perspectives.
+              Marketing &amp; Growth Insights.
             </h2>
           </RevealOnScroll>
           <RevealOnScroll delay={0.1}>
             <Link href="/insights" className="inline-block min-h-[44px] rounded-full focus-visible:ring-2 focus-visible:ring-bronze-600 outline-none">
               <Button variant="secondary" className="whitespace-nowrap group min-h-[44px]" data-interactive>
-                <span>Read All Essays</span>
+                <span>Read All Insights</span>
                 <ArrowUpRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </Button>
             </Link>

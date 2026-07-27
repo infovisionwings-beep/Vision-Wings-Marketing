@@ -5,8 +5,8 @@ import { ArrowUpRight, Plus, ArrowRight, Sparkles, BookOpen } from "lucide-react
 import { format } from "date-fns";
 
 export const metadata = {
-  title: "Thinking & Perspectives (Essays) - Vision Wings",
-  description: "Senior strategic and creative viewpoints on brand architecture, growth marketing, and digital design craft.",
+  title: "Marketing Insights & Perspectives - Vision Wings",
+  description: "Senior strategic viewpoints on brand acceleration, growth marketing, performance advertising, and digital conversion.",
 };
 
 export const dynamic = "force-dynamic";
@@ -14,54 +14,54 @@ export const dynamic = "force-dynamic";
 const fallbackEssays = [
   {
     id: "feat-1",
-    title: "The New Rules of Brand Architecture in an AI Era",
-    category: "Strategy & Architecture",
+    title: "Giving Wings to Your Brand: The New Rules of Performance Marketing",
+    category: "Growth Strategy & Ads",
     date: "Oct 12, 2024",
     slug: "brand-architecture",
-    coverImage: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1600&q=80",
+    coverImage: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1600&q=80",
     readTime: "6 min read",
-    excerpt: "Why traditional house-of-brands models are collapsing under the weight of generative noise, and how to build monolithic brand equity.",
+    excerpt: "Why traditional ad funnels are failing in an AI-saturated era, and how to build omnichannel marketing campaigns that scale customer acquisition.",
     author: "Amélie Laurent",
-    authorRole: "Partner, Brand Architecture",
+    authorRole: "Partner, Growth Strategy",
     authorAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
   },
   {
     id: "feat-2",
     title: "Real talk in a corporate world: Why traditional B2B positioning is dead",
-    category: "Monograph & Dispatch",
+    category: "Market Positioning",
     date: "Sep 28, 2024",
     slug: "market-positioning",
-    coverImage: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80",
+    coverImage: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1200&q=80",
     readTime: "5 min read",
-    excerpt: "Stop selling feature checklists to procurement teams. How to re-anchor executive buyers around business transformation.",
+    excerpt: "Stop selling feature checklists to procurement teams. How to re-anchor executive buyers around business transformation and value.",
     author: "Oliva Nacelle",
-    authorRole: "Content Strategist",
+    authorRole: "Content & SEO Director",
     authorAvatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80",
   },
   {
     id: "feat-3",
-    title: "Designing for Conversion Without Sacrificing Luxury Brand Prestige",
-    category: "Design Craft",
+    title: "Conversion Rate Engineering: Turning Website Traffic into Predictable Revenue",
+    category: "CRO & Funnels",
     date: "Sep 15, 2024",
     slug: "conversion-design",
-    coverImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1200&q=80",
+    coverImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80",
     readTime: "7 min read",
-    excerpt: "The false dichotomy between performance marketing tactics and luxury brand building—and the design frameworks that harmonize both.",
+    excerpt: "The proven frameworks we use to optimize user experience, eliminate friction, and multiply conversion rates without sacrificing brand prestige.",
     author: "Mia di Silva",
-    authorRole: "Creative Director",
+    authorRole: "Creative & Performance Lead",
     authorAvatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80",
   },
   {
     id: "feat-4",
-    title: "The Spatial Soul of Real Estate Branding",
-    category: "Property Marketing",
+    title: "The Psychology of Category Dominance: How Ambitious Brands Win",
+    category: "Brand Acceleration",
     date: "Aug 30, 2024",
     slug: "spatial-soul-real-estate",
-    coverImage: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80",
+    coverImage: "https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?auto=format&fit=crop&w=1200&q=80",
     readTime: "4 min read",
-    excerpt: "How cinematic drone tours and bespoke soundscapes convert international HNWI buyers faster than architectural renderings.",
+    excerpt: "Why competing on features is a race to the bottom, and how to build brand authority that commands market leadership and outsized pricing.",
     author: "Amélie Laurent",
-    authorRole: "Partner, Brand Architecture",
+    authorRole: "Partner, Growth Strategy",
     authorAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
   }
 ];
@@ -74,7 +74,7 @@ export default async function EssaysLandingPage() {
       list = dbInsights.map((item: any, idx: number) => ({
         id: item.id || `db-${idx}`,
         title: item.title || fallbackEssays[idx]?.title || "Strategic Perspective",
-        category: item.category || fallbackEssays[idx]?.category || "Strategy & Architecture",
+        category: item.category || fallbackEssays[idx]?.category || "Growth Strategy & Ads",
         slug: item.slug || item.id || `essay-${idx}`,
         date: item.publishedAt 
           ? format(new Date(item.publishedAt), "MMM d, yyyy") 

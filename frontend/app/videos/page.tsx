@@ -2,8 +2,8 @@ import { getCompletedVideos } from "@/app/actions/videos";
 import VideoShowcaseGrid from "@/components/sections/VideoShowcaseGrid";
 
 export const metadata = {
-  title: "HD Video Tours & Architecture - Vision Wings",
-  description: "Cinematic, lossless media pipelines engineered for real estate prestige, brand dominance, and architectural storytelling.",
+  title: "HD Video Campaigns & Ads - Vision Wings",
+  description: "Cinematic video production, high-conversion commercial campaigns, and viral social ads engineered for brand dominance and market acceleration.",
 };
 
 export const dynamic = "force-dynamic";

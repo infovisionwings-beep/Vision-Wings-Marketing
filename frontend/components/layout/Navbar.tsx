@@ -88,7 +88,7 @@ export default function Navbar({ user }: { user: any }) {
               className={`text-body font-medium transition-all px-4 py-2 min-h-[44px] inline-flex items-center rounded-full focus-visible:ring-2 focus-visible:ring-bronze-500 outline-none ${isActive("/", "insights") ? "bg-navy-950 text-warm-50" : "hover:text-bronze-500 hover:bg-warm-100"}`} 
               data-interactive
             >
-              Perspectives
+              Insights
             </Link>
             <div className="ml-6 flex items-center gap-4">
               {user ? (
@@ -98,35 +98,43 @@ export default function Navbar({ user }: { user: any }) {
                   </div>
                   
                   {/* Teardrop Dropdown */}
-                  <div className="absolute top-full right-0 mt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 translate-y-2 group-hover:translate-y-0 z-50">
-                    <div className="bg-white border border-navy-100 shadow-xl rounded-2xl rounded-tr-sm p-2 w-32 flex flex-col">
-                      <button 
-                        onClick={() => startTransition(() => logoutUser())}
-                        disabled={isPending}
-                        className="flex items-center gap-2 px-3 py-2.5 min-h-[44px] text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-red-500 outline-none"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        Logout
-                      </button>
+                  <div className="absolute right-0 top-12 w-48 bg-navy-950 text-warm-50 rounded-2xl rounded-tr-sm p-2 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 border border-navy-800">
+                    <div className="px-3 py-2 border-b border-navy-800 mb-1">
+                      <p className="text-xs text-navy-400">Signed in as</p>
+                      <p className="text-sm font-semibold text-warm-50 truncate">{user?.email || "Admin"}</p>
                     </div>
+                    <Link href="/admin" className="block px-3 py-2 text-sm hover:bg-navy-900 rounded-lg transition-colors min-h-[40px] flex items-center" data-interactive>
+                      Dashboard
+                    </Link>
+                    <button 
+                      onClick={() => startTransition(() => logoutUser())}
+                      disabled={isPending}
+                      className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-navy-900 rounded-lg transition-colors flex items-center gap-2 mt-1 min-h-[40px]"
+                      data-interactive
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>{isPending ? "Logging out..." : "Logout"}</span>
+                    </button>
                   </div>
                 </div>
               ) : (
-                <Link href="/login" className="text-body font-medium transition-all px-4 py-2 min-h-[44px] inline-flex items-center rounded-full hover:text-bronze-500 hover:bg-warm-100 focus-visible:ring-2 focus-visible:ring-bronze-500 outline-none" data-interactive>
+                <Link href="/login" className="text-sm font-medium text-navy-600 hover:text-navy-950 transition-colors min-h-[44px] inline-flex items-center px-2 focus-visible:ring-2 focus-visible:ring-bronze-500 rounded outline-none" data-interactive>
                   Login
                 </Link>
               )}
-              <Link href="/contact" className="inline-flex min-h-[44px] items-center rounded-full focus-visible:ring-2 focus-visible:ring-bronze-500 outline-none" data-interactive>
-                <Button variant="primary" data-interactive>Let's Build Together</Button>
+              <Link href="/contact" className="inline-block min-h-[44px] rounded-full focus-visible:ring-2 focus-visible:ring-bronze-500 outline-none">
+                <Button variant="primary" className="bg-navy-950 text-warm-50 hover:bg-navy-900 transition-colors whitespace-nowrap min-h-[44px] px-6 shadow-sm" data-interactive>
+                  Start Project
+                </Button>
               </Link>
             </div>
           </div>
         </div>
       </motion.nav>
 
-      {/* Mobile Bottom Navigation Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-warm-50/96 backdrop-blur-md border-t border-navy-100 pb-[calc(16px+env(safe-area-inset-bottom))]">
-        <div className="flex justify-between items-center px-3 pt-3">
+      {/* Bottom Floating App Bar (Mobile Only - Reference 2 Tactile Dock) */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 p-4 lg:hidden pointer-events-none flex justify-center">
+        <div className="bg-warm-50/98 border border-navy-200/80 shadow-2xl rounded-2xl px-2 py-1.5 flex items-center justify-around w-full max-w-sm pointer-events-auto backdrop-blur-md">
           <Link href="/#vision" className="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] px-1 py-1 gap-1 group focus-visible:ring-2 focus-visible:ring-bronze-500 rounded-lg outline-none" data-interactive>
             <Eye className={`w-6 h-6 transition-colors ${isActive("/", "vision") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`} />
             <span className={`text-[10px] font-medium tracking-wide uppercase transition-colors ${isActive("/", "vision") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`}>Vision</span>
@@ -144,7 +152,7 @@ export default function Navbar({ user }: { user: any }) {
 
           <Link href="/#insights" className="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] px-1 py-1 gap-1 group focus-visible:ring-2 focus-visible:ring-bronze-500 rounded-lg outline-none" data-interactive>
             <FileText className={`w-6 h-6 transition-colors ${isActive("/", "insights") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`} />
-            <span className={`text-[10px] font-medium tracking-wide uppercase transition-colors ${isActive("/", "insights") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`}>Perspectives</span>
+            <span className={`text-[10px] font-medium tracking-wide uppercase transition-colors ${isActive("/", "insights") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`}>Insights</span>
           </Link>
 
           <Link href="/contact" className="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] px-1 py-1 gap-1 group focus-visible:ring-2 focus-visible:ring-bronze-500 rounded-lg outline-none" data-interactive>

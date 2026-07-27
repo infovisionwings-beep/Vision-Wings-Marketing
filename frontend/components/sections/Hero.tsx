@@ -78,21 +78,21 @@ export default function Hero() {
           
           <div className="order-last lg:order-first lg:col-span-7 flex flex-col text-center lg:text-left">
             <motion.h1
-              className="text-display text-navy-950 mb-6"
+              className="text-display sm:text-h1 font-bold text-navy-950 mb-6 tracking-tight leading-[1.05]"
               initial={{ opacity: 0, y: 20 }}
               animate={showContent ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             >
-              SEE WHAT OTHERS MISS
+              WE GIVE WINGS TO YOUR VISION
             </motion.h1>
 
             <motion.p
-              className="text-body-lg text-navy-700 mb-10 max-w-[45ch] md:max-w-2xl mx-auto lg:mx-0"
+              className="text-body-lg text-navy-700 mb-10 max-w-[45ch] md:max-w-2xl mx-auto lg:mx-0 leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={showContent ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             >
-              For growth-stage businesses who feel invisible in a crowded market, Vision Wings is the strategic brand and growth partner that sees the opportunities competitors miss.
+              For ambitious businesses ready to transcend the competition, Vision Wings delivers high-velocity marketing strategies, creative content funnels, and brand acceleration that propel your growth to new heights.
             </motion.p>
 
             <motion.div
@@ -102,10 +102,10 @@ export default function Hero() {
               transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             >
               <Link href="/contact" className="w-full sm:w-auto">
-                <Button variant="primary" className="w-full sm:w-auto min-h-[48px] justify-center whitespace-nowrap" data-interactive>Let&apos;s Build Together</Button>
+                <Button variant="primary" className="w-full sm:w-auto min-h-[48px] justify-center whitespace-nowrap shadow-xl" data-interactive>Launch Your Campaign</Button>
               </Link>
-              <Link href="#vision" className="w-full sm:w-auto">
-                <Button variant="secondary" className="w-full sm:w-auto min-h-[48px] justify-center whitespace-nowrap" data-interactive>Explore Our Vision</Button>
+              <Link href="#strategy" className="w-full sm:w-auto">
+                <Button variant="secondary" className="w-full sm:w-auto min-h-[48px] justify-center whitespace-nowrap shadow-sm" data-interactive>Explore Marketing Services</Button>
               </Link>
             </motion.div>
           </div>

@@ -25,63 +25,63 @@ export interface VideoAsset {
 const fallbackShowcaseVideos: VideoAsset[] = [
   {
     id: "sample-1",
-    title: "Penfield Crescent Estate",
-    category: "Real Estate Tour",
+    title: "Omnichannel Growth Campaign",
+    category: "Brand Launch Campaign",
     date: "NOV 2024",
     duration: "02:45",
     coverImage: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80",
     videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-    description: "An architectural tour through 12,000 square feet of minimalist concrete and floor-to-ceiling glass in the Pacific Northwest."
+    description: "A high-converting omnichannel launch film engineered for rapid market penetration and customer acquisition."
   },
   {
     id: "sample-2",
-    title: "Sill Road Architectural Villa",
-    category: "Interior Cinema",
+    title: "Performance Ad Series",
+    category: "Social Ad Campaign",
     date: "OCT 2024",
     duration: "03:12",
     coverImage: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
     videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-    description: "Lossless interior lighting study capturing warm bronze finishes, custom joinery, and expansive outdoor living terraces."
+    description: "High-velocity performance ad creative engineered for outsized ROI and continuous customer conversion."
   },
   {
     id: "sample-3",
-    title: "Bel Air Ridge Sanctuary",
-    category: "Aerial Showcase",
+    title: "Sovereign Wealth Brand Story",
+    category: "Corporate Documentary",
     date: "SEP 2024",
     duration: "01:58",
     coverImage: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80",
     videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
-    description: "High-definition drone cinematography tracing infinity pools and cantilevered rooflines at golden hour."
+    description: "Cinematic documentary storytelling and brand positioning for an industry-defining fintech institution."
   },
   {
     id: "sample-4",
-    title: "The Glass Pavilion",
-    category: "Brand Narrative",
+    title: "AI Platform Acceleration",
+    category: "Product Launch Film",
     date: "AUG 2024",
     duration: "04:10",
     coverImage: "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=1200&q=80",
     videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
-    description: "An intimate exploration of sustainable steel and glass architecture designed for seamless indoor-outdoor immersion."
+    description: "An intimate exploration of next-generation enterprise software designed for seamless developer adoption."
   },
   {
     id: "sample-5",
-    title: "Montauk Coastal Residence",
-    category: "Real Estate Tour",
+    title: "Global E-Commerce Expansion",
+    category: "Brand Campaign",
     date: "JUL 2024",
     duration: "02:20",
     coverImage: "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80",
     videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-    description: "Weathered cedar cladding and panoramic oceanfront vistas captured in 4K 60fps dynamic range."
+    description: "Global brand positioning and high-impact commercial production captured in 4K 60fps dynamic range."
   },
   {
     id: "sample-6",
-    title: "Kyoto Modern Loft",
-    category: "Architectural Cinema",
+    title: "Vanguard Capital Portfolio",
+    category: "Executive Series",
     date: "JUN 2024",
     duration: "03:05",
     coverImage: "https://images.unsplash.com/photo-1600573472589-003525b2f729?auto=format&fit=crop&w=1200&q=80",
     videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-    description: "Traditional joinery meets industrial steel in this urban restoration project centered around an interior courtyard."
+    description: "Executive advisory and portfolio brand storytelling centered around category leadership and market expansion."
   }
 ];
 
@@ -175,20 +175,20 @@ export default function VideoShowcaseGrid({ dbVideos = [] }: VideoShowcaseGridPr
           <div className="lg:col-span-5 flex flex-col justify-center space-y-6">
             <div className="flex items-center gap-2 text-bronze-600 font-mono text-xs font-bold tracking-widest uppercase">
               <Film className="w-4 h-4" />
-              <span>Cinematic Tour Architecture</span>
+              <span>High-Conversion Video Marketing</span>
             </div>
 
             <h2 className="text-4xl md:text-5xl font-extrabold font-display text-navy-950 tracking-tight leading-[1.08]">
               HIGH DEFINITION <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-bronze-600 via-bronze-500 to-amber-600">
-                VIDEO TOURS
+                VIDEO CAMPAIGNS
               </span> <br />
-              OF REAL ESTATE
+              &amp; COMMERCIAL ADS
             </h2>
 
             {/* Subtext strictly under 20 words per taste.md Section 4.7 */}
             <p className="text-lg text-navy-700 font-normal leading-relaxed">
-              Cinematic, lossless media pipelines engineered for real estate prestige, brand dominance, and immersive architectural storytelling.
+              Cinematic video production, high-conversion commercial campaigns, and viral social ads engineered for brand dominance and market acceleration.
             </p>
 
             <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
@@ -198,7 +198,7 @@ export default function VideoShowcaseGrid({ dbVideos = [] }: VideoShowcaseGridPr
                 className="justify-center shadow-lg hover:shadow-xl transition-all"
                 data-interactive
               >
-                <span>Watch Featured Tour</span>
+                <span>Watch Featured Campaign</span>
                 <Play className="w-4 h-4 ml-2 fill-current" />
               </Button>
               
@@ -237,7 +237,7 @@ export default function VideoShowcaseGrid({ dbVideos = [] }: VideoShowcaseGridPr
               </h3>
             </div>
             <p className="text-sm text-navy-600 max-w-md">
-              Hover over any architectural exhibit to reveal interactive playback controls and lossless streaming options.
+              Hover over any campaign exhibit to reveal interactive playback controls and high-definition streaming options.
             </p>
           </div>
 
@@ -300,10 +300,10 @@ export default function VideoShowcaseGrid({ dbVideos = [] }: VideoShowcaseGridPr
               EDITORIAL FOCUS
             </span>
             <h3 className="text-3xl md:text-4xl font-extrabold font-display text-navy-950 tracking-tight">
-              Architectural Narratives
+              Brand Growth Narratives
             </h3>
             <p className="text-sm text-navy-600">
-              Deep-dive cinema exploring light, materials, and space across iconic residential and commercial projects.
+              Deep-dive video campaigns exploring value proposition, market positioning, and brand authority across high-growth commercial projects.
             </p>
           </div>
 
@@ -385,7 +385,7 @@ export default function VideoShowcaseGrid({ dbVideos = [] }: VideoShowcaseGridPr
                 CONTINUOUS STREAM
               </span>
               <h3 className="text-2xl md:text-3xl font-bold font-display text-warm-50 tracking-tight">
-                Archival Reels &amp; Shorts
+                Campaign Reels &amp; Social Shorts
               </h3>
             </div>
             <span className="text-xs font-mono text-navy-300">

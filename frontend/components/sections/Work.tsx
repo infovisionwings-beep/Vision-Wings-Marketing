@@ -28,77 +28,77 @@ const fallbackBricks: GalleryBrick[] = [
   {
     id: "quote-1",
     type: "quote",
-    quoteText: "Electra is a European specialist in fast charging for electric vehicles and scalable digital architecture.",
-    quoteSubtitle: "STRATEGIC SPECIALIZATION"
+    quoteText: "Vision Wings transformed our market presence. They took our ambitious product vision and gave it the strategic marketing wings to scale 400% YoY.",
+    quoteSubtitle: "CLIENT GROWTH IMPACT"
   },
   {
     id: 1,
     type: "photo",
-    title: "Lumina Health Systems",
-    category: "Brand Architecture",
+    title: "Lumina Health Rebranding & Funnel",
+    category: "Brand Growth & Performance Ads",
     year: "2024",
     slug: "lumina",
-    imageUrl: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=85"
+    imageUrl: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1000&q=85"
   },
   {
     id: 2,
     type: "photo",
-    title: "Aero Dynamics Flagship",
-    category: "Visual Identity & 3D",
+    title: "Aero Dynamics Viral Launch Campaign",
+    category: "Video Production & Growth",
     year: "2023",
     slug: "aero",
-    imageUrl: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1400&q=85"
+    imageUrl: "https://images.unsplash.com/photo-1517976487452-572718781df9?auto=format&fit=crop&w=1400&q=85"
   },
   {
     id: 3,
     type: "photo",
-    title: "Vertex Venture Capital",
-    category: "Web Experience",
+    title: "Vertex Capital Authority SEO & Content",
+    category: "Content Marketing & SEO",
     year: "2024",
     slug: "vertex",
-    imageUrl: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=900&q=85"
+    imageUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1000&q=85"
   },
   {
     id: "quote-2",
     type: "quote",
-    quoteText: "Book your strategic discovery session and deploy world-class digital experiences anywhere you like.",
-    quoteSubtitle: "GLOBAL EXECUTION"
+    quoteText: "When your business needs more than just leads—when you need category dominance—we give wings to your vision with full-funnel marketing mastery.",
+    quoteSubtitle: "THE VISION WINGS PROMISE"
   },
   {
     id: 4,
     type: "photo",
-    title: "Aura Neurotech UI",
-    category: "Digital Product Design",
+    title: "Aura Neurotech Omnichannel Ads",
+    category: "Performance Ads & Funnels",
     year: "2024",
     slug: "aura",
-    imageUrl: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1100&q=85"
+    imageUrl: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1100&q=85"
   },
   {
     id: 5,
     type: "photo",
-    title: "Sovereign Wealth Asset Platform",
-    category: "Fintech Experience",
+    title: "Sovereign Wealth Brand Acceleration",
+    category: "Brand Strategy & PR",
     year: "2023",
     slug: "sovereign",
-    imageUrl: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1000&q=85"
+    imageUrl: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=1000&q=85"
   },
   {
     id: 6,
     type: "photo",
-    title: "Kura Acoustic Systems",
-    category: "Industrial & Sound",
+    title: "Kura Sound Global Social Campaign",
+    category: "Social Media & Viral Ads",
     year: "2024",
     slug: "kura",
-    imageUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=85"
+    imageUrl: "https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?auto=format&fit=crop&w=1200&q=85"
   }
 ];
 
 const curatedSupplementalPhotos = [
-  "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=85",
-  "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1000&q=85",
-  "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=85",
-  "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1000&q=85",
-  "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1100&q=85",
+  "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=85",
+  "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1200&q=85",
+  "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=85",
+  "https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?auto=format&fit=crop&w=1200&q=85",
+  "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=1200&q=85",
 ];
 
 export default function Work() {
@@ -157,13 +157,13 @@ export default function Work() {
               004
             </span>
             <span className="text-xs font-mono font-semibold text-bronze-600 tracking-widest uppercase ml-2">
-              Exhibition Gallery &amp; Archive
+              Marketing Campaigns &amp; Brand Archive
             </span>
           </RevealOnScroll>
           
           <RevealOnScroll delay={0.1} className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 w-full md:w-auto">
             <h2 className="text-display sm:text-h1 font-bold text-navy-950 tracking-tight leading-[1.02]">
-              Discover our world
+              Campaigns that soar.
             </h2>
             <Link href="/work" className="inline-block min-h-[44px] rounded-full focus-visible:ring-2 focus-visible:ring-bronze-500 outline-none mb-1">
               <Button variant="secondary" className="whitespace-nowrap group min-h-[44px] shadow-sm" data-interactive>
