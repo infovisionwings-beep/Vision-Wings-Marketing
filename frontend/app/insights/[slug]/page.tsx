@@ -2,7 +2,7 @@ import { getInsightBySlug } from "@/app/actions/insights";
 import { notFound } from "next/navigation";
 import { Link } from "@/components/ui/Link";
 import Button from "@/components/ui/Button";
-import { ArrowLeft, Calendar, BookOpen, Share2, Bookmark, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Calendar, BookOpen, Share2, Bookmark, CheckCircle2, User, Users } from "lucide-react";
 import { format } from "date-fns";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +20,12 @@ interface Article {
   readTime: string;
 }
 
+interface TocItem {
+  id: string;
+  text: string;
+  level: number;
+}
+
 const fallbackContentMap: Record<string, Article> = {
   "brand-architecture": {
     title: "The New Rules of Brand Architecture in an AI Era",
@@ -33,15 +39,15 @@ const fallbackContentMap: Record<string, Article> = {
     content: `<p>Many organizations build brand architecture organically as they launch new products or divisions. In an AI-saturated ecosystem where generative content is produced at zero marginal cost, traditional house-of-brands models are collapsing under the weight of visual and verbal noise.</p>
 <p>When every competitor can generate synthetic marketing copy and brand assets in seconds, customer attention defaults to monolithic brand equity. A customer must grasp the structural connection between your offerings in less than three seconds. Unified naming conventions, consistent typographic layouts, and common visual design systems build institutional authority and price elasticity.</p>
 
-<h3 id="strategic-framework">1. Focus on Architectural Clarity</h3>
+<h2 id="strategic-framework">1. Focus on Architectural Clarity</h2>
 <p>We consistently observe that high-growth enterprises who streamline their sibling sub-brands under a single, unmistakable visual identity see up to 40% higher organic conversion rates. This is not merely an aesthetic preference; it is a fundamental reduction in cognitive friction for executive buyers.</p>
 <p>When you force a prospective buyer to decipher the relationship between three differently-branded software suites owned by the same parent company, you introduce doubt. Doubt is the enemy of enterprise sales velocity.</p>
 
-<h3 id="cameras-and-tools">2. Asymmetry as a Strategic Feature</h3>
+<h2 id="cameras-and-tools">2. Asymmetry as a Strategic Feature</h2>
 <p>Do not stretch a secondary product's branding to match your primary flagship icon. Allow your core hero offering to carry the visual and reputational weight, while sibling systems occupy clear, subordinate supporting columns.</p>
 <p>In digital design craft, this translates to asymmetric grid layouts where primary value propositions dominate the viewport, and technical specifications sit in calm, structured sidebars that reward deliberate exploration.</p>
 
-<h3 id="advice-for-founders">3. Advice for Scaling Founders</h3>
+<h2 id="advice-for-founders">3. Advice for Scaling Founders</h2>
 <p>If you are scaling past $10M ARR, audit your brand architecture immediately. Strip away redundant slogans, kill orphan logos, and consolidate your narrative around your core differentiator. In a world of infinite noise, clarity is the ultimate luxury.</p>`
   },
   "conversion-design": {
@@ -55,12 +61,42 @@ const fallbackContentMap: Record<string, Article> = {
     coverImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1600&q=80",
     content: `<p>Many performance marketers mistakenly believe conversion design requires flashing red buttons, intrusive popups, and aggressive, countdown-driven countdown styling. At Vision Wings, we believe the exact opposite.</p>
 <p>True high-conversion design is built on visual credibility, restraint, and deliberate typographic rhythm. When a page has ample spacing—48px to 96px on desktop—interactive modules read as distinct structural milestones rather than high-pressure traps.</p>
-<h3 id="strategic-framework">1. The Psychology of Clean Spacing</h3>
+<h2 id="psychology-spacing">1. The Psychology of Clean Spacing</h2>
 <p>When an executive evaluates a six-figure consulting engagement or luxury real estate acquisition, their subconscious sensitivity to layout clutter is heightened. Every unnecessary border, conflicting accent color, and generic stock photo signals lower institutional competence.</p>
-<h3 id="advice-for-founders">2. Restrained Color Palettes</h3>
+<h2 id="restrained-palettes">2. Restrained Color Palettes</h2>
 <p>By restricting warm bronze accents strictly to high-intent interactive triggers (such as primary buttons and active tab indicators), the eye is naturally drawn to the call to action without feeling coerced. This is the synthesis of art gallery elegance and cockpit data efficiency.</p>`
   }
 };
+
+/**
+ * Parses HTML content, extracts h2/h3 headings, injects slugified IDs if missing,
+ * and returns the updated HTML along with a structured Table of Contents array.
+ */
+function extractHeadingsAndInjectIds(html: string): { htmlWithIds: string; toc: TocItem[] } {
+  const toc: TocItem[] = [];
+  const htmlWithIds = html.replace(/<(h[23])([^>]*)>(.*?)<\/h[23]>/gi, (match, tag, attrs, content) => {
+    const plainText = content.replace(/<[^>]+>/g, "").trim();
+    if (!plainText) return match;
+
+    let id = "";
+    const idMatch = attrs.match(/id="([^"]+)"/i) || attrs.match(/id='([^']+)'/i);
+    if (idMatch && idMatch[1]) {
+      id = idMatch[1];
+    } else {
+      id = plainText
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)+/g, "");
+      attrs = `${attrs} id="${id}"`;
+    }
+
+    const level = tag.toLowerCase() === "h2" ? 2 : 3;
+    toc.push({ id, text: plainText, level });
+    return `<${tag}${attrs}>${content}</${tag}>`;
+  });
+
+  return { htmlWithIds, toc };
+}
 
 export default async function InsightDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -86,7 +122,6 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
     } else if (fallbackContentMap[slug]) {
       article = fallbackContentMap[slug];
     } else {
-      // Generic fallback for any other slug
       article = {
         ...fallbackContentMap["brand-architecture"],
         title: slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase())
@@ -101,51 +136,98 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
   }
 
   // Format content: ensure paragraphs have tags if it's plain text
-  let formattedHtml = article.content;
-  if (!formattedHtml.trim().startsWith("<")) {
-    formattedHtml = formattedHtml
+  let rawHtml = article.content;
+  if (!rawHtml.trim().startsWith("<")) {
+    rawHtml = rawHtml
       .split("\n\n")
       .map(p => `<p>${p.trim()}</p>`)
       .join("");
   }
+
+  // Extract headings and inject IDs for automatic Table of Contents linking
+  const { htmlWithIds, toc } = extractHeadingsAndInjectIds(rawHtml);
 
   return (
     <main className="min-h-screen bg-warm-50 pt-32 pb-28 px-5 md:px-10 xl:px-20 text-navy-950">
       
       {/* Editorial Drop Cap Styling & Typography Injection */}
       <style dangerouslySetInnerHTML={{ __html: `
+        .editorial-prose {
+          max-width: 100%;
+          word-break: break-word;
+          overflow-wrap: anywhere;
+        }
+        .editorial-prose * {
+          max-width: 100%;
+          overflow-wrap: anywhere;
+        }
         .editorial-prose > p:first-of-type::first-letter {
           float: left;
-          font-size: 4.8rem;
+          font-size: 4.5rem;
           line-height: 0.82;
           font-family: var(--font-display), serif;
           font-weight: 800;
-          margin-right: 0.85rem;
+          margin-right: 0.75rem;
           margin-bottom: 0.1rem;
           color: #0F172A;
         }
-        .editorial-prose p {
+        .editorial-prose p, .editorial-prose li {
           margin-bottom: 1.75rem;
           line-height: 1.8;
           font-size: 1.125rem;
           color: #1E293B;
+          max-width: 70ch; /* Enforces approximately 65-75 characters per line for optimal reading ergonomics */
+        }
+        .editorial-prose h2 {
+          font-family: var(--font-display), serif;
+          font-size: 1.875rem;
+          font-weight: 800;
+          color: #0F172A;
+          margin-top: 3.25rem;
+          margin-bottom: 1.25rem;
+          letter-spacing: -0.02em;
+          scroll-margin-top: 6rem;
+          max-width: 70ch;
+        }
+        @media (min-width: 640px) {
+          .editorial-prose h2 { font-size: 2rem; }
         }
         .editorial-prose h3 {
           font-family: var(--font-display), serif;
-          font-size: 1.75rem;
-          font-weight: 800;
-          color: #0F172A;
-          margin-top: 2.75rem;
-          margin-bottom: 1.25rem;
-          letter-spacing: -0.02em;
+          font-size: 1.35rem;
+          font-weight: 700;
+          color: #1E293B;
+          margin-top: 2.5rem;
+          margin-bottom: 1rem;
+          scroll-margin-top: 6rem;
+          max-width: 70ch;
+        }
+        @media (min-width: 640px) {
+          .editorial-prose h3 { font-size: 1.5rem; }
         }
         .editorial-prose blockquote {
           border-left: 4px solid #B87333;
-          padding-left: 1.5rem;
+          padding-left: 1.25rem;
           font-style: italic;
           color: #0F172A;
-          font-size: 1.35rem;
+          font-size: 1.25rem;
           margin: 2.5rem 0;
+          max-width: 70ch;
+        }
+        @media (min-width: 640px) {
+          .editorial-prose blockquote {
+            padding-left: 1.5rem;
+            font-size: 1.35rem;
+          }
+        }
+        .editorial-prose pre, .editorial-prose table {
+          max-width: 100%;
+          overflow-x: auto;
+        }
+        .editorial-prose img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 1rem;
         }
       `}} />
 
@@ -157,7 +239,7 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
           <span>Back to Thinking &amp; Perspectives</span>
         </Link>
 
-        {/* 2-Column Asymmetric Reading Grid - Exact to Reference 1 */}
+        {/* 2-Column Asymmetric Reading Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           
           {/* Main Article Body (Left Column, 8 Columns) */}
@@ -178,23 +260,30 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
               </h1>
             </div>
 
-            {/* Feature Photo with Vertically Aligned Contributor Stack on Bottom Left */}
-            <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] rounded-3xl overflow-hidden bg-navy-900 border border-navy-200/80 shadow-xl">
+            {/* Feature Photo with Hover-Only Desktop Overlay & Removed Overlap on Mobile */}
+            <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] rounded-3xl overflow-hidden bg-navy-900 border border-navy-200/80 shadow-xl group/hero">
               <img 
                 src={article.coverImage || "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1600&q=80"} 
                 alt={article.title}
-                className="w-full h-full object-cover opacity-90"
+                className="w-full h-full object-cover opacity-90 transition-transform duration-700 group-hover/hero:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-navy-950/70 via-navy-950/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-navy-950/70 via-navy-950/10 to-transparent opacity-60 group-hover/hero:opacity-90 transition-opacity duration-300" />
 
-              {/* Vertically aligned contributors on bottom-left of blog poster */}
-              <div className="absolute bottom-6 left-6 z-10 flex flex-col gap-2.5 bg-navy-950/85 backdrop-blur-md p-3.5 rounded-2xl border border-white/15 shadow-2xl max-w-[260px] sm:max-w-xs">
-                <div className="text-[10px] font-mono font-bold text-bronze-400 uppercase tracking-widest px-1">
-                  Editorial Board &amp; Contributors
+              {/* Desktop Hover Hint Pill (Hidden on Mobile, fades out on desktop hover) */}
+              <div className="hidden md:flex items-center gap-2.5 absolute bottom-5 left-5 z-10 px-4 py-2 rounded-full bg-navy-950/85 backdrop-blur-md text-white font-mono text-xs font-bold border border-white/20 shadow-lg group-hover/hero:opacity-0 transition-opacity duration-300 pointer-events-none">
+                <User className="w-3.5 h-3.5 text-bronze-400" />
+                <span>Hover image to view Editorial Board &amp; Contributors</span>
+              </div>
+
+              {/* Desktop Hover-Only Vertically Aligned Contributor Stack (HIDDEN ON MOBILE to remove overlap) */}
+              <div className="hidden md:flex flex-col gap-2.5 absolute bottom-6 left-6 z-20 bg-navy-950/90 backdrop-blur-md p-4 rounded-2xl border border-white/20 shadow-2xl max-w-xs opacity-0 translate-y-4 pointer-events-none group-hover/hero:opacity-100 group-hover/hero:translate-y-0 group-hover/hero:pointer-events-auto transition-all duration-300 ease-out">
+                <div className="text-[10px] font-mono font-bold text-bronze-400 uppercase tracking-widest px-1 flex items-center justify-between">
+                  <span>Editorial Board</span>
+                  <span className="text-[9px] text-white/50">(Hover Active)</span>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2.5 group cursor-default">
-                    <img src={article.authorAvatar} alt={article.author} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-bronze-500 shadow-md group-hover:scale-105 transition-transform flex-shrink-0" />
+                <div className="flex flex-col gap-2.5">
+                  <div className="flex items-center gap-3 group cursor-default">
+                    <img src={article.authorAvatar} alt={article.author} className="w-10 h-10 rounded-full object-cover border-2 border-bronze-500 shadow-md group-hover:scale-105 transition-transform flex-shrink-0" />
                     <div className="text-left overflow-hidden">
                       <div className="text-xs font-bold text-white truncate font-display">{article.author}</div>
                       <div className="text-[10px] font-mono text-bronze-300 truncate">{article.authorRole} (Lead)</div>
@@ -204,8 +293,8 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
                     { name: "Oliva Nacelle", role: "Strategy+Curiosity", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80" },
                     { name: "Mia di Silva", role: "Art Direction", avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=150&q=80" }
                   ]).map((c, idx) => (
-                    <div key={idx} className="flex items-center gap-2.5 group cursor-default">
-                      <img src={c.avatar} alt={c.name} className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border border-white/40 shadow-md group-hover:scale-105 transition-transform flex-shrink-0" />
+                    <div key={idx} className="flex items-center gap-3 group cursor-default">
+                      <img src={c.avatar} alt={c.name} className="w-9 h-9 rounded-full object-cover border border-white/40 shadow-md group-hover:scale-105 transition-transform flex-shrink-0" />
                       <div className="text-left overflow-hidden">
                         <div className="text-xs font-semibold text-warm-100 truncate">{c.name}</div>
                         <div className="text-[10px] font-mono text-navy-300 truncate">{c.role}</div>
@@ -216,13 +305,45 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
               </div>
             </div>
 
-            {/* Rich Text Editorial Body with Drop Cap */}
+            {/* Mobile Table of Contents (Visible only on screens below lg, positioned right after header & feature image) */}
+            {toc && toc.length > 0 && (
+              <div className="lg:hidden my-6 p-5 sm:p-6 rounded-2xl bg-white border border-navy-200 shadow-sm space-y-3">
+                <h4 className="text-xs font-mono font-bold uppercase tracking-widest text-navy-400 flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-navy-950 font-display">
+                    <BookOpen className="w-4 h-4 text-bronze-600" />
+                    <span>Table of Contents</span>
+                  </span>
+                  <span className="text-[10px] bg-bronze-50 text-bronze-700 px-2 py-0.5 rounded-full font-bold border border-bronze-200">
+                    {toc.length} sections
+                  </span>
+                </h4>
+                <nav className="flex flex-col space-y-2 text-sm font-medium text-navy-800 pt-2 border-t border-navy-100">
+                  <a href="#" className="hover:text-bronze-600 transition-colors font-bold text-navy-950 py-0.5 flex items-center gap-1.5">
+                    <span className="text-bronze-500 font-mono text-xs">↑</span>
+                    <span>Introduction / Overview</span>
+                  </a>
+                  {toc.map((item, idx) => (
+                    <a 
+                      key={idx} 
+                      href={`#${item.id}`} 
+                      className={`hover:text-bronze-600 transition-colors leading-snug block py-1 border-l-2 border-transparent hover:border-bronze-500 hover:pl-2 ${
+                        item.level === 3 ? "pl-4 text-xs text-navy-600" : "font-semibold text-navy-900"
+                      }`}
+                    >
+                      {item.text}
+                    </a>
+                  ))}
+                </nav>
+              </div>
+            )}
+
+            {/* Rich Text Editorial Body with Automatically Injected Heading IDs */}
             <article 
-              className="editorial-prose max-w-none pt-2 font-normal"
-              dangerouslySetInnerHTML={{ __html: formattedHtml }}
+              className="editorial-prose max-w-none pt-2 font-normal w-full min-w-0"
+              dangerouslySetInnerHTML={{ __html: htmlWithIds }}
             />
 
-            {/* Signature Serif Italic Pull Quote (Exact to Reference 1) */}
+            {/* Signature Serif Italic Pull Quote */}
             <div className="my-14 p-8 sm:p-12 rounded-3xl bg-warm-100/80 border border-navy-200/60 space-y-6">
               <p className="text-2xl sm:text-3xl font-serif italic text-navy-950 font-normal leading-snug tracking-tight">
                 &ldquo;In a world older and more complete than ours they move finished and complete, gifted with extensions of the senses we have lost or never attained, living by voices we shall never hear.&rdquo;
@@ -257,20 +378,28 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
 
           </div>
 
-          {/* Sticky Right Sidebar (Right Column, 4 Columns) - Exact to Reference 1 */}
-          <aside className="lg:col-span-4 sticky top-32 space-y-10 pl-0 lg:pl-6 border-t lg:border-t-0 lg:border-l border-navy-200/80 pt-10 lg:pt-0">
+          {/* Right Sidebar (Right Column, 4 Columns) - REMOVED STICKY SCROLLING TO PREVENT READING CLUTTER */}
+          <aside className="lg:col-span-4 space-y-10 pl-0 lg:pl-6 border-t lg:border-t-0 lg:border-l border-navy-200/80 pt-10 lg:pt-0">
             
-            {/* Table of Contents / Section Index */}
-            <div className="space-y-4">
-              <h4 className="text-xs font-mono font-bold uppercase tracking-widest text-navy-400">
-                Table of contents
+            {/* Desktop Table of Contents (Hidden on mobile since it's displayed above the article body) */}
+            <div className="hidden lg:block space-y-4">
+              <h4 className="text-xs font-mono font-bold uppercase tracking-widest text-navy-400 flex items-center justify-between">
+                <span>Table of contents</span>
+                <span className="text-[10px] text-bronze-600 font-bold">({toc.length} sections)</span>
               </h4>
-              <nav className="flex flex-col space-y-3 text-sm font-semibold text-navy-800">
-                <a href="#" className="hover:text-bronze-600 transition-colors">Introduction</a>
-                <a href="#strategic-framework" className="hover:text-bronze-600 transition-colors">1. Architectural Clarity</a>
-                <a href="#cameras-and-tools" className="hover:text-bronze-600 transition-colors">2. Asymmetry as a Feature</a>
-                <a href="#advice-for-founders" className="hover:text-bronze-600 transition-colors">3. Advice for Founders</a>
-                <a href="#whats-next" className="text-navy-500 hover:text-bronze-600 transition-colors">What&apos;s next?</a>
+              <nav className="flex flex-col space-y-2.5 text-sm font-semibold text-navy-800">
+                <a href="#" className="hover:text-bronze-600 transition-colors font-bold text-navy-950">↑ Introduction / Overview</a>
+                {toc.map((item, idx) => (
+                  <a 
+                    key={idx} 
+                    href={`#${item.id}`} 
+                    className={`hover:text-bronze-600 transition-colors leading-snug block py-0.5 ${
+                      item.level === 3 ? "pl-4 text-xs font-normal text-navy-600" : ""
+                    }`}
+                  >
+                    {item.text}
+                  </a>
+                ))}
               </nav>
             </div>
 

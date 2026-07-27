@@ -192,14 +192,14 @@ export const AdminPhotoManager: React.FC<AdminPhotoManagerProps> = ({ isModal = 
     <div className="space-y-12">
       {/* Modal Selection Banner */}
       {(isModal || onSelectPhoto) && (
-        <div className="bg-gradient-to-r from-bronze-50 via-warm-100 to-white text-navy-950 p-6 sm:p-8 rounded-3xl shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-2 border-bronze-300 animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="space-y-1">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-bronze-600 text-white border border-bronze-400 text-[11px] font-mono font-black tracking-widest uppercase shadow-sm">
-              ⚡ MODAL PIPELINE INJECTION ACTIVE (LIGHT SCHEME)
+        <div className="bg-gradient-to-r from-bronze-50 via-warm-100 to-white text-navy-950 p-4 sm:p-5 rounded-2xl shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-bronze-300 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="space-y-0.5">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-bronze-600 text-white border border-bronze-400 text-[10px] font-mono font-bold tracking-wider uppercase">
+              ⚡ ASSET SELECTOR
             </span>
-            <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-navy-950 font-display">Select Cloud Asset for Dossier</h3>
-            <p className="text-xs sm:text-sm text-navy-600 max-w-2xl leading-relaxed">
-              Upload a new image below or click on any existing transcoded WebP asset in your archive, then click <strong className="text-navy-950 underline">&ldquo;USE THIS ASSET&rdquo;</strong> to inject it into your editorial content or cover.
+            <h3 className="text-lg sm:text-xl font-bold tracking-tight text-navy-950 font-display">Select Cloud Asset for Dossier</h3>
+            <p className="text-xs text-navy-600 max-w-xl leading-snug">
+              Upload above or click an asset below, then click <strong className="text-navy-950 underline">&ldquo;USE THIS ASSET&rdquo;</strong>.
             </p>
           </div>
           {selectedPhoto ? (
@@ -209,14 +209,14 @@ export const AdminPhotoManager: React.FC<AdminPhotoManagerProps> = ({ isModal = 
                   onSelectPhoto(selectedPhoto.webpPath || selectedPhoto.inputPath);
                 }
               }}
-              className="w-full md:w-auto px-8 py-4 bg-emerald-700 hover:bg-emerald-800 text-white font-mono font-bold text-xs sm:text-sm rounded-2xl shadow-lg border border-emerald-600 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2.5 flex-shrink-0 group/btn"
+              className="w-full md:w-auto px-6 py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-mono font-bold text-xs rounded-xl shadow-md border border-emerald-600 hover:scale-102 active:scale-95 transition-all flex items-center justify-center gap-2 flex-shrink-0 group/btn"
             >
-              <CheckCircle2 className="w-5 h-5 text-white group-hover/btn:rotate-12 transition-transform" />
+              <CheckCircle2 className="w-4 h-4 text-white" />
               <span>USE SELECTED: &ldquo;{selectedPhoto.originalFileName.slice(0, 16)}&rdquo;</span>
             </button>
           ) : (
-            <div className="w-full md:w-auto px-6 py-3 bg-white text-navy-500 font-mono text-xs rounded-xl border border-navy-200 shadow-sm text-center flex-shrink-0 font-bold">
-              👈 CLICK ANY ASSET BELOW TO SELECT
+            <div className="w-full md:w-auto px-4 py-2 bg-white text-navy-500 font-mono text-xs rounded-lg border border-navy-200 shadow-sm text-center flex-shrink-0 font-semibold">
+              👈 CLICK AN ASSET BELOW
             </div>
           )}
         </div>
@@ -245,25 +245,24 @@ export const AdminPhotoManager: React.FC<AdminPhotoManagerProps> = ({ isModal = 
         </button>
       </div>
 
-      {/* Main 2-Column Responsive Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      {/* Main Responsive Layout */}
+      <div className={`grid grid-cols-1 ${isModal ? "gap-6" : "lg:grid-cols-12 gap-8"} items-start`}>
         
-        {/* LEFT COLUMN: Dropzone & Cloud Assets (7/8 cols on Desktop) */}
-        <div className="lg:col-span-7 xl:col-span-8 space-y-10">
+        {/* LEFT COLUMN: Dropzone & Cloud Assets */}
+        <div className={`${isModal ? "w-full" : "lg:col-span-7 xl:col-span-8"} space-y-8`}>
           
           {/* Executive Cloud Dropzone */}
-          <div className={`${isModal ? "bg-warm-50 text-navy-950 border-navy-300" : "bg-navy-950 text-warm-50 border-navy-800"} p-8 md:p-10 rounded-2xl border-2 border-dashed hover:border-bronze-500 transition-all shadow-md relative overflow-hidden group`}>
-            <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-bronze-500/10 blur-3xl pointer-events-none" />
-
-            <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto relative z-10">
-              <div className={`w-14 h-14 rounded-2xl ${isModal ? "bg-white border-navy-200 text-bronze-600 shadow-sm" : "bg-navy-900 border-navy-700 text-bronze-400 shadow-inner"} border flex items-center justify-center mb-5 group-hover:scale-110 group-hover:border-bronze-500 transition-all`}>
-                <Upload className="w-7 h-7" />
+          {isModal ? (
+            <div className="bg-warm-50/90 text-navy-950 p-5 rounded-2xl border-2 border-dashed border-navy-300 hover:border-bronze-500 transition-all shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4 text-left">
+                <div className="w-12 h-12 rounded-xl bg-white border border-navy-200 text-bronze-600 flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <Upload className="w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className="text-base font-bold text-navy-950 font-display">Upload New Image Asset</h4>
+                  <p className="text-xs text-navy-500">JPEG, PNG, GIF up to 50MB. Auto-optimized to WebP.</p>
+                </div>
               </div>
-              <span className="text-xs font-mono uppercase tracking-widest text-bronze-600 mb-2 font-bold">SHARP OPTIMIZATION + FFMPEG GIF ENGINE</span>
-              <h3 className={`text-h3 font-bold ${isModal ? "text-navy-950" : "text-warm-50"} mb-2`}>Deploy Image Asset</h3>
-              <p className={`text-sm ${isModal ? "text-navy-600" : "text-navy-300"} mb-6 leading-relaxed`}>
-                Drag &amp; drop high-resolution JPEG, PNG, or animated GIF file, or initialize local browser selection (Max 50MB payload).
-              </p>
 
               <input
                 ref={fileInputRef}
@@ -272,44 +271,76 @@ export const AdminPhotoManager: React.FC<AdminPhotoManagerProps> = ({ isModal = 
                 onChange={handleFileChange}
                 disabled={isUploading}
                 className="hidden"
-                id="admin-photo-file-input"
+                id="admin-photo-file-input-modal"
               />
-
               <label
-                htmlFor="admin-photo-file-input"
-                className={`inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-warm-50 text-navy-950 font-bold text-sm cursor-pointer hover:bg-warm-100 active:scale-[0.98] active:-translate-y-[1px] transition-all shadow-xl group/btn ${
+                htmlFor="admin-photo-file-input-modal"
+                className={`px-6 py-3 rounded-xl bg-navy-950 text-white font-mono text-xs font-bold cursor-pointer hover:bg-navy-900 transition-all shadow-md flex items-center gap-2 flex-shrink-0 ${
                   isUploading ? "opacity-50 cursor-not-allowed pointer-events-none" : ""
                 }`}
               >
-                {isUploading ? <Loader2 className="w-5 h-5 animate-spin text-bronze-600" /> : <ImageIcon className="w-5 h-5 text-bronze-600 group-hover/btn:rotate-12 transition-transform" />}
-                <span>{isUploading ? "TRANSMITTING TO CLOUD..." : "INITIALIZE UPLOAD"}</span>
+                {isUploading ? <Loader2 className="w-4 h-4 animate-spin text-bronze-400" /> : <ImageIcon className="w-4 h-4 text-bronze-400" />}
+                <span>{isUploading ? "TRANSMITTING..." : "⚡ SELECT & UPLOAD"}</span>
               </label>
-
-              {/* Upload Progress Bar */}
-              {uploadProgress !== null && (
-                <div className="w-full max-w-md mt-6 space-y-2">
-                  <div className="flex justify-between text-xs font-mono font-semibold text-bronze-400">
-                    <span>BUFFERING PAYLOAD TO CDN...</span>
-                    <span>{uploadProgress}%</span>
-                  </div>
-                  <div className="w-full h-3 bg-navy-900 rounded-full overflow-hidden border border-navy-800 p-0.5">
-                    <div
-                      className="h-full bg-gradient-to-r from-bronze-600 to-bronze-400 transition-all duration-300 rounded-full shadow-sm"
-                      style={{ width: `${uploadProgress}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Error Message */}
-              {uploadError && (
-                <div className="mt-6 p-4 rounded-xl bg-red-950/90 text-red-200 border border-red-800 text-xs font-mono flex items-center gap-3 w-full">
-                  <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-                  <span className="text-left">{uploadError}</span>
-                </div>
-              )}
             </div>
-          </div>
+          ) : (
+            <div className="bg-navy-950 text-warm-50 p-8 md:p-10 rounded-2xl border-2 border-dashed border-navy-800 hover:border-bronze-500 transition-all shadow-2xl relative overflow-hidden group">
+              <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-bronze-500/10 blur-3xl pointer-events-none" />
+
+              <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto relative z-10">
+                <div className="w-14 h-14 rounded-2xl bg-navy-900 border border-navy-700 flex items-center justify-center text-bronze-400 mb-5 group-hover:scale-110 group-hover:border-bronze-500 transition-all shadow-inner">
+                  <Upload className="w-7 h-7" />
+                </div>
+                <span className="text-xs font-mono uppercase tracking-widest text-bronze-400 mb-2 font-bold">SHARP OPTIMIZATION + FFMPEG GIF ENGINE</span>
+                <h3 className="text-h3 font-bold text-warm-50 mb-2">Deploy Image Asset</h3>
+                <p className="text-sm text-navy-300 mb-6 leading-relaxed">
+                  Drag &amp; drop high-resolution JPEG, PNG, or animated GIF file, or initialize local browser selection (Max 50MB payload).
+                </p>
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/gif,image/webp"
+                  onChange={handleFileChange}
+                  disabled={isUploading}
+                  className="hidden"
+                  id="admin-photo-file-input"
+                />
+
+                <label
+                  htmlFor="admin-photo-file-input"
+                  className={`inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-warm-50 text-navy-950 font-bold text-sm cursor-pointer hover:bg-warm-100 active:scale-[0.98] active:-translate-y-[1px] transition-all shadow-xl group/btn ${
+                    isUploading ? "opacity-50 cursor-not-allowed pointer-events-none" : ""
+                  }`}
+                >
+                  {isUploading ? <Loader2 className="w-5 h-5 animate-spin text-bronze-600" /> : <ImageIcon className="w-5 h-5 text-bronze-600 group-hover/btn:rotate-12 transition-transform" />}
+                  <span>{isUploading ? "TRANSMITTING TO CLOUD..." : "INITIALIZE UPLOAD"}</span>
+                </label>
+
+                {uploadProgress !== null && (
+                  <div className="w-full max-w-md mt-6 space-y-2">
+                    <div className="flex justify-between text-xs font-mono font-semibold text-bronze-400">
+                      <span>BUFFERING PAYLOAD TO CDN...</span>
+                      <span>{uploadProgress}%</span>
+                    </div>
+                    <div className="w-full h-3 bg-navy-900 rounded-full overflow-hidden border border-navy-800 p-0.5">
+                      <div
+                        className="h-full bg-gradient-to-r from-bronze-600 to-bronze-400 transition-all duration-300 rounded-full shadow-sm"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {uploadError && (
+                  <div className="mt-6 p-4 rounded-xl bg-red-950/90 text-red-200 border border-red-800 text-xs font-mono flex items-center gap-3 w-full">
+                    <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+                    <span className="text-left">{uploadError}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Photos List Grid */}
           <div className="space-y-6 pt-2">
@@ -442,148 +473,147 @@ export const AdminPhotoManager: React.FC<AdminPhotoManagerProps> = ({ isModal = 
           </div>
         </div>
 
-        {/* RIGHT COLUMN: Live Side Telemetry Console (5 cols on Desktop, sticky) */}
-        <div className="lg:col-span-5 xl:col-span-4 sticky top-8 space-y-4">
-          <div className="bg-navy-950 rounded-2xl border border-navy-800 shadow-2xl overflow-hidden flex flex-col h-[650px]">
-            
-            {/* Console Header */}
-            <div className="bg-navy-900/90 border-b border-navy-800 px-5 py-3.5 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-500/80" />
-                  <div className="w-3 h-3 rounded-full bg-amber-500/80" />
-                  <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
-                </div>
-                <div className="h-4 w-[1px] bg-navy-700 mx-1" />
-                <div className="flex items-center gap-2 text-warm-100 font-mono text-xs font-bold tracking-wider">
-                  <Terminal className="w-4 h-4 text-bronze-400" />
-                  <span>LIVE PHOTO WORKER CONSOLE</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="flex h-2 w-2 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-                </span>
-                <span className="text-[10px] font-mono font-semibold text-emerald-400 uppercase tracking-widest">
-                  SYNCED
-                </span>
-              </div>
-            </div>
-
-            {/* Target Job Selector Bar */}
-            <div className="bg-navy-900/40 border-b border-navy-800/60 px-5 py-2.5 flex items-center justify-between text-xs font-mono text-navy-400">
-              <div className="flex items-center gap-2 truncate">
-                <Activity className="w-3.5 h-3.5 text-bronze-400 flex-shrink-0" />
-                <span>TARGET:</span>
-                <span className="text-warm-100 font-semibold truncate max-w-[180px]">
-                  {selectedPhoto ? selectedPhoto.originalFileName : "NO JOB SELECTED"}
-                </span>
-              </div>
-              {selectedPhoto && (
-                <span className="text-[10px] bg-navy-800 px-2 py-0.5 rounded text-navy-300 uppercase">
-                  {selectedPhoto.status}
-                </span>
-              )}
-            </div>
-
-            {/* Terminal Feed Body */}
-            <div className="flex-1 overflow-y-auto p-5 font-mono text-xs space-y-3 bg-[#070b14] scrollbar-thin scrollbar-thumb-navy-800 scrollbar-track-transparent">
-              {!selectedPhoto ? (
-                <div className="h-full flex flex-col items-center justify-center text-navy-600 space-y-2 text-center py-12">
-                  <Terminal className="w-8 h-8 opacity-40" />
-                  <p>Select an image job on the left to inspect real-time worker logs.</p>
-                </div>
-              ) : !selectedPhoto.logs || selectedPhoto.logs.length === 0 ? (
-                <div className="space-y-3 text-navy-400">
-                  <div className="flex items-start gap-2.5">
-                    <span className="text-navy-600 font-semibold">[{new Date().toLocaleTimeString()}]</span>
-                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-navy-900 text-navy-300 border border-navy-800">
-                      SYSTEM
-                    </span>
-                    <span className="text-warm-300">Awaiting worker telemetry feed for job #{selectedPhoto.id.slice(0, 8)}...</span>
+        {/* RIGHT COLUMN: Live Side Telemetry Console (Hidden in Modal Mode to keep popup compact and smooth) */}
+        {!isModal && (
+          <div className="lg:col-span-5 xl:col-span-4 sticky top-8 space-y-4">
+            <div className="bg-navy-950 rounded-2xl border border-navy-800 shadow-2xl overflow-hidden flex flex-col h-[650px]">
+              
+              {/* Console Header */}
+              <div className="bg-navy-900/90 border-b border-navy-800 px-5 py-3.5 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-red-500/80" />
+                    <div className="w-3 h-3 rounded-full bg-amber-500/80" />
+                    <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
                   </div>
-                  {selectedPhoto.errorMessage && (
-                    <div className="flex items-start gap-2.5 text-red-400">
-                      <span className="text-navy-600 font-semibold">[{new Date().toLocaleTimeString()}]</span>
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-950 text-red-300 border border-red-800">
-                        ERROR
-                      </span>
-                      <span>{selectedPhoto.errorMessage}</span>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                selectedPhoto.logs.map((log, idx) => (
-                  <div key={idx} className="flex items-start gap-2.5 leading-relaxed group/log">
-                    <span className="text-navy-600 font-semibold flex-shrink-0 select-none">
-                      [{log.timestamp}]
-                    </span>
-                    <span
-                      className={`px-1.5 py-0.5 rounded text-[10px] font-bold border flex-shrink-0 uppercase ${getStageBadgeStyle(
-                        log.stage
-                      )}`}
-                    >
-                      {log.stage}
-                    </span>
-                    <span
-                      className={`break-words font-medium ${
-                        log.stage === "ERROR"
-                          ? "text-red-400 font-semibold"
-                          : log.stage === "SUCCESS"
-                          ? "text-emerald-300 font-semibold"
-                          : log.stage === "WORKER"
-                          ? "text-warm-100"
-                          : "text-navy-300"
-                      }`}
-                    >
-                      {log.message}
-                    </span>
+                  <div className="h-4 w-[1px] bg-navy-700 mx-1" />
+                  <div className="flex items-center gap-2 text-warm-100 font-mono text-xs font-bold tracking-wider">
+                    <Terminal className="w-4 h-4 text-bronze-400" />
+                    <span>LIVE PHOTO WORKER CONSOLE</span>
                   </div>
-                ))
-              )}
-
-              {/* Blinking Prompt Line */}
-              {selectedPhoto && (
-                <div className="pt-2 flex items-center gap-2 text-bronze-400 font-semibold">
-                  <span className="text-navy-600">&gt;</span>
-                  <span className="text-xs">
-                    {selectedPhoto.status === "completed"
-                      ? "JOB FINISHED // WEBP RENIDITION ENCODED"
-                      : selectedPhoto.status === "failed"
-                      ? "JOB TERMINATED // ERROR ENCOUNTERED"
-                      : "PROCESSING ACTIVE // SHARP / FFMPEG WORKER LISTENING"}
-                  </span>
-                  <span className="w-2 h-4 bg-bronze-400 animate-pulse inline-block" />
                 </div>
-              )}
-              <div ref={consoleEndRef} />
-            </div>
 
-            {/* Console Footer */}
-            <div className="bg-navy-900/90 border-t border-navy-800 px-5 py-3 flex flex-col gap-3 font-mono">
-              {onSelectPhoto && selectedPhoto && (
-                <button
-                  onClick={() => onSelectPhoto(selectedPhoto.webpPath || selectedPhoto.inputPath)}
-                  className="w-full py-2.5 bg-emerald-950 hover:bg-emerald-900 text-emerald-300 text-xs font-bold rounded-xl border border-emerald-600/60 flex items-center justify-center gap-2 shadow-lg transition-all active:scale-98"
-                >
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span>USE &ldquo;{selectedPhoto.originalFileName.slice(0, 16)}&rdquo; IN DOSSIER</span>
-                </button>
-              )}
-              <div className="flex items-center justify-between text-[11px] text-navy-400">
                 <div className="flex items-center gap-2">
-                  <Clock className="w-3.5 h-3.5 text-navy-500" />
-                  <span>POLL INTERVAL: 3000ms</span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 text-[10px] font-mono border border-emerald-800">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    ACTIVE
+                  </span>
                 </div>
-                <div className="text-navy-500">
-                  {selectedPhoto?.logs?.length || 0} EVENTS LOGGED
+              </div>
+
+              {/* Target Job Selector Bar */}
+              <div className="bg-navy-900/40 border-b border-navy-800/60 px-5 py-2.5 flex items-center justify-between text-xs font-mono text-navy-400">
+                <div className="flex items-center gap-2 truncate">
+                  <Activity className="w-3.5 h-3.5 text-bronze-400 flex-shrink-0" />
+                  <span>TARGET:</span>
+                  <span className="text-warm-100 font-semibold truncate max-w-[180px]">
+                    {selectedPhoto ? selectedPhoto.originalFileName : "NO JOB SELECTED"}
+                  </span>
+                </div>
+                {selectedPhoto && (
+                  <span className="text-[10px] bg-navy-800 px-2 py-0.5 rounded text-navy-300 uppercase">
+                    {selectedPhoto.status}
+                  </span>
+                )}
+              </div>
+
+              {/* Terminal Output Body */}
+              <div className="flex-1 overflow-y-auto p-5 font-mono text-xs space-y-3 bg-[#070b14] scrollbar-thin scrollbar-thumb-navy-800 scrollbar-track-transparent">
+                {!selectedPhoto ? (
+                  <div className="h-full flex flex-col items-center justify-center text-navy-600 space-y-2 text-center py-12">
+                    <Terminal className="w-8 h-8 opacity-40" />
+                    <p>Select a photo job on the left to inspect real-time worker logs.</p>
+                  </div>
+                ) : !selectedPhoto.logs || selectedPhoto.logs.length === 0 ? (
+                  <div className="space-y-3 text-navy-400">
+                    <div className="flex items-start gap-2.5">
+                      <span className="text-navy-600 font-semibold">[{new Date().toLocaleTimeString()}]</span>
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-navy-900 text-navy-300 border border-navy-800">
+                        SYSTEM
+                      </span>
+                      <span className="text-warm-300">Awaiting worker telemetry feed for job #{selectedPhoto.id.slice(0, 8)}...</span>
+                    </div>
+                    {selectedPhoto.errorMessage && (
+                      <div className="flex items-start gap-2.5 text-red-400">
+                        <span className="text-navy-600 font-semibold">[{new Date().toLocaleTimeString()}]</span>
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-950 text-red-300 border border-red-800">
+                          ERROR
+                        </span>
+                        <span>{selectedPhoto.errorMessage}</span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  selectedPhoto.logs.map((log, idx) => (
+                    <div key={idx} className="flex items-start gap-2.5 leading-relaxed group/log">
+                      <span className="text-navy-600 font-semibold flex-shrink-0 select-none">
+                        [{log.timestamp}]
+                      </span>
+                      <span
+                        className={`px-1.5 py-0.5 rounded text-[10px] font-bold border flex-shrink-0 uppercase ${getStageBadgeStyle(
+                          log.stage
+                        )}`}
+                      >
+                        {log.stage}
+                      </span>
+                      <span
+                        className={`break-words font-medium ${
+                          log.stage === "ERROR"
+                            ? "text-red-400 font-semibold"
+                            : log.stage === "SUCCESS"
+                            ? "text-emerald-300 font-semibold"
+                            : log.stage === "WORKER"
+                            ? "text-warm-100"
+                            : "text-navy-300"
+                        }`}
+                      >
+                        {log.message}
+                      </span>
+                    </div>
+                  ))
+                )}
+
+                {/* Blinking Prompt Line */}
+                {selectedPhoto && (
+                  <div className="pt-2 flex items-center gap-2 text-bronze-400 font-semibold">
+                    <span className="text-navy-600">&gt;</span>
+                    <span className="text-xs">
+                      {selectedPhoto.status === "completed"
+                        ? "JOB FINISHED // WEBP RENDITION ENCODED"
+                        : selectedPhoto.status === "failed"
+                        ? "JOB TERMINATED // ERROR ENCOUNTERED"
+                        : "PROCESSING ACTIVE // SHARP WORKER LISTENING"}
+                    </span>
+                    <span className="w-2 h-4 bg-bronze-400 animate-pulse inline-block" />
+                  </div>
+                )}
+                <div ref={consoleEndRef} />
+              </div>
+
+              {/* Console Footer Details */}
+              <div className="bg-navy-900/90 border-t border-navy-800 px-5 py-3 flex flex-col gap-2">
+                {selectedPhoto && onSelectPhoto && (
+                  <button
+                    onClick={() => onSelectPhoto(selectedPhoto.webpPath || selectedPhoto.inputPath)}
+                    className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 active:scale-95"
+                  >
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <span>USE &ldquo;{selectedPhoto.originalFileName.slice(0, 16)}&rdquo; IN DOSSIER</span>
+                  </button>
+                )}
+                <div className="flex items-center justify-between text-[11px] text-navy-400">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-3.5 h-3.5 text-navy-500" />
+                    <span>POLL INTERVAL: 3000ms</span>
+                  </div>
+                  <div className="text-navy-500">
+                    {selectedPhoto?.logs?.length || 0} EVENTS LOGGED
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
       </div>
     </div>
