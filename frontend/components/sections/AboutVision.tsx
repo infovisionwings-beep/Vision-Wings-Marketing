@@ -16,20 +16,20 @@ export default function AboutVision() {
         {/* Top: Editorial Manifesto (Vertical Stack per Rule 4.7 split-header ban) */}
         <RevealOnScroll className="max-w-4xl">
           <h2 className="text-display sm:text-h1 font-bold text-navy-950 tracking-tight leading-[1.05] mb-8">
-            The market is deafeningly noisy. We cut through the static with relentless clarity and precision design.
+            You built a great business. Now let&apos;s give wings to your vision with high-velocity marketing and brand acceleration.
           </h2>
           <p className="text-body-lg text-navy-700 max-w-[65ch] leading-relaxed">
-            Most agencies bury you in account manager layers and recycled templates. Vision Wings operates as a specialized strike team—defining the fundamental truth of your brand and executing digital experiences that command authority.
+            Most agencies bury you in account manager layers and generic ad templates. Vision Wings operates as a specialized growth partner—defining your unfair market advantage and executing high-converting marketing campaigns that command industry authority.
           </p>
         </RevealOnScroll>
 
         {/* Middle: Asymmetric Visual + Narrative Block */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          {/* Architectural / Editorial Photography Backdrop */}
+          {/* Marketing / Strategic Team Photography Backdrop */}
           <RevealOnScroll className="lg:col-span-7 h-[380px] sm:h-[480px] relative rounded-lg overflow-hidden bg-navy-900 shadow-xl">
             <Image
-              src="https://picsum.photos/seed/visionwings-architecture/1400/900"
-              alt="Architectural precision and structural clarity"
+              src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1400&q=85"
+              alt="Strategic marketing team driving brand acceleration"
               fill
               className="object-cover opacity-85 hover:scale-105 transition-transform duration-1000 ease-out"
               sizes="(max-width: 1024px) 100vw, 60vw"
@@ -37,7 +37,7 @@ export default function AboutVision() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-navy-950/80 via-transparent to-transparent flex items-end p-8 sm:p-12">
               <p className="text-warm-50 text-h3 sm:text-h2 font-light tracking-tight max-w-md">
-                &ldquo;Design is not decoration. It is structural competitive advantage.&rdquo;
+                &ldquo;We don&apos;t just run campaigns. We give aerodynamic lift and permanent altitude to your brand vision.&rdquo;
               </p>
             </div>
           </RevealOnScroll>
@@ -46,25 +46,25 @@ export default function AboutVision() {
           <div className="lg:col-span-5 space-y-8 lg:pl-4">
             <RevealOnScroll delay={0.1} className="group border-b border-navy-200 pb-6">
               <span className="text-xs font-mono font-semibold text-bronze-600 mb-2 block">01 / STRATEGY FIRST</span>
-              <h3 className="text-h3 text-navy-950 mb-2 group-hover:text-bronze-600 transition-colors">Psychology Over Trends</h3>
+              <h3 className="text-h3 text-navy-950 mb-2 group-hover:text-bronze-600 transition-colors">Market Positioning &amp; Clarity</h3>
               <p className="text-body text-navy-600 leading-relaxed">
-                We analyze buyer behavior and market gaps before writing a single line of code or designing a glyph. Everything serves the growth objective.
+                We analyze buyer psychology and competitive gaps before launching a campaign. Everything we build serves your core growth and revenue objectives.
               </p>
             </RevealOnScroll>
 
             <RevealOnScroll delay={0.2} className="group border-b border-navy-200 pb-6">
               <span className="text-xs font-mono font-semibold text-bronze-600 mb-2 block">02 / SENIOR CRAFT</span>
-              <h3 className="text-h3 text-navy-950 mb-2 group-hover:text-bronze-600 transition-colors">Bespoke Execution</h3>
+              <h3 className="text-h3 text-navy-950 mb-2 group-hover:text-bronze-600 transition-colors">Omnichannel Execution</h3>
               <p className="text-body text-navy-600 leading-relaxed">
-                From micro-interactions and custom typography to resilient engineering, our work is hand-built by senior practitioners who obsess over detail.
+                From high-converting web funnels and viral video commercials to precision paid advertising, your campaigns are executed 100% by senior marketing masters.
               </p>
             </RevealOnScroll>
 
             <RevealOnScroll delay={0.3} className="group pb-2">
               <span className="text-xs font-mono font-semibold text-bronze-600 mb-2 block">03 / TANGIBLE ROI</span>
-              <h3 className="text-h3 text-navy-950 mb-2 group-hover:text-bronze-600 transition-colors">Conversion & Brand Equity</h3>
+              <h3 className="text-h3 text-navy-950 mb-2 group-hover:text-bronze-600 transition-colors">Predictable Revenue Growth</h3>
               <p className="text-body text-navy-600 leading-relaxed">
-                We bridge the gap between aesthetic beauty and bottom-line performance, turning passive visitors into lifelong brand advocates.
+                We bridge the gap between captivating creative storytelling and bottom-line performance, turning passive audiences into lifelong brand advocates.
               </p>
             </RevealOnScroll>
           </div>

@@ -21,10 +21,10 @@ import {
 const capabilities = [
   {
     id: "strategy",
-    title: "Brand Strategy & Identity",
-    desc: "We define the psychological bedrock of your business, positioning you so far ahead of competitors that price becomes irrelevant.",
-    deliverables: ["Market Positioning & Audit", "Brand Voice & Tone", "Visual Identity & Systems", "Messaging Architecture"],
-    tools: ["Figma", "Strategy Frameworks", "Customer Research"],
+    title: "Brand Strategy & Positioning",
+    desc: "We articulate your brand's unique market advantage and build irresistible narratives that make your business the clear industry authority.",
+    deliverables: ["Market & Competitor Audit", "Value Proposition Architecture", "Brand Storytelling & Voice", "Go-to-Market Strategy"],
+    tools: ["Audience Insights", "Positioning Frameworks", "Brand Systems"],
     icon: Sparkles,
     gridClass: "col-span-12 lg:col-span-7 bg-navy-950 text-warm-50 border border-navy-800",
     isDark: true,
@@ -32,10 +32,10 @@ const capabilities = [
   },
   {
     id: "design",
-    title: "Digital Experience & Web Design",
-    desc: "High-converting, visually stunning web surfaces engineered to captivate executive buyers and consumer audiences alike.",
-    deliverables: ["UI/UX System Design", "Interactive Prototypes", "Design Tokens", "Design Systems"],
-    tools: ["Figma", "Radix UI", "Tailwind CSS"],
+    title: "Conversion Web & Campaign Funnels",
+    desc: "High-converting web surfaces, landing pages, and interactive campaigns engineered to captivate executive buyers and multiply customer acquisition.",
+    deliverables: ["High-Converting Landing Pages", "Interactive Campaign Funnels", "CRO & UX Optimization", "Design Systems"],
+    tools: ["Figma", "Next.js 15", "Radix UI", "Vercel"],
     icon: PenTool,
     gridClass: "col-span-12 lg:col-span-5 bg-warm-50 text-navy-950 border border-navy-200/80 shadow-[0_4px_20px_rgba(15,23,42,0.03)]",
     isDark: false,
@@ -43,34 +43,34 @@ const capabilities = [
   },
   {
     id: "development",
-    title: "Full-Stack Development",
-    desc: "Resilient, blazing-fast web applications built on modern serverless architectures with uncompromised SEO and accessibility.",
-    deliverables: ["Next.js App Router", "Full-Stack Web Apps", "Performance Optimization", "Database Architecture"],
-    tools: ["Next.js 15", "TypeScript", "PostgreSQL / Neon", "Vercel"],
-    icon: Code,
+    title: "Paid Ads & Performance Growth",
+    desc: "Precision-targeted omnichannel ad campaigns engineered to scale customer acquisition with predictable, profitable ROI.",
+    deliverables: ["Google & LinkedIn Ads Scaling", "Paid Social & Retargeting", "CAC & LTV Optimization", "Ad Creative Testing"],
+    tools: ["Google Ads", "Meta Pro", "LinkedIn Campaigns", "HubSpot"],
+    icon: TrendingUp,
     gridClass: "col-span-12 md:col-span-6 lg:col-span-4 bg-navy-900 text-warm-100 border border-navy-800",
     isDark: true,
     hasImage: false,
   },
   {
     id: "video",
-    title: "Video & Creative Production",
-    desc: "Cinematic motion graphics and visual storytelling that turn complex value propositions into instant visceral understanding.",
-    deliverables: ["Product Walkthroughs", "Brand Anthems", "Motion Design", "3D Visualizations"],
-    tools: ["After Effects", "Cinema 4D", "Premiere Pro", "DaVinci"],
+    title: "Viral Video & Commercial Production",
+    desc: "Cinematic commercials, short-form social video, and visual storytelling that ignite brand awareness and command audience attention.",
+    deliverables: ["Brand Commercials & Anthems", "Short-Form Social Video", "Product Storytelling", "3D & Motion Design"],
+    tools: ["Premiere Pro", "DaVinci Resolve", "After Effects", "Cinema 4D"],
     icon: Video,
     gridClass: "col-span-12 md:col-span-6 lg:col-span-4 bg-navy-950 text-warm-50 border border-navy-800 relative overflow-hidden group",
     isDark: true,
     hasImage: true,
-    imageSeed: "vw-video-production",
+    imageUrl: "https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?auto=format&fit=crop&w=1000&q=85",
   },
   {
     id: "marketing",
-    title: "Growth & Performance Marketing",
-    desc: "Data-driven distribution ecosystems engineered to lower customer acquisition costs and build compounding organic authority.",
-    deliverables: ["Conversion Rate Optimization", "Technical SEO Audits", "Paid Campaign Strategy", "Analytics & Attribution"],
-    tools: ["GA4 / PostHog", "A/B Testing", "HubSpot", "SEO Engines"],
-    icon: TrendingUp,
+    title: "Organic Authority & SEO Mastery",
+    desc: "Compounding organic growth engines, thought leadership content, and technical SEO that dominate search rankings and generate inbound demand.",
+    deliverables: ["Technical & Content SEO", "Thought Leadership Campaigns", "Inbound Demand Generation", "Analytics & Attribution"],
+    tools: ["GA4 / PostHog", "Ahrefs / Semrush", "Content Engines", "HubSpot"],
+    icon: Code,
     gridClass: "col-span-12 lg:col-span-4 bg-gradient-to-br from-warm-100 to-warm-200/80 text-navy-950 border border-bronze-500/20",
     isDark: false,
     hasImage: false,
@@ -101,7 +101,7 @@ const industries = [
   "Executive Consulting & Advisory"
 ];
 
-function ServiceCard({ item, idx }: { item: typeof capabilities[0]; idx: number }) {
+function ServiceCard({ item, idx }: { item: typeof capabilities[0] & { imageUrl?: string }; idx: number }) {
   const [isOpen, setIsOpen] = useState(false);
   const IconComponent = item.icon;
 
@@ -114,7 +114,7 @@ function ServiceCard({ item, idx }: { item: typeof capabilities[0]; idx: number 
       {item.hasImage && (
         <>
           <Image
-            src={`https://picsum.photos/seed/${item.imageSeed}/800/800`}
+            src={item.imageUrl || `https://picsum.photos/seed/vw-video-production/800/800`}
             alt={item.title}
             fill
             className="object-cover opacity-25 group-hover:scale-105 transition-transform duration-700 pointer-events-none"
@@ -201,15 +201,15 @@ export default function Services() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-8 border-b border-navy-200 pb-10">
           <RevealOnScroll className="max-w-2xl">
             <span className="text-xs font-mono font-semibold uppercase tracking-widest text-bronze-600 block mb-3">
-              WHAT WE ACTUALLY DO
+              MARKETING &amp; BRAND GROWTH
             </span>
-            <h2 className="text-display sm:text-h1 font-bold text-navy-950 tracking-tight">
-              Concentrated expertise. Absolute craft.
+            <h2 className="text-display sm:text-h1 font-bold text-navy-950 tracking-tight leading-[1.05]">
+              We give wings to your vision.
             </h2>
           </RevealOnScroll>
           <RevealOnScroll delay={0.1} className="max-w-md">
             <p className="text-body text-navy-700 leading-relaxed">
-              We focus strictly on five disciplines where we execute at a master level. No outsourced bulk templates—just strategic depth and high-craft execution.
+              We focus strictly on five marketing and growth disciplines where we execute at a master level. From high-ROI ad campaigns and conversion funnels to category-defining brand strategy, we give your business the altitude it deserves.
             </p>
           </RevealOnScroll>
         </div>

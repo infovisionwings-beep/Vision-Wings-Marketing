@@ -18,7 +18,7 @@ export default function Footer() {
             <span className="font-display font-bold text-xl text-warm-50">Vision Wings</span>
           </Link>
           <p className="text-body-sm text-navy-300 max-w-xs">
-            For growth-stage businesses who feel invisible in a crowded market, Vision Wings is the strategic brand and growth partner that sees the opportunities competitors miss.
+            We give wings to your vision. For growth-stage businesses who feel invisible in a crowded market, Vision Wings is the strategic marketing and growth partner that sees the opportunities competitors miss.
           </p>
         </div>
 
@@ -28,15 +28,15 @@ export default function Footer() {
             <Link href="#strategy" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Brand Strategy</Link>
             <Link href="#design" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Visual Identity</Link>
             <Link href="#growth" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Growth Marketing</Link>
-            <Link href="#web" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Digital Experience</Link>
+            <Link href="#web" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Digital Funnels</Link>
           </div>
 
           <div className="flex flex-col gap-1">
             <h4 className="text-h4 text-bronze-500 mb-2">AGENCY</h4>
             <Link href="#about" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>About Us</Link>
             <Link href="#work" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Featured Work</Link>
-            <Link href="/videos" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Video Tours</Link>
-            <Link href="/insights" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Thinking & Perspectives</Link>
+            <Link href="/videos" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Video Campaigns</Link>
+            <Link href="/insights" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Marketing Insights</Link>
             <Link href="#contact" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Contact</Link>
           </div>
 

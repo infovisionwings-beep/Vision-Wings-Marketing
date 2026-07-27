@@ -20,35 +20,35 @@ interface FeaturedVideosProps {
 const fallbackFeaturedVideos = [
   {
     id: "feat-1",
-    title: "Penfield Crescent Architectural Flagship",
-    client: "Penfield Estates",
-    category: "Real Estate Cinema & Drone Tour",
+    title: "Lumina Health Brand Launch Film",
+    client: "Lumina Systems",
+    category: "Brand Campaign & Commercial",
     duration: "03:45",
     year: "2025",
-    thumbnail: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1600&q=80",
-    desc: "A lossless 4K aerial and interior voyage through a $24M modern canyon estate, capturing spatial choreography and natural light transitions.",
+    thumbnail: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1600&q=80",
+    desc: "A high-converting 4K commercial campaign and omnichannel launch film engineered for rapid market penetration.",
     isHero: true,
   },
   {
     id: "feat-2",
-    title: "Sill Road Minimalist Sanctuary",
-    client: "Sill Architects",
-    category: "Interior Lighting Cinema",
+    title: "Aero Dynamics Viral Launch",
+    client: "Aero Mobility",
+    category: "Performance Ad Campaign",
     duration: "02:18",
     year: "2024",
-    thumbnail: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
-    desc: "Precision framing and bespoke ambient soundscape engineered for luxury residential pre-sales.",
+    thumbnail: "https://images.unsplash.com/photo-1517976487452-572718781df9?auto=format&fit=crop&w=1200&q=80",
+    desc: "Precision visual storytelling and high-velocity ad creative engineered for outsized customer acquisition.",
     isHero: false,
   },
   {
     id: "feat-3",
-    title: "Vanguard Tower Commercial Campus",
-    client: "Vanguard Global",
-    category: "Brand Architecture Film",
+    title: "Sovereign Wealth Brand Acceleration",
+    client: "Sovereign Partners",
+    category: "Corporate Brand Documentary",
     duration: "04:12",
     year: "2024",
-    thumbnail: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80",
-    desc: "Dynamic time-lapse and architectural storytelling for an iconic 40-story sustainable innovation hub.",
+    thumbnail: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1200&q=80",
+    desc: "Dynamic visual storytelling and brand positioning for an industry-defining fintech institution.",
     isHero: false,
   },
 ];
@@ -58,13 +58,13 @@ export default function FeaturedVideosSection({ dbVideos = [] }: FeaturedVideosP
   const displayVideos = (dbVideos && dbVideos.length > 0)
     ? dbVideos.slice(0, 3).map((v, idx) => ({
         id: v.id || `db-${idx}`,
-        title: v.title || `Cinematic Tour 0${idx + 1}`,
+        title: v.title || `Campaign Showcase 0${idx + 1}`,
         client: v.client || "Vision Wings Exclusive",
-        category: idx === 0 ? "Real Estate Cinema & Drone Tour" : "Architectural Showcase",
+        category: idx === 0 ? "Brand Campaign & Commercial" : "Performance Ad Campaign",
         duration: v.duration ? `${Math.floor(v.duration / 60)}:${(v.duration % 60).toString().padStart(2, "0")}` : "02:45",
         year: new Date(v.createdAt || Date.now()).getFullYear().toString(),
         thumbnail: v.thumbnailUrl || fallbackFeaturedVideos[idx]?.thumbnail || fallbackFeaturedVideos[0].thumbnail,
-        desc: v.description || fallbackFeaturedVideos[idx]?.desc || "Lossless high-definition media pipeline showcase.",
+        desc: v.description || fallbackFeaturedVideos[idx]?.desc || "High-conversion video marketing pipeline.",
         isHero: idx === 0,
       }))
     : fallbackFeaturedVideos;
@@ -92,20 +92,20 @@ export default function FeaturedVideosSection({ dbVideos = [] }: FeaturedVideosP
           <RevealOnScroll className="max-w-2xl space-y-4">
             <div className="flex items-center gap-2.5 px-3 py-1 rounded-full bg-navy-900 border border-navy-800 w-fit text-xs font-mono text-bronze-400 font-bold tracking-wider uppercase">
               <Film className="w-3.5 h-3.5 text-bronze-400" />
-              <span>01 // ARCHITECTURAL CINEMA &amp; HD TOURS</span>
+              <span>01 // VIDEO CAMPAIGNS &amp; COMMERCIALS</span>
             </div>
             
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-display text-warm-50 tracking-tight leading-[1.05]">
-              Real Estate in <br />
+              Brand Stories in <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-bronze-400 via-amber-200 to-warm-50">
-                Lossless High Definition.
+                High-Definition Motion.
               </span>
             </h2>
           </RevealOnScroll>
 
           <RevealOnScroll delay={0.1} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
             <p className="text-body-sm text-navy-300 max-w-xs leading-relaxed hidden xl:block mr-4">
-              We capture the spatial soul of prestige properties through 4K drone cinematography and bespoke interior lighting.
+              We give wings to your vision through 4K commercial cinematography, high-converting launch films, and viral performance ads.
             </p>
             
             {/* Clicking opens /videos directly per user request */}

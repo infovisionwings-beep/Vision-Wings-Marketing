@@ -4,40 +4,40 @@ import { Link } from "@/components/ui/Link";
 import { ArrowRight } from "lucide-react";
 
 export const metadata = {
-  title: "Our Work - Vision Wings",
-  description: "A curation of brand strategy, visual identities, and digital experiences that drive outsized results.",
+  title: "Marketing Campaigns & Work - Vision Wings",
+  description: "A curation of high-velocity marketing campaigns, conversion funnels, and brand acceleration that drive outsized growth.",
 };
 
 const curatedSupplementalPhotos = [
-  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=85",
-  "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1400&q=85",
-  "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=900&q=85",
-  "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1100&q=85",
-  "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1000&q=85",
-  "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=85"
+  "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1000&q=85",
+  "https://images.unsplash.com/photo-1517976487452-572718781df9?auto=format&fit=crop&w=1400&q=85",
+  "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=900&q=85",
+  "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1100&q=85",
+  "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=1000&q=85",
+  "https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?auto=format&fit=crop&w=1200&q=85"
 ];
 
 const fallbackProjects = [
   {
     id: 1,
-    title: "Lumina Health",
-    category: "Brand Strategy & Digital",
-    year: "2023",
+    title: "Lumina Health Rebranding & Funnel",
+    category: "Brand Growth & Performance Ads",
+    year: "2024",
     slug: "lumina",
     coverImage: curatedSupplementalPhotos[0]
   },
   {
     id: 2,
-    title: "Aero Dynamics",
-    category: "Visual Identity",
+    title: "Aero Dynamics Viral Launch Campaign",
+    category: "Video Production & Growth",
     year: "2023",
     slug: "aero",
     coverImage: curatedSupplementalPhotos[1]
   },
   {
     id: 3,
-    title: "Vertex Capital",
-    category: "Web Experience",
+    title: "Vertex Capital Authority SEO & Content",
+    category: "Content Marketing & SEO",
     year: "2024",
     slug: "vertex",
     coverImage: curatedSupplementalPhotos[2]
@@ -67,11 +67,11 @@ export default async function WorkPage() {
           <div className="flex items-center gap-3">
             <span className="text-xl font-mono font-bold text-navy-950">004</span>
             <span className="h-4 w-px bg-navy-300" />
-            <span className="text-xs font-mono font-semibold text-bronze-600 uppercase tracking-widest">SELECTED ARCHIVE</span>
+            <span className="text-xs font-mono font-semibold text-bronze-600 uppercase tracking-widest">MARKETING CAMPAIGNS</span>
           </div>
-          <h1 className="text-display sm:text-h1 font-bold text-navy-950 tracking-tight leading-[1.05]">Discover our world</h1>
+          <h1 className="text-display sm:text-h1 font-bold text-navy-950 tracking-tight leading-[1.05]">Campaigns that soar.</h1>
           <p className="text-body-lg text-navy-700 leading-relaxed">
-            Every partnership is a commitment to strategic clarity and meticulous execution. Explore how we align brand narrative with commercial goals through our masonry exhibition archive.
+            We give wings to your vision. Explore how we combine data-driven marketing strategy, viral creative campaigns, and high-converting funnels through our exhibition archive.
           </p>
         </div>
 

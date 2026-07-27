@@ -33,7 +33,7 @@ const fallbackContentMap: Record<string, Article> = {
     date: "Oct 12, 2024",
     readTime: "6 min read",
     author: "Amélie Laurent",
-    authorRole: "Partner, Brand Architecture",
+    authorRole: "Partner, Growth Strategy",
     authorAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
     coverImage: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1600&q=80",
     content: `<p>Many organizations build brand architecture organically as they launch new products or divisions. In an AI-saturated ecosystem where generative content is produced at zero marginal cost, traditional house-of-brands models are collapsing under the weight of visual and verbal noise.</p>
@@ -62,7 +62,7 @@ const fallbackContentMap: Record<string, Article> = {
     content: `<p>Many performance marketers mistakenly believe conversion design requires flashing red buttons, intrusive popups, and aggressive, countdown-driven countdown styling. At Vision Wings, we believe the exact opposite.</p>
 <p>True high-conversion design is built on visual credibility, restraint, and deliberate typographic rhythm. When a page has ample spacing—48px to 96px on desktop—interactive modules read as distinct structural milestones rather than high-pressure traps.</p>
 <h2 id="psychology-spacing">1. The Psychology of Clean Spacing</h2>
-<p>When an executive evaluates a six-figure consulting engagement or luxury real estate acquisition, their subconscious sensitivity to layout clutter is heightened. Every unnecessary border, conflicting accent color, and generic stock photo signals lower institutional competence.</p>
+<p>When an executive evaluates a six-figure consulting engagement or enterprise marketing campaign, their subconscious sensitivity to layout clutter is heightened. Every unnecessary border, conflicting accent color, and generic stock photo signals lower institutional competence.</p>
 <h2 id="restrained-palettes">2. Restrained Color Palettes</h2>
 <p>By restricting warm bronze accents strictly to high-intent interactive triggers (such as primary buttons and active tab indicators), the eye is naturally drawn to the call to action without feeling coerced. This is the synthesis of art gallery elegance and cockpit data efficiency.</p>`
   }

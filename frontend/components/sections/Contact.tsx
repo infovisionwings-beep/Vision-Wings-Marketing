@@ -33,10 +33,10 @@ export default function Contact() {
       <div className="max-w-4xl mx-auto flex flex-col items-center relative z-10 space-y-12">
         <RevealOnScroll className="space-y-6">
           <h2 className="text-display sm:text-h1 font-bold text-warm-50 tracking-tight leading-[1.05]">
-            Ready to claim your unfair market advantage?
+            Ready to give wings to your vision?
           </h2>
           <p className="text-body-lg text-navy-300 max-w-2xl mx-auto leading-relaxed">
-            Stop competing on incremental features. Let&apos;s build a strategic brand identity and digital flagship that positions your business in a league of its own.
+            Stop competing on incremental tactics. Let&apos;s build high-converting marketing funnels, strategic brand authority, and performance campaigns that accelerate your business in a league of its own.
           </p>
         </RevealOnScroll>
 
@@ -47,7 +47,7 @@ export default function Contact() {
               className="bg-warm-50 text-navy-950 hover:bg-warm-100 active:bg-warm-200 active:scale-[0.98] active:-translate-y-[1px] transition-all w-full sm:w-auto px-8 py-4 text-base font-bold whitespace-nowrap shadow-xl group" 
               data-interactive
             >
-              <span>Let&apos;s Build Together</span>
+              <span>Launch Your Campaign</span>
               <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
             </Button>
           </Link>
