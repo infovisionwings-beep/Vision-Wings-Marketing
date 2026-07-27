@@ -75,11 +75,11 @@ export default async function WorkPage() {
           </p>
         </div>
 
-        {/* Pinterest Masonry Brick Grid (No Fixed Photo Sizes) */}
-        <div className="columns-1 sm:columns-2 lg:columns-3 gap-8">
+        {/* Pinterest Masonry Brick Grid: 2 Columns on Mobile, Natural Aspect Ratios */}
+        <div className="columns-2 sm:columns-2 lg:columns-3 gap-3 sm:gap-6 md:gap-8">
           {projects.map((project, index) => (
-            <div key={project.id || index} className="break-inside-avoid mb-8 block group space-y-4">
-              <Link href={`/work/${project.slug}`} className="block overflow-hidden rounded-2xl border border-navy-200/60 shadow-sm bg-navy-900 relative outline-none focus-visible:ring-2 focus-visible:ring-bronze-500" data-interactive>
+            <div key={project.id || index} className="break-inside-avoid mb-3 sm:mb-6 md:mb-8 block group space-y-2 sm:space-y-4">
+              <Link href={`/work/${project.slug}`} className="block overflow-hidden rounded-xl sm:rounded-2xl border border-navy-200/60 shadow-sm bg-navy-900 relative outline-none focus-visible:ring-2 focus-visible:ring-bronze-500" data-interactive>
                 {project.coverImage ? (
                   <img 
                     src={project.coverImage} 
@@ -95,17 +95,17 @@ export default async function WorkPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-navy-950/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
               </Link>
 
-              <div className="space-y-2 px-1">
-                <div className="flex justify-between items-center text-xs text-navy-500 font-mono">
-                  <span className="uppercase tracking-wider font-semibold text-bronze-700">{project.category}</span>
-                  <span>{project.year}</span>
+              <div className="space-y-1 sm:space-y-2 px-1">
+                <div className="flex justify-between items-center text-[9px] sm:text-xs text-navy-500 font-mono">
+                  <span className="uppercase tracking-wider font-semibold text-bronze-700 truncate max-w-[75%]">{project.category}</span>
+                  <span className="flex-shrink-0">{project.year}</span>
                 </div>
                 <Link href={`/work/${project.slug}`} className="block group-hover:text-bronze-600 transition-colors" data-interactive>
-                  <h3 className="text-h3 font-bold text-navy-950 tracking-tight">{project.title}</h3>
+                  <h3 className="text-xs sm:text-lg md:text-h3 font-bold text-navy-950 tracking-tight leading-snug line-clamp-2 sm:line-clamp-none">{project.title}</h3>
                 </Link>
-                <Link href={`/work/${project.slug}`} className="inline-flex items-center gap-2 text-navy-900 font-semibold text-xs uppercase tracking-wider hover:text-bronze-600 transition-colors pt-1 min-h-[36px]" data-interactive>
+                <Link href={`/work/${project.slug}`} className="inline-flex items-center gap-1 sm:gap-2 text-navy-900 font-semibold text-[10px] sm:text-xs uppercase tracking-wider hover:text-bronze-600 transition-colors pt-0.5 sm:pt-1 min-h-[28px] sm:min-h-[36px]" data-interactive>
                   <span>Read Case Study</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
             </div>
