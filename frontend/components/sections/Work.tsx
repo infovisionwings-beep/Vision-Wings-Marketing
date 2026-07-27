@@ -1,70 +1,146 @@
 "use client";
 
-// Reading this as: Portfolio showcase section for an elite design agency, using an Asymmetric Exhibition Gallery layout with cinematic photography, hover physics, and high typographic contrast.
+// Reading this as: Exhibition Gallery & Portfolio Showcase using an anti-slop Pinterest-style Masonry Brick layout, inspired by taste-skill guidelines ("Discover our world").
 // DESIGN_VARIANCE: 9
 // MOTION_INTENSITY: 7
-// VISUAL_DENSITY: 3
+// VISUAL_DENSITY: 4
 
 import { useEffect, useState } from "react";
 import RevealOnScroll from "@/components/motion/RevealOnScroll";
 import Button from "@/components/ui/Button";
 import { Link } from "@/components/ui/Link";
 import { ArrowUpRight } from "lucide-react";
-import Image from "next/image";
 import { getProjects } from "@/app/actions/projects";
 
-const fallbackProjects = [
+interface GalleryBrick {
+  id: string | number;
+  type: "photo" | "quote";
+  title?: string;
+  category?: string;
+  year?: string;
+  slug?: string;
+  imageUrl?: string;
+  quoteText?: string;
+  quoteSubtitle?: string;
+}
+
+const fallbackBricks: GalleryBrick[] = [
+  {
+    id: "quote-1",
+    type: "quote",
+    quoteText: "Electra is a European specialist in fast charging for electric vehicles and scalable digital architecture.",
+    quoteSubtitle: "STRATEGIC SPECIALIZATION"
+  },
   {
     id: 1,
-    title: "Lumina Health",
-    category: "Brand Architecture & Design System",
+    type: "photo",
+    title: "Lumina Health Systems",
+    category: "Brand Architecture",
     year: "2024",
     slug: "lumina",
-    desc: "Reimagining the digital presence for a next-generation genomic healthcare platform.",
-    coverImage: "https://picsum.photos/seed/vw-lumina-health/1600/1000",
-    isFeatured: true,
+    imageUrl: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=85"
   },
   {
     id: 2,
-    title: "Aero Dynamics",
-    category: "Visual Identity & Motion",
+    type: "photo",
+    title: "Aero Dynamics Flagship",
+    category: "Visual Identity & 3D",
     year: "2023",
     slug: "aero",
-    desc: "Precision branding and 3D product visualization for an autonomous drone manufacturer.",
-    coverImage: "https://picsum.photos/seed/vw-aero-dynamics/1000/1200",
-    isFeatured: false,
+    imageUrl: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1400&q=85"
   },
   {
     id: 3,
-    title: "Vertex Capital",
-    category: "Web Experience & Strategy",
+    type: "photo",
+    title: "Vertex Venture Capital",
+    category: "Web Experience",
     year: "2024",
     slug: "vertex",
-    desc: "High-trust digital flagship for a $1.2B venture fund investing in hard tech.",
-    coverImage: "https://picsum.photos/seed/vw-vertex-capital/1200/1000",
-    isFeatured: false,
+    imageUrl: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=900&q=85"
+  },
+  {
+    id: "quote-2",
+    type: "quote",
+    quoteText: "Book your strategic discovery session and deploy world-class digital experiences anywhere you like.",
+    quoteSubtitle: "GLOBAL EXECUTION"
+  },
+  {
+    id: 4,
+    type: "photo",
+    title: "Aura Neurotech UI",
+    category: "Digital Product Design",
+    year: "2024",
+    slug: "aura",
+    imageUrl: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1100&q=85"
+  },
+  {
+    id: 5,
+    type: "photo",
+    title: "Sovereign Wealth Asset Platform",
+    category: "Fintech Experience",
+    year: "2023",
+    slug: "sovereign",
+    imageUrl: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1000&q=85"
+  },
+  {
+    id: 6,
+    type: "photo",
+    title: "Kura Acoustic Systems",
+    category: "Industrial & Sound",
+    year: "2024",
+    slug: "kura",
+    imageUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=85"
   }
 ];
 
+const curatedSupplementalPhotos = [
+  "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=85",
+  "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1000&q=85",
+  "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=85",
+  "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1000&q=85",
+  "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1100&q=85",
+];
+
 export default function Work() {
-  const [projects, setProjects] = useState<any[]>(fallbackProjects);
+  const [bricks, setBricks] = useState<GalleryBrick[]>(fallbackBricks);
 
   useEffect(() => {
     async function load() {
       try {
         const data = await getProjects();
         if (data && data.length > 0) {
-          // If DB projects lack images, augment with high-res placeholder photography per Rule 4.8
-          const augmented = data.map((p: any, idx: number) => ({
-            ...p,
-            coverImage: p.coverImage || `https://picsum.photos/seed/vw-project-${p.slug || idx}/1600/1000`,
-            isFeatured: idx === 0,
-            desc: p.description || p.subtitle || (p.content && p.content.slice(0, 130) + "...") || "Strategic brand elevation and digital flagship design.",
+          const dbBricks: GalleryBrick[] = data.map((p: any, idx: number) => ({
+            id: p.id || `db-${idx}`,
+            type: "photo",
+            title: p.title,
+            category: p.category,
+            year: p.year || "2024",
+            slug: p.slug || String(p.id),
+            imageUrl: p.coverImage || curatedSupplementalPhotos[idx % curatedSupplementalPhotos.length],
           }));
-          setProjects(augmented);
+
+          const merged: GalleryBrick[] = [];
+          merged.push(fallbackBricks[0]);
+          
+          dbBricks.forEach((b, i) => {
+            merged.push(b);
+            if (i === 1 && dbBricks.length >= 2) {
+              merged.push(fallbackBricks[4]);
+            }
+          });
+
+          if (merged.length < 6) {
+            fallbackBricks.slice(1).forEach((fb) => {
+              if (fb.type === "photo" && !merged.some((m) => m.title === fb.title)) {
+                merged.push(fb);
+              }
+            });
+          }
+
+          setBricks(merged);
         }
       } catch (err) {
-        console.error("Failed to load projects client-side:", err);
+        console.error("Failed to load projects client-side for Exhibition Gallery:", err);
       }
     }
     load();
@@ -72,88 +148,115 @@ export default function Work() {
 
   return (
     <section id="work" className="py-20 md:py-32 lg:py-40 px-5 md:px-10 xl:px-20 bg-warm-50 text-navy-950 overflow-hidden">
-      <div className="max-w-[1280px] mx-auto space-y-16 md:space-y-24">
+      <div className="max-w-[1440px] mx-auto space-y-12 md:space-y-16">
         
-        {/* Section Header (No eyebrow per Rule 4.7 max 1 eyebrow per 3 sections) */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 border-b border-navy-200 pb-10">
-          <RevealOnScroll className="max-w-2xl">
-            <h2 className="text-display sm:text-h1 font-bold text-navy-950 tracking-tight leading-[1.05]">
-              Selected Works &amp; Commissions.
-            </h2>
+        {/* Exhibition Gallery Header (004 + Discover our world) */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-navy-200/80 pb-8">
+          <RevealOnScroll className="flex items-baseline gap-4">
+            <span className="text-xl md:text-2xl font-mono font-bold text-navy-950 tracking-tight select-none">
+              004
+            </span>
+            <span className="text-xs font-mono font-semibold text-bronze-600 tracking-widest uppercase ml-2">
+              Exhibition Gallery &amp; Archive
+            </span>
           </RevealOnScroll>
-          <RevealOnScroll delay={0.1}>
-            <Link href="/work" className="inline-block min-h-[44px] rounded-full focus-visible:ring-2 focus-visible:ring-bronze-500 outline-none">
-              <Button variant="secondary" className="whitespace-nowrap group min-h-[44px]" data-interactive>
-                <span>View Full Archive</span>
+          
+          <RevealOnScroll delay={0.1} className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 w-full md:w-auto">
+            <h2 className="text-display sm:text-h1 font-bold text-navy-950 tracking-tight leading-[1.02]">
+              Discover our world
+            </h2>
+            <Link href="/work" className="inline-block min-h-[44px] rounded-full focus-visible:ring-2 focus-visible:ring-bronze-500 outline-none mb-1">
+              <Button variant="secondary" className="whitespace-nowrap group min-h-[44px] shadow-sm" data-interactive>
+                <span>Full Archive</span>
                 <ArrowUpRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </Button>
             </Link>
           </RevealOnScroll>
         </div>
 
-        {/* Exhibition Gallery Grid (Asymmetric Layout: 1 Hero Full-Width Card + 2 Half-Width Cards) */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12">
-          {projects.map((project, index) => {
-            const isHero = index === 0 || project.isFeatured;
-            const colSpan = isHero ? "md:col-span-12" : "md:col-span-6";
-            const aspectClass = isHero ? "aspect-[16/9] sm:aspect-[21/9]" : "aspect-[4/3] sm:aspect-[16/10]";
+        {/* Pinterest Masonry Brick Grid: Natural Aspect Ratios (No Fixed Heights/Cropping) */}
+        <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 md:gap-8">
+          {bricks.map((brick, index) => {
+            if (brick.type === "quote") {
+              return (
+                <RevealOnScroll
+                  key={`quote-${index}`}
+                  delay={(index % 4) * 0.08}
+                  className="break-inside-avoid mb-6 md:mb-8 block"
+                >
+                  <div className={`rounded-2xl p-8 md:p-10 flex flex-col justify-between shadow-sm transition-all duration-500 hover:shadow-md min-h-[260px] ${
+                    index === 0 
+                      ? "bg-navy-950 text-warm-50 border border-navy-800" 
+                      : "bg-warm-100/90 text-navy-950 border border-navy-200/70"
+                  }`}>
+                    <div className="space-y-4">
+                      {brick.quoteSubtitle && (
+                        <span className={`text-xs font-mono font-bold tracking-widest uppercase block ${
+                          index === 0 ? "text-bronze-400" : "text-bronze-600"
+                        }`}>
+                          {brick.quoteSubtitle}
+                        </span>
+                      )}
+                      <p className="text-h3 font-bold tracking-tight leading-[1.35]">
+                        &ldquo;{brick.quoteText}&rdquo;
+                      </p>
+                    </div>
+                    <div className="pt-6 mt-8 border-t border-current/10 flex items-center justify-between">
+                      <span className="text-[11px] font-mono tracking-wider opacity-60">VISION WINGS ARCHIVE</span>
+                      <span className="w-2 h-2 rounded-full bg-bronze-500 inline-block animate-pulse" />
+                    </div>
+                  </div>
+                </RevealOnScroll>
+              );
+            }
 
             return (
-              <RevealOnScroll 
-                key={project.id || index} 
-                delay={index * 0.1}
-                className={`${colSpan} group block`}
+              <RevealOnScroll
+                key={`photo-${brick.id || index}`}
+                delay={(index % 4) * 0.08}
+                className="break-inside-avoid mb-6 md:mb-8 block group"
               >
-                <Link href={`/work/${project.slug || project.id}`} className="block space-y-6 focus-visible:ring-2 focus-visible:ring-bronze-500 rounded-2xl outline-none p-1 -m-1" data-interactive>
-                  
-                  {/* Image Showcase Container with Tactile Hover Physics */}
-                  <div className={`relative w-full ${aspectClass} rounded-2xl overflow-hidden bg-navy-900 border border-navy-200/60 shadow-md`}>
-                    {project.coverImage ? (
-                      <Image
-                        src={project.coverImage}
-                        alt={project.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                        sizes={isHero ? "(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1280px" : "(max-width: 768px) 100vw, 50vw"}
-                        priority={index === 0}
-                      />
-                    ) : (
-                      <div className="absolute inset-0 bg-navy-950 flex items-center justify-center">
-                        <span className="text-display text-navy-800 font-bold select-none tracking-tighter">VW</span>
-                      </div>
-                    )}
-                    
-                    {/* Subtle Gradient Overlay & Floating Badge */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-navy-950/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
-                    
-                    <div className="absolute top-6 right-6 z-10">
-                      <span className="px-3.5 py-1.5 rounded-full bg-navy-950/90 text-warm-50 text-xs font-mono font-semibold backdrop-blur-md border border-warm-50/10">
-                        {project.year}
-                      </span>
-                    </div>
+                <Link
+                  href={brick.slug ? `/work/${brick.slug}` : "/work"}
+                  className="block rounded-2xl overflow-hidden bg-navy-900 border border-navy-200/60 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 relative outline-none focus-visible:ring-2 focus-visible:ring-bronze-500"
+                  data-interactive
+                >
+                  {/* Photo rendered with w-full h-auto so any size/aspect-ratio photo fits naturally without cropping */}
+                  <img
+                    src={brick.imageUrl}
+                    alt={brick.title || "Exhibition photography"}
+                    className="w-full h-auto block object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    loading="lazy"
+                  />
 
-                    {/* Hover Arrow Indicator */}
-                    <div className="absolute bottom-6 right-6 z-10 w-12 h-12 rounded-full bg-warm-50 text-navy-950 flex items-center justify-center translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 shadow-lg">
-                      <ArrowUpRight className="w-5 h-5" />
+                  {/* Tactile Hover Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6 text-warm-50">
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <span className="text-xs font-mono font-semibold text-bronze-400 uppercase tracking-wider">
+                        {brick.category || "Commission"}
+                      </span>
+                      {brick.year && (
+                        <span className="text-[11px] font-mono bg-warm-50/15 px-2 py-0.5 rounded text-warm-50 backdrop-blur-sm">
+                          {brick.year}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-end justify-between gap-4">
+                      <h3 className="text-h3 font-bold text-warm-50 leading-tight group-hover:text-bronze-300 transition-colors">
+                        {brick.title}
+                      </h3>
+                      <div className="w-10 h-10 rounded-full bg-warm-50 text-navy-950 flex items-center justify-center flex-shrink-0 translate-y-4 group-hover:translate-y-0 transition-transform duration-500 shadow-lg">
+                        <ArrowUpRight className="w-5 h-5" />
+                      </div>
                     </div>
                   </div>
 
-                  {/* Project Metadata & Typography */}
-                  <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 pt-2">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-mono font-semibold text-bronze-600 uppercase tracking-wider">
-                          {project.category}
-                        </span>
-                      </div>
-                      <h3 className="text-h2 font-bold text-navy-950 group-hover:text-bronze-600 transition-colors">
-                        {project.title}
-                      </h3>
-                    </div>
-                    {project.desc && isHero && (
-                      <p className="text-body text-navy-600 max-w-md sm:text-right leading-relaxed">
-                        {project.desc}
-                      </p>
+                  {/* Subtle Static Badge when not hovering */}
+                  <div className="absolute top-4 right-4 z-10 group-hover:opacity-0 transition-opacity duration-300">
+                    {brick.year && (
+                      <span className="px-2.5 py-1 rounded-full bg-navy-950/80 text-warm-50 text-[11px] font-mono font-semibold backdrop-blur-md border border-warm-50/10 shadow-sm">
+                        {brick.year}
+                      </span>
                     )}
                   </div>
                 </Link>

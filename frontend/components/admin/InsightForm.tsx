@@ -667,8 +667,15 @@ export const InsightForm: React.FC<InsightFormProps> = ({ insight }) => {
             </div>
             <AdminVideoManager
               isModal={true}
-              onSelectVideo={(url) => {
-                const videoTag = `\n\n<p><video src="${url}" controls style="max-width: 100%; border-radius: 12px; margin: 24px 0;"></video></p>\n\n`;
+              onSelectVideo={(url, videoObj) => {
+                let videoTag = "";
+                if (videoObj && videoObj.webmPath && videoObj.mp4Path) {
+                  videoTag = `\n\n<p><video controls style="max-width: 100%; border-radius: 12px; margin: 24px 0;"><source src="${videoObj.webmPath}" type="video/webm" /><source src="${videoObj.mp4Path}" type="video/mp4" /></video></p>\n\n`;
+                } else if (videoObj && videoObj.webmPath) {
+                  videoTag = `\n\n<p><video controls style="max-width: 100%; border-radius: 12px; margin: 24px 0;"><source src="${videoObj.webmPath}" type="video/webm" /></video></p>\n\n`;
+                } else {
+                  videoTag = `\n\n<p><video src="${url}" controls style="max-width: 100%; border-radius: 12px; margin: 24px 0;"></video></p>\n\n`;
+                }
                 setFormData((prev) => ({ ...prev, content: prev.content + videoTag }));
                 setShowVideoModal(false);
               }}
