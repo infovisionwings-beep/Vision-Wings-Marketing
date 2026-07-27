@@ -61,11 +61,12 @@ const fallbackContentMap: Record<string, Article> = {
   }
 };
 
-export default async function InsightDetailPage({ params }: { params: { slug: string } }) {
+export default async function InsightDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   let article: Article | null = null;
 
   try {
-    const dbInsight = await getInsightBySlug(params.slug);
+    const dbInsight = await getInsightBySlug(slug);
     if (dbInsight) {
       article = {
         title: dbInsight.title,
@@ -80,13 +81,13 @@ export default async function InsightDetailPage({ params }: { params: { slug: st
         authorAvatar: (dbInsight as any).authorAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
         readTime: `${Math.max(3, Math.ceil((dbInsight.content?.length || 1500) / 500))} min read`
       };
-    } else if (fallbackContentMap[params.slug]) {
-      article = fallbackContentMap[params.slug];
+    } else if (fallbackContentMap[slug]) {
+      article = fallbackContentMap[slug];
     } else {
       // Generic fallback for any other slug
       article = {
         ...fallbackContentMap["brand-architecture"],
-        title: params.slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase())
+        title: slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase())
       };
     }
   } catch (err) {
