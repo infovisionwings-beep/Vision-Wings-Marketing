@@ -4,8 +4,9 @@ import { db } from "@/lib/db";
 import { projects } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
-export default async function EditProjectPage({ params }: { params: { id: string } }) {
-  const projectId = parseInt(params.id, 10);
+export default async function EditProjectPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const projectId = parseInt(id, 10);
   if (isNaN(projectId)) {
     return notFound();
   }

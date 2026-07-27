@@ -36,11 +36,12 @@ const fallbackContentMap: Record<string, CaseStudy> = {
   }
 };
 
-export default async function ProjectDetailPage({ params }: { params: { slug: string } }) {
+export default async function ProjectDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   let project: CaseStudy | null = null;
 
   try {
-    const dbProject = await getProjectBySlug(params.slug);
+    const dbProject = await getProjectBySlug(slug);
     if (dbProject) {
       project = {
         title: dbProject.title,
@@ -49,8 +50,8 @@ export default async function ProjectDetailPage({ params }: { params: { slug: st
         coverImage: dbProject.coverImage || "",
         content: dbProject.content || ""
       };
-    } else if (fallbackContentMap[params.slug]) {
-      project = fallbackContentMap[params.slug];
+    } else if (fallbackContentMap[slug]) {
+      project = fallbackContentMap[slug];
     }
   } catch (err) {
     console.error("Failed to load project details:", err);

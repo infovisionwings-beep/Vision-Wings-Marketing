@@ -5,6 +5,38 @@ const nextConfig: NextConfig = {
     BETTER_AUTH_URL: process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "https://vw-ashen.vercel.app",
     BETTER_AUTH_TRUSTED_ORIGINS: "https://vw-ashen.vercel.app,https://vw-hyl1toegu-wwwksingh144-9864s-projects.vercel.app,http://localhost:3000",
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "picsum.photos",
+      },
+      {
+        protocol: "https",
+        hostname: "fastly.picsum.photos",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.public.blob.vercel-storage.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.vercel-storage.com",
+      },
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+      {
+        protocol: "http",
+        hostname: "**",
+      },
+    ],
+  },
   async headers() {
     return [
       {
