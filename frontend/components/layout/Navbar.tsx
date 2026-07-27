@@ -53,7 +53,7 @@ export default function Navbar({ user }: { user: any }) {
         }`}
       >
         <div className="max-w-[1280px] mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 z-50" data-interactive>
+          <Link href="/" className="flex items-center gap-3 z-50 min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-bronze-500 rounded-lg outline-none" data-interactive>
             <img src="/logo-svg/Primary%20ICON.svg" alt="Vision Wings Logo" className="h-14 w-auto" />
             <span className="font-display font-bold text-xl text-navy-950 mt-1">
               Vision Wings
@@ -64,28 +64,28 @@ export default function Navbar({ user }: { user: any }) {
           <div className="hidden lg:flex items-center gap-2">
             <Link 
               href="/#vision" 
-              className={`text-body font-medium transition-all px-4 py-2 rounded-full ${isActive("/", "vision") ? "bg-navy-950 text-warm-50" : "hover:text-bronze-500 hover:bg-warm-100"}`} 
+              className={`text-body font-medium transition-all px-4 py-2 min-h-[44px] inline-flex items-center rounded-full focus-visible:ring-2 focus-visible:ring-bronze-500 outline-none ${isActive("/", "vision") ? "bg-navy-950 text-warm-50" : "hover:text-bronze-500 hover:bg-warm-100"}`} 
               data-interactive
             >
               Vision
             </Link>
             <Link 
               href="/#strategy" 
-              className={`text-body font-medium transition-all px-4 py-2 rounded-full ${isActive("/", "strategy") ? "bg-navy-950 text-warm-50" : "hover:text-bronze-500 hover:bg-warm-100"}`} 
+              className={`text-body font-medium transition-all px-4 py-2 min-h-[44px] inline-flex items-center rounded-full focus-visible:ring-2 focus-visible:ring-bronze-500 outline-none ${isActive("/", "strategy") ? "bg-navy-950 text-warm-50" : "hover:text-bronze-500 hover:bg-warm-100"}`} 
               data-interactive
             >
               Strategy
             </Link>
             <Link 
               href="/#work" 
-              className={`text-body font-medium transition-all px-4 py-2 rounded-full ${isActive("/", "work") ? "bg-navy-950 text-warm-50" : "hover:text-bronze-500 hover:bg-warm-100"}`} 
+              className={`text-body font-medium transition-all px-4 py-2 min-h-[44px] inline-flex items-center rounded-full focus-visible:ring-2 focus-visible:ring-bronze-500 outline-none ${isActive("/", "work") ? "bg-navy-950 text-warm-50" : "hover:text-bronze-500 hover:bg-warm-100"}`} 
               data-interactive
             >
               Work
             </Link>
             <Link 
               href="/#insights" 
-              className={`text-body font-medium transition-all px-4 py-2 rounded-full ${isActive("/", "insights") ? "bg-navy-950 text-warm-50" : "hover:text-bronze-500 hover:bg-warm-100"}`} 
+              className={`text-body font-medium transition-all px-4 py-2 min-h-[44px] inline-flex items-center rounded-full focus-visible:ring-2 focus-visible:ring-bronze-500 outline-none ${isActive("/", "insights") ? "bg-navy-950 text-warm-50" : "hover:text-bronze-500 hover:bg-warm-100"}`} 
               data-interactive
             >
               Perspectives
@@ -93,7 +93,7 @@ export default function Navbar({ user }: { user: any }) {
             <div className="ml-6 flex items-center gap-4">
               {user ? (
                 <div className="relative group flex items-center h-full">
-                  <div className="w-8 h-8 rounded-full bg-navy-100 flex items-center justify-center border border-navy-200 cursor-pointer hover:border-bronze-500 transition-colors">
+                  <div className="w-10 h-10 rounded-full bg-navy-100 flex items-center justify-center border border-navy-200 cursor-pointer hover:border-bronze-500 transition-colors focus-visible:ring-2 focus-visible:ring-bronze-500 outline-none" tabIndex={0}>
                     <UserCircle className="w-5 h-5 text-navy-600" />
                   </div>
                   
@@ -103,7 +103,7 @@ export default function Navbar({ user }: { user: any }) {
                       <button 
                         onClick={() => startTransition(() => logoutUser())}
                         disabled={isPending}
-                        className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors disabled:opacity-50"
+                        className="flex items-center gap-2 px-3 py-2.5 min-h-[44px] text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-red-500 outline-none"
                       >
                         <LogOut className="w-4 h-4" />
                         Logout
@@ -112,11 +112,11 @@ export default function Navbar({ user }: { user: any }) {
                   </div>
                 </div>
               ) : (
-                <Link href="/login" className="text-body font-medium transition-all px-4 py-2 rounded-full hover:text-bronze-500 hover:bg-warm-100" data-interactive>
+                <Link href="/login" className="text-body font-medium transition-all px-4 py-2 min-h-[44px] inline-flex items-center rounded-full hover:text-bronze-500 hover:bg-warm-100 focus-visible:ring-2 focus-visible:ring-bronze-500 outline-none" data-interactive>
                   Login
                 </Link>
               )}
-              <Link href="/contact" data-interactive>
+              <Link href="/contact" className="inline-flex min-h-[44px] items-center rounded-full focus-visible:ring-2 focus-visible:ring-bronze-500 outline-none" data-interactive>
                 <Button variant="primary" data-interactive>Let's Build Together</Button>
               </Link>
             </div>
@@ -126,39 +126,39 @@ export default function Navbar({ user }: { user: any }) {
 
       {/* Mobile Bottom Navigation Bar */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-warm-50/96 backdrop-blur-md border-t border-navy-100 pb-[calc(16px+env(safe-area-inset-bottom))]">
-        <div className="flex justify-between items-center px-6 pt-4">
-          <Link href="/#vision" className="flex flex-col items-center gap-1 group" data-interactive>
+        <div className="flex justify-between items-center px-3 pt-3">
+          <Link href="/#vision" className="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] px-1 py-1 gap-1 group focus-visible:ring-2 focus-visible:ring-bronze-500 rounded-lg outline-none" data-interactive>
             <Eye className={`w-6 h-6 transition-colors ${isActive("/", "vision") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`} />
             <span className={`text-[10px] font-medium tracking-wide uppercase transition-colors ${isActive("/", "vision") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`}>Vision</span>
           </Link>
           
-          <Link href="/#strategy" className="flex flex-col items-center gap-1 group" data-interactive>
+          <Link href="/#strategy" className="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] px-1 py-1 gap-1 group focus-visible:ring-2 focus-visible:ring-bronze-500 rounded-lg outline-none" data-interactive>
             <Target className={`w-6 h-6 transition-colors ${isActive("/", "strategy") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`} />
             <span className={`text-[10px] font-medium tracking-wide uppercase transition-colors ${isActive("/", "strategy") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`}>Strategy</span>
           </Link>
 
-          <Link href="/#work" className="flex flex-col items-center gap-1 group" data-interactive>
+          <Link href="/#work" className="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] px-1 py-1 gap-1 group focus-visible:ring-2 focus-visible:ring-bronze-500 rounded-lg outline-none" data-interactive>
             <Briefcase className={`w-6 h-6 transition-colors ${isActive("/", "work") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`} />
             <span className={`text-[10px] font-medium tracking-wide uppercase transition-colors ${isActive("/", "work") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`}>Work</span>
           </Link>
 
-          <Link href="/#insights" className="flex flex-col items-center gap-1 group" data-interactive>
+          <Link href="/#insights" className="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] px-1 py-1 gap-1 group focus-visible:ring-2 focus-visible:ring-bronze-500 rounded-lg outline-none" data-interactive>
             <FileText className={`w-6 h-6 transition-colors ${isActive("/", "insights") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`} />
             <span className={`text-[10px] font-medium tracking-wide uppercase transition-colors ${isActive("/", "insights") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`}>Perspectives</span>
           </Link>
 
-          <Link href="/contact" className="flex flex-col items-center gap-1 group" data-interactive>
+          <Link href="/contact" className="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] px-1 py-1 gap-1 group focus-visible:ring-2 focus-visible:ring-bronze-500 rounded-lg outline-none" data-interactive>
             <Mail className={`w-6 h-6 transition-colors ${isActive("/contact", "contact") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`} />
             <span className={`text-[10px] font-medium tracking-wide uppercase transition-colors ${isActive("/contact", "contact") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`}>Contact</span>
           </Link>
 
           {user ? (
-            <button onClick={() => startTransition(() => logoutUser())} disabled={isPending} className="flex flex-col items-center gap-1 group" data-interactive>
+            <button onClick={() => startTransition(() => logoutUser())} disabled={isPending} className="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] px-1 py-1 gap-1 group focus-visible:ring-2 focus-visible:ring-bronze-500 rounded-lg outline-none" data-interactive>
               <LogOut className="w-6 h-6 text-navy-500 group-hover:text-red-500 transition-colors" />
               <span className="text-[10px] font-medium tracking-wide uppercase text-navy-500 group-hover:text-red-500 transition-colors">Logout</span>
             </button>
           ) : (
-            <Link href="/login" className="flex flex-col items-center gap-1 group" data-interactive>
+            <Link href="/login" className="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] px-1 py-1 gap-1 group focus-visible:ring-2 focus-visible:ring-bronze-500 rounded-lg outline-none" data-interactive>
               <UserCircle className={`w-6 h-6 transition-colors ${isActive("/login", "login") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`} />
               <span className={`text-[10px] font-medium tracking-wide uppercase transition-colors ${isActive("/login", "login") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`}>Login</span>
             </Link>

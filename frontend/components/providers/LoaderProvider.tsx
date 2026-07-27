@@ -34,17 +34,11 @@ function LoaderRouteTracker({ stopLoading }: { stopLoading: () => void }) {
 }
 
 export function LoaderProvider({ children }: { children: ReactNode }) {
-  const [isLoading, setIsLoading] = useState(true);
-  const isInitialLoad = React.useRef(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const isInitialLoad = React.useRef(false);
 
   useEffect(() => {
-    // Ensure the initial loading animation plays out before hiding
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-      isInitialLoad.current = false;
-    }, 1800);
-
-    return () => clearTimeout(timer);
+    // No artificial timer delay on initial load
   }, []);
 
   const startLoading = () => setIsLoading(true);

@@ -130,6 +130,8 @@ export default function VideoShowcaseGrid({ dbVideos = [] }: VideoShowcaseGridPr
               <img 
                 src={featuredVideo.coverImage} 
                 alt={featuredVideo.title} 
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out-expo opacity-90"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-navy-950/80 via-navy-950/20 to-transparent group-hover:from-navy-950/60 transition-colors" />
@@ -255,6 +257,8 @@ export default function VideoShowcaseGrid({ dbVideos = [] }: VideoShowcaseGridPr
                   <img 
                     src={video.coverImage} 
                     alt={video.title} 
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   
@@ -323,6 +327,8 @@ export default function VideoShowcaseGrid({ dbVideos = [] }: VideoShowcaseGridPr
                       <img 
                         src={video.coverImage} 
                         alt={video.title} 
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90"
                       />
                       <div className="absolute inset-0 bg-navy-950/25 group-hover:bg-navy-950/40 transition-colors" />
@@ -400,6 +406,8 @@ export default function VideoShowcaseGrid({ dbVideos = [] }: VideoShowcaseGridPr
                   <img 
                     src={video.coverImage} 
                     alt={video.title} 
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100"
                   />
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -472,6 +480,8 @@ export default function VideoShowcaseGrid({ dbVideos = [] }: VideoShowcaseGridPr
                   poster={activeModalVideo.coverImage}
                   controls 
                   autoPlay
+                  playsInline
+                  preload="metadata"
                   className="w-full h-full object-contain"
                 >
                   Your browser does not support the video tag.

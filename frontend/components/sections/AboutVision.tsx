@@ -85,7 +85,7 @@ export default function AboutVision() {
             <p className="text-body-sm text-navy-600 font-medium">Senior Practitioner Execution</p>
           </div>
           <div>
-            <span className="text-display font-bold text-navy-950 tracking-tighter block mb-1">&lt;30d</span>
+            <span className="text-display font-bold text-navy-950 tracking-tighter block mb-1 whitespace-nowrap">&lt;30d</span>
             <p className="text-body-sm text-navy-600 font-medium">Avg Sprint to First Impact</p>
           </div>
         </RevealOnScroll>

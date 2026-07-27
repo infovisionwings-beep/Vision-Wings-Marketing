@@ -161,7 +161,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => { setIsSignUp(false); setError(null); }}
-                    className={`flex-1 py-2 text-caption font-mono font-semibold uppercase tracking-wider rounded-lg transition-all relative ${
+                    className={`flex-1 py-2.5 min-h-[44px] text-caption font-mono font-semibold uppercase tracking-wider rounded-lg transition-all relative ${
                       !isSignUp ? "text-navy-950 font-bold" : "text-navy-500 hover:text-navy-950"
                     }`}
                   >
@@ -177,7 +177,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => { setIsSignUp(true); setError(null); }}
-                    className={`flex-1 py-2 text-caption font-mono font-semibold uppercase tracking-wider rounded-lg transition-all relative ${
+                    className={`flex-1 py-2.5 min-h-[44px] text-caption font-mono font-semibold uppercase tracking-wider rounded-lg transition-all relative ${
                       isSignUp ? "text-navy-950 font-bold" : "text-navy-500 hover:text-navy-950"
                     }`}
                   >
@@ -229,7 +229,7 @@ export default function LoginPage() {
                 <Button
                   type="submit"
                   isLoading={isOtpPending}
-                  className="w-full justify-center gap-2"
+                  className="w-full justify-center gap-2 min-h-[44px]"
                 >
                   Verify Credentials
                   {!isOtpPending && <ArrowRight className="w-4 h-4" />}
@@ -317,7 +317,7 @@ export default function LoginPage() {
                   <Button
                     type="submit"
                     isLoading={isPending}
-                    className="w-full justify-center gap-2.5 mt-2"
+                    className="w-full justify-center gap-2.5 mt-2 min-h-[44px]"
                   >
                     <span>{isSignUp ? 'Initiate Account Dossier' : 'Enter Executive Portal'}</span>
                     {!isPending && <ArrowRight className="w-4 h-4" />}

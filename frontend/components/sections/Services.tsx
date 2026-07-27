@@ -5,6 +5,7 @@
 // MOTION_INTENSITY: 6
 // VISUAL_DENSITY: 4
 
+import { useState } from "react";
 import RevealOnScroll from "@/components/motion/RevealOnScroll";
 import Image from "next/image";
 import { 
@@ -100,6 +101,97 @@ const industries = [
   "Executive Consulting & Advisory"
 ];
 
+function ServiceCard({ item, idx }: { item: typeof capabilities[0]; idx: number }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const IconComponent = item.icon;
+
+  return (
+    <RevealOnScroll 
+      delay={idx * 0.08}
+      className={`${item.gridClass} rounded-2xl p-6 sm:p-8 md:p-10 flex flex-col justify-between hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-md`}
+    >
+      {/* Background image for video card */}
+      {item.hasImage && (
+        <>
+          <Image
+            src={`https://picsum.photos/seed/${item.imageSeed}/800/800`}
+            alt={item.title}
+            fill
+            className="object-cover opacity-25 group-hover:scale-105 transition-transform duration-700 pointer-events-none"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/80 to-transparent pointer-events-none" />
+        </>
+      )}
+
+      {/* Top of Card */}
+      <div className="relative z-10 space-y-5 sm:space-y-6">
+        <div className="flex items-center justify-between">
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${item.isDark ? "bg-navy-800 text-bronze-400" : "bg-navy-950 text-warm-50"}`}>
+            <IconComponent className="w-5 h-5" />
+          </div>
+          <span className={`text-xs font-mono font-semibold px-3 py-1 rounded-full ${item.isDark ? "bg-navy-800/80 text-navy-300" : "bg-warm-200/80 text-navy-700"}`}>
+            0{idx + 1}
+          </span>
+        </div>
+
+        <div>
+          <h3 className="text-h3 font-bold mb-2.5 sm:mb-3">{item.title}</h3>
+          <p className={`text-body-sm leading-relaxed ${item.isDark ? "text-navy-300" : "text-navy-700"}`}>
+            {item.desc}
+          </p>
+        </div>
+
+        {/* Mobile Disclosure Toggle Button */}
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          className={`md:hidden mt-3 pt-3 border-t border-current/10 w-full flex items-center justify-between text-xs font-mono font-semibold uppercase tracking-wider py-2 min-h-[44px] outline-none focus-visible:ring-2 focus-visible:ring-bronze-500 rounded-lg ${
+            item.isDark ? "text-bronze-400 hover:text-bronze-300" : "text-bronze-700 hover:text-bronze-900"
+          }`}
+          data-interactive
+        >
+          <span>{isOpen ? "Hide Deliverables & Stack ↑" : "View Key Deliverables & Stack ↓"}</span>
+        </button>
+
+        {/* Deliverables Checklist (Hidden on mobile by default, open on desktop) */}
+        <div className={`space-y-2.5 pt-4 border-t border-current/10 ${isOpen ? "block" : "hidden"} md:block`}>
+          <h4 className={`text-xs font-mono font-semibold uppercase tracking-wider ${item.isDark ? "text-bronze-400" : "text-bronze-700"}`}>
+            Key Deliverables
+          </h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {item.deliverables.map((del, dIdx) => (
+              <div key={dIdx} className="flex items-center gap-2 text-xs">
+                <Check className={`w-3.5 h-3.5 flex-shrink-0 ${item.isDark ? "text-bronze-400" : "text-bronze-600"}`} />
+                <span className={item.isDark ? "text-warm-100" : "text-navy-800"}>{del}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom of Card: Tech/Tool Tokens (Hidden on mobile by default, open on desktop) */}
+      <div className={`relative z-10 pt-6 mt-6 border-t border-current/10 flex flex-wrap gap-2 items-center ${isOpen ? "flex" : "hidden"} md:flex`}>
+        <span className={`text-[11px] font-mono font-semibold mr-1 ${item.isDark ? "text-navy-400" : "text-navy-500"}`}>
+          STACK:
+        </span>
+        {item.tools.map((tool, tIdx) => (
+          <span 
+            key={tIdx}
+            className={`text-[11px] font-mono px-2.5 py-1 min-h-[28px] inline-flex items-center rounded ${
+              item.isDark 
+                ? "bg-navy-900/90 text-navy-200 border border-navy-700" 
+                : "bg-warm-200/60 text-navy-800 border border-navy-300/50"
+            }`}
+          >
+            {tool}
+          </span>
+        ))}
+      </div>
+    </RevealOnScroll>
+  );
+}
+
 export default function Services() {
   return (
     <section id="strategy" className="py-20 md:py-32 lg:py-40 px-5 md:px-10 xl:px-20 bg-warm-100 text-navy-950">
@@ -124,82 +216,9 @@ export default function Services() {
 
         {/* 5-Cell Asymmetric Bento Grid (Rule 4.7: Exactly 5 cells for 5 items, Background Diversity) */}
         <div className="grid grid-cols-12 gap-6 items-stretch">
-          {capabilities.map((item, idx) => {
-            const IconComponent = item.icon;
-            return (
-              <RevealOnScroll 
-                key={item.id} 
-                delay={idx * 0.08}
-                className={`${item.gridClass} rounded-2xl p-8 md:p-10 flex flex-col justify-between hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-md`}
-              >
-                {/* Background image for video card */}
-                {item.hasImage && (
-                  <>
-                    <Image
-                      src={`https://picsum.photos/seed/${item.imageSeed}/800/800`}
-                      alt={item.title}
-                      fill
-                      className="object-cover opacity-25 group-hover:scale-105 transition-transform duration-700 pointer-events-none"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/80 to-transparent pointer-events-none" />
-                  </>
-                )}
-
-                {/* Top of Card */}
-                <div className="relative z-10 space-y-6">
-                  <div className="flex items-center justify-between">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${item.isDark ? "bg-navy-800 text-bronze-400" : "bg-navy-950 text-warm-50"}`}>
-                      <IconComponent className="w-5 h-5" />
-                    </div>
-                    <span className={`text-xs font-mono font-semibold px-3 py-1 rounded-full ${item.isDark ? "bg-navy-800/80 text-navy-300" : "bg-warm-200/80 text-navy-700"}`}>
-                      0{idx + 1}
-                    </span>
-                  </div>
-
-                  <div>
-                    <h3 className="text-h3 font-bold mb-3">{item.title}</h3>
-                    <p className={`text-body-sm leading-relaxed ${item.isDark ? "text-navy-300" : "text-navy-700"}`}>
-                      {item.desc}
-                    </p>
-                  </div>
-
-                  {/* Deliverables Checklist */}
-                  <div className="space-y-2.5 pt-4 border-t border-current/10">
-                    <h4 className={`text-xs font-mono font-semibold uppercase tracking-wider ${item.isDark ? "text-bronze-400" : "text-bronze-700"}`}>
-                      Key Deliverables
-                    </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {item.deliverables.map((del, dIdx) => (
-                        <div key={dIdx} className="flex items-center gap-2 text-xs">
-                          <Check className={`w-3.5 h-3.5 flex-shrink-0 ${item.isDark ? "text-bronze-400" : "text-bronze-600"}`} />
-                          <span className={item.isDark ? "text-warm-100" : "text-navy-800"}>{del}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bottom of Card: Tech/Tool Tokens */}
-                <div className="relative z-10 pt-6 mt-6 border-t border-current/10 flex flex-wrap gap-2 items-center">
-                  <span className={`text-[11px] font-mono font-semibold mr-1 ${item.isDark ? "text-navy-400" : "text-navy-500"}`}>
-                    STACK:
-                  </span>
-                  {item.tools.map((tool, tIdx) => (
-                    <span 
-                      key={tIdx}
-                      className={`text-[11px] font-mono px-2.5 py-0.5 rounded ${
-                        item.isDark 
-                          ? "bg-navy-900/90 text-navy-200 border border-navy-700" 
-                          : "bg-warm-200/60 text-navy-800 border border-navy-300/50"
-                      }`}
-                    >
-                      {tool}
-                    </span>
-                  ))}
-                </div>
-              </RevealOnScroll>
-            );
-          })}
+          {capabilities.map((item, idx) => (
+            <ServiceCard key={item.id} item={item} idx={idx} />
+          ))}
         </div>
 
         {/* Why Choose Us (Operational Strengths - Clean 3-Col layout without card containers per Rule 4.4 / 4.7) */}
@@ -211,7 +230,7 @@ export default function Services() {
             </p>
           </RevealOnScroll>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 sm:gap-12 lg:gap-16">
             {strengths.map((s, idx) => (
               <RevealOnScroll key={idx} delay={idx * 0.1} className="space-y-3 border-l-2 border-navy-950 pl-6">
                 <span className="text-xs font-mono font-semibold text-bronze-600 block">STRENGTH / 0{idx + 1}</span>
@@ -228,11 +247,11 @@ export default function Services() {
             <h3 className="text-h3 font-bold text-navy-950">Proven Across Sectors</h3>
             <p className="text-body-sm text-navy-600 mt-1">Deep domain experience where complex technology meets discerning users.</p>
           </RevealOnScroll>
-          <RevealOnScroll delay={0.1} className="flex flex-wrap gap-2.5 max-w-2xl justify-start md:justify-end">
+          <RevealOnScroll delay={0.1} className="flex flex-wrap gap-2.5 sm:gap-3 max-w-2xl justify-start md:justify-end">
             {industries.map((ind, idx) => (
               <span 
                 key={idx}
-                className="px-4 py-2 rounded-full bg-navy-950 text-warm-50 text-xs sm:text-sm font-medium border border-navy-800 hover:border-bronze-500 transition-colors cursor-default"
+                className="px-4 py-2.5 min-h-[44px] inline-flex items-center rounded-full bg-navy-950 text-warm-50 text-xs sm:text-sm font-medium border border-navy-800 hover:border-bronze-500 transition-colors cursor-default"
               >
                 {ind}
               </span>

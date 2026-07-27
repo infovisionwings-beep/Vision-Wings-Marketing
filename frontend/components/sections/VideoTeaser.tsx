@@ -36,14 +36,14 @@ export default function VideoTeaser() {
           </p>
 
           <div className="pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-            <Link href="/videos" className="w-full sm:w-auto" data-interactive>
-              <Button variant="primary" className="w-full sm:w-auto justify-center shadow-2xl group" data-interactive>
+            <Link href="/videos" className="w-full sm:w-auto inline-block min-h-[44px] rounded-xl focus-visible:ring-2 focus-visible:ring-bronze-400 outline-none" data-interactive>
+              <Button variant="primary" className="w-full sm:w-auto justify-center shadow-2xl group min-h-[44px]" data-interactive>
                 <span>Launch Video Exhibition</span>
                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Link href="/admin/videos" className="w-full sm:w-auto" data-interactive>
-              <Button variant="secondary" className="w-full sm:w-auto justify-center bg-navy-900 text-warm-50 border-navy-700 hover:bg-navy-800" data-interactive>
+            <Link href="/admin/videos" className="w-full sm:w-auto inline-block min-h-[44px] rounded-xl focus-visible:ring-2 focus-visible:ring-bronze-400 outline-none" data-interactive>
+              <Button variant="secondary" className="w-full sm:w-auto justify-center bg-navy-900 text-warm-50 border-navy-700 hover:bg-navy-800 min-h-[44px]" data-interactive>
                 <span>Pipeline Console</span>
               </Button>
             </Link>
@@ -56,6 +56,8 @@ export default function VideoTeaser() {
             <img 
               src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80" 
               alt="Penfield Estate" 
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/20 to-transparent" />
@@ -77,6 +79,8 @@ export default function VideoTeaser() {
             <img 
               src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80" 
               alt="Sill Road Villa" 
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/20 to-transparent" />
