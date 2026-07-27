@@ -75,7 +75,22 @@ const fallbackContentMap: Record<string, Article> = {
 function extractHeadingsAndInjectIds(html: string): { htmlWithIds: string; toc: TocItem[] } {
   const toc: TocItem[] = [];
   const htmlWithIds = html.replace(/<(h[23])([^>]*)>(.*?)<\/h[23]>/gi, (match, tag, attrs, content) => {
-    const plainText = content.replace(/<[^>]+>/g, "").trim();
+    const plainText = content
+      .replace(/<[^>]+>/g, "")
+      .replace(/&nbsp;/gi, " ")
+      .replace(/&#160;/gi, " ")
+      .replace(/&amp;/gi, "&")
+      .replace(/&quot;/gi, '"')
+      .replace(/&#39;|&apos;/gi, "'")
+      .replace(/&lt;/gi, "<")
+      .replace(/&gt;/gi, ">")
+      .replace(/&mdash;/gi, "—")
+      .replace(/&ndash;/gi, "–")
+      .replace(/&#(\d+);/g, (_: string, dec: string) => String.fromCharCode(Number(dec)))
+      .replace(/&#x([0-9a-f]+);/gi, (_: string, hex: string) => String.fromCharCode(parseInt(hex, 16)))
+      .replace(/\s+/g, " ")
+      .trim();
+
     if (!plainText) return match;
 
     let id = "";
@@ -135,8 +150,10 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
     return notFound();
   }
 
-  // Format content: ensure paragraphs have tags if it's plain text
-  let rawHtml = article.content;
+  // Format content: normalize non-breaking spaces so words wrap naturally without breaking midway
+  let rawHtml = (article.content || "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&#160;/gi, " ");
   if (!rawHtml.trim().startsWith("<")) {
     rawHtml = rawHtml
       .split("\n\n")
@@ -154,12 +171,13 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
       <style dangerouslySetInnerHTML={{ __html: `
         .editorial-prose {
           max-width: 100%;
-          word-break: break-word;
-          overflow-wrap: anywhere;
+          word-break: normal;
+          overflow-wrap: break-word;
         }
         .editorial-prose * {
           max-width: 100%;
-          overflow-wrap: anywhere;
+          word-break: normal;
+          overflow-wrap: break-word;
         }
         .editorial-prose > p:first-of-type::first-letter {
           float: left;
