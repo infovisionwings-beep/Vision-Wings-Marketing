@@ -42,6 +42,10 @@ export async function POST(req: NextRequest) {
         category: data.category,
         coverImage: data.coverImage || "",
         content: data.content || "",
+        authorName: data.authorName || "Amélie Laurent",
+        authorRole: data.authorRole || "Partner, Brand Architecture",
+        authorAvatar: data.authorAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+        contributors: data.contributors || null,
         isPublished: data.isPublished ?? false,
         publishedAt: data.isPublished ? new Date() : null,
       })

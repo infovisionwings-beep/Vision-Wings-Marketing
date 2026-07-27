@@ -10,12 +10,18 @@ import { createProject, updateProject } from "@/app/actions/projects";
 import { uploadImage } from "@/app/actions/upload";
 import Button from "@/components/ui/Button";
 import { useRouter } from "next/navigation";
-import { Briefcase, Image as ImageIcon, Sparkles, Loader2, ArrowLeft } from "lucide-react";
+import { Briefcase, Image as ImageIcon, Sparkles, Loader2, ArrowLeft, Zap, Film } from "lucide-react";
+import { AdminPhotoManager } from "./AdminPhotoManager";
+import { AdminVideoManager } from "./AdminVideoManager";
 
 export default function ProjectForm({ project }: { project?: any }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [coverImageUrl, setCoverImageUrl] = useState(project?.coverImage || "");
+  const [content, setContent] = useState(project?.content || "");
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [photoTarget, setPhotoTarget] = useState<"cover" | "content">("cover");
+  const [showVideoModal, setShowVideoModal] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -39,7 +45,7 @@ export default function ProjectForm({ project }: { project?: any }) {
         slug: formData.get("slug") as string,
         category: formData.get("category") as string,
         year: formData.get("year") as string,
-        content: formData.get("content") as string,
+        content: content,
         coverImage: imageUrl,
         isFeatured: formData.get("isFeatured") === "on",
       };
@@ -153,10 +159,23 @@ export default function ProjectForm({ project }: { project?: any }) {
         </div>
 
         <div className="flex flex-col gap-3 p-6 rounded-xl bg-warm-100/60 border border-navy-200/60">
-          <label htmlFor="file" className="text-xs font-mono font-bold text-navy-800 uppercase tracking-wider flex items-center gap-2">
-            <ImageIcon className="w-4 h-4 text-bronze-700" />
-            <span>Exhibition Cover Photography (16:9 Recommended)</span>
-          </label>
+          <div className="flex items-center justify-between">
+            <label htmlFor="file" className="text-xs font-mono font-bold text-navy-800 uppercase tracking-wider flex items-center gap-2">
+              <ImageIcon className="w-4 h-4 text-bronze-700" />
+              <span>Exhibition Cover Photography (16:9 Recommended)</span>
+            </label>
+            <button
+              type="button"
+              onClick={() => {
+                setPhotoTarget("cover");
+                setShowPhotoModal(true);
+              }}
+              className="px-3 py-1.5 bg-navy-950 hover:bg-navy-900 text-bronze-400 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 shadow transition-all"
+            >
+              <Zap className="w-3.5 h-3.5 text-amber-400" />
+              <span>⚡ SELECT FROM CLOUD PIPELINE</span>
+            </button>
+          </div>
           {coverImageUrl && (
             <div className="relative rounded-lg overflow-hidden border border-navy-200 w-full max-w-sm aspect-video bg-navy-950 mb-2 shadow-inner">
               <img src={coverImageUrl} alt="Cover Preview" className="w-full h-full object-cover" />
@@ -172,13 +191,36 @@ export default function ProjectForm({ project }: { project?: any }) {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="content" className="text-xs font-mono font-bold text-navy-800 uppercase tracking-wider">
-            Exhibition Overview &amp; Manifesto (Markdown / HTML)
-          </label>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <label htmlFor="content" className="text-xs font-mono font-bold text-navy-800 uppercase tracking-wider">
+              Exhibition Overview &amp; Manifesto (Markdown / HTML)
+            </label>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setPhotoTarget("content");
+                  setShowPhotoModal(true);
+                }}
+                className="px-2.5 py-1 bg-navy-950 hover:bg-navy-900 text-bronze-400 text-xs font-mono font-bold rounded flex items-center gap-1"
+              >
+                <span>🖼️ Insert Image Asset</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowVideoModal(true)}
+                className="px-2.5 py-1 bg-navy-950 hover:bg-navy-900 text-emerald-400 text-xs font-mono font-bold rounded flex items-center gap-1"
+              >
+                <Film className="w-3 h-3 text-emerald-400" />
+                <span>🎬 Insert Video Asset</span>
+              </button>
+            </div>
+          </div>
           <textarea 
             id="content" 
             name="content" 
-            defaultValue={project?.content} 
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
             placeholder="Write the comprehensive design manifesto and outcome metrics for this commission..."
             required 
             rows={8} 
@@ -221,6 +263,71 @@ export default function ProjectForm({ project }: { project?: any }) {
           </button>
         </div>
       </form>
+      {/* Photo Pipeline Modal Overlay */}
+      {showPhotoModal && (
+        <div className="fixed inset-0 z-[60] bg-navy-950/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 overflow-y-auto animate-in fade-in duration-200">
+          <div className="bg-[#0b111e] border-2 border-bronze-500/40 rounded-3xl p-6 sm:p-10 max-w-7xl w-full max-h-[92vh] overflow-y-auto shadow-2xl relative my-8 text-warm-50">
+            <div className="flex items-center justify-between pb-6 mb-6 border-b border-navy-800">
+              <div>
+                <span className="text-xs font-mono uppercase tracking-widest text-bronze-400 font-black block mb-1">
+                  ⚡ MODAL INJECTION PIPELINE / ASSET SELECTION
+                </span>
+                <h2 className="text-2xl font-bold text-white tracking-tight">Select Cloud Image Asset</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowPhotoModal(false)}
+                className="px-5 py-2.5 rounded-xl bg-navy-900 hover:bg-red-950 text-warm-100 hover:text-red-300 border border-navy-700 hover:border-red-700 font-mono text-xs font-bold transition-all shadow-lg"
+              >
+                ✕ CLOSE PIPELINE
+              </button>
+            </div>
+            <AdminPhotoManager
+              isModal={true}
+              onSelectPhoto={(url) => {
+                if (photoTarget === "cover") {
+                  setCoverImageUrl(url);
+                } else {
+                  const imgTag = `\n\n<p><img src="${url}" alt="Exhibition Asset" style="max-width: 100%; border-radius: 12px; margin: 24px 0;" /></p>\n\n`;
+                  setContent((prev: string) => prev + imgTag);
+                }
+                setShowPhotoModal(false);
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Video Pipeline Modal Overlay */}
+      {showVideoModal && (
+        <div className="fixed inset-0 z-[60] bg-navy-950/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 overflow-y-auto animate-in fade-in duration-200">
+          <div className="bg-[#0b111e] border-2 border-emerald-500/40 rounded-3xl p-6 sm:p-10 max-w-7xl w-full max-h-[92vh] overflow-y-auto shadow-2xl relative my-8 text-warm-50">
+            <div className="flex items-center justify-between pb-6 mb-6 border-b border-navy-800">
+              <div>
+                <span className="text-xs font-mono uppercase tracking-widest text-emerald-400 font-black block mb-1">
+                  ⚡ MODAL INJECTION PIPELINE / VIDEO SELECTION
+                </span>
+                <h2 className="text-2xl font-bold text-white tracking-tight">Select Cloud Video Asset</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowVideoModal(false)}
+                className="px-5 py-2.5 rounded-xl bg-navy-900 hover:bg-red-950 text-warm-100 hover:text-red-300 border border-navy-700 hover:border-red-700 font-mono text-xs font-bold transition-all shadow-lg"
+              >
+                ✕ CLOSE PIPELINE
+              </button>
+            </div>
+            <AdminVideoManager
+              isModal={true}
+              onSelectVideo={(url) => {
+                const videoTag = `\n\n<p><video src="${url}" controls style="max-width: 100%; border-radius: 12px; margin: 24px 0;"></video></p>\n\n`;
+                setContent((prev: string) => prev + videoTag);
+                setShowVideoModal(false);
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

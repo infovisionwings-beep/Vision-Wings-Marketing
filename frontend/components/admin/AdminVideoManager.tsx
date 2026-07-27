@@ -35,7 +35,12 @@ interface VideoRecord {
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "";
 
-export const AdminVideoManager: React.FC = () => {
+interface AdminVideoManagerProps {
+  isModal?: boolean;
+  onSelectVideo?: (url: string) => void;
+}
+
+export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = false, onSelectVideo }) => {
   const [videos, setVideos] = useState<VideoRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
@@ -184,6 +189,38 @@ export const AdminVideoManager: React.FC = () => {
 
   return (
     <div className="space-y-12">
+      {/* Modal Selection Banner */}
+      {(isModal || onSelectVideo) && (
+        <div className="bg-gradient-to-r from-bronze-600 via-amber-600 to-navy-900 text-warm-50 p-6 sm:p-8 rounded-3xl shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-2 border-bronze-400/60 animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="space-y-1">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-navy-950/80 border border-bronze-400/40 text-[11px] font-mono font-black text-bronze-300 tracking-widest uppercase">
+              ⚡ MODAL VIDEO PIPELINE INJECTION ACTIVE
+            </span>
+            <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-white">Select Cloud Video for Dossier</h3>
+            <p className="text-xs sm:text-sm text-warm-100 max-w-2xl leading-relaxed">
+              Upload a new video below or click on any existing transcoded MP4/WebM asset in your archive, then click <strong className="text-white underline">&ldquo;USE THIS VIDEO&rdquo;</strong> to inject it into your editorial content or exhibition.
+            </p>
+          </div>
+          {selectedVideo ? (
+            <button
+              onClick={() => {
+                if (onSelectVideo) {
+                  onSelectVideo(selectedVideo.mp4Path || selectedVideo.inputPath);
+                }
+              }}
+              className="w-full md:w-auto px-8 py-4 bg-navy-950 hover:bg-emerald-950 text-warm-50 hover:text-emerald-300 font-mono font-bold text-xs sm:text-sm rounded-2xl shadow-2xl border-2 border-emerald-500/60 hover:border-emerald-400 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2.5 flex-shrink-0 group/btn"
+            >
+              <CheckCircle2 className="w-5 h-5 text-emerald-400 group-hover/btn:rotate-12 transition-transform" />
+              <span>USE SELECTED: &ldquo;{selectedVideo.originalFileName.slice(0, 16)}&rdquo;</span>
+            </button>
+          ) : (
+            <div className="w-full md:w-auto px-6 py-3 bg-navy-900/60 text-navy-400 font-mono text-xs rounded-xl border border-navy-700/60 text-center flex-shrink-0">
+              👈 CLICK ANY VIDEO BELOW TO SELECT
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Header section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-navy-200/80 pb-6">
         <div>
@@ -356,7 +393,19 @@ export const AdminVideoManager: React.FC = () => {
                           <span>ID: {v.id.slice(0, 8)}...</span>
                         </div>
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                          {onSelectVideo && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onSelectVideo(v.mp4Path || v.inputPath);
+                              }}
+                              className="px-2.5 py-1 bg-emerald-950/90 hover:bg-emerald-900 text-emerald-300 font-mono text-[10px] font-bold rounded border border-emerald-600/60 shadow-sm transition-all hover:scale-105"
+                              title="Inject this video directly"
+                            >
+                              ⚡ USE
+                            </button>
+                          )}
                           <span className="text-bronze-600 font-bold group-hover:underline flex items-center gap-1">
                             <span>Inspect Telemetry</span>
                             <ChevronRight className="w-3.5 h-3.5" />
@@ -502,13 +551,24 @@ export const AdminVideoManager: React.FC = () => {
             </div>
 
             {/* Console Footer */}
-            <div className="bg-navy-900/90 border-t border-navy-800 px-5 py-3 flex items-center justify-between text-[11px] font-mono text-navy-400">
-              <div className="flex items-center gap-2">
-                <Clock className="w-3.5 h-3.5 text-navy-500" />
-                <span>POLL INTERVAL: 3000ms</span>
-              </div>
-              <div className="text-navy-500">
-                {selectedVideo?.logs?.length || 0} EVENTS LOGGED
+            <div className="bg-navy-900/90 border-t border-navy-800 px-5 py-3 flex flex-col gap-3 font-mono">
+              {onSelectVideo && selectedVideo && (
+                <button
+                  onClick={() => onSelectVideo(selectedVideo.mp4Path || selectedVideo.inputPath)}
+                  className="w-full py-2.5 bg-emerald-950 hover:bg-emerald-900 text-emerald-300 text-xs font-bold rounded-xl border border-emerald-600/60 flex items-center justify-center gap-2 shadow-lg transition-all active:scale-98"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span>USE &ldquo;{selectedVideo.originalFileName.slice(0, 16)}&rdquo; IN DOSSIER</span>
+                </button>
+              )}
+              <div className="flex items-center justify-between text-[11px] text-navy-400">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-3.5 h-3.5 text-navy-500" />
+                  <span>POLL INTERVAL: 3000ms</span>
+                </div>
+                <div className="text-navy-500">
+                  {selectedVideo?.logs?.length || 0} EVENTS LOGGED
+                </div>
               </div>
             </div>
           </div>

@@ -7,8 +7,10 @@
 
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { Plus, Trash2, Edit3, FileText, Loader2, RefreshCw, Sparkles, BookOpen, Clock, ArrowUpRight, Image as ImageIcon } from "lucide-react";
+import { Plus, Trash2, Edit3, FileText, Loader2, RefreshCw, Sparkles, BookOpen, Clock, ArrowUpRight, Image as ImageIcon, Film, Users, UserPlus, Zap } from "lucide-react";
 import "react-quill-new/dist/quill.snow.css";
+import { AdminPhotoManager } from "./AdminPhotoManager";
+import { AdminVideoManager } from "./AdminVideoManager";
 
 // Dynamically import ReactQuill to avoid SSR window errors in Next.js 16 / React 19
 const ReactQuill = dynamic(() => import("react-quill-new"), { 
@@ -28,6 +30,10 @@ interface InsightItem {
   category: string;
   coverImage?: string | null;
   content: string;
+  authorName?: string | null;
+  authorRole?: string | null;
+  authorAvatar?: string | null;
+  contributors?: { name: string; role: string; avatar: string; email?: string }[] | null;
   isPublished?: boolean | null;
   publishedAt?: string | Date | null;
   createdAt?: string | Date | null;
@@ -64,6 +70,10 @@ export const AdminInsightsManager: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [adminProfiles, setAdminProfiles] = useState<{email: string; name: string; role: string; avatar: string}[]>([]);
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [photoTarget, setPhotoTarget] = useState<string | null>(null);
+  const [showVideoModal, setShowVideoModal] = useState(false);
   
   const [formData, setFormData] = useState({
     title: "",
@@ -71,6 +81,10 @@ export const AdminInsightsManager: React.FC = () => {
     category: "Strategy & Architecture",
     content: "",
     coverImage: UNSPLASH_PRESETS[0].url,
+    authorName: "Amélie Laurent",
+    authorRole: "Partner, Brand Architecture",
+    authorAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+    contributors: [] as { name: string; role: string; avatar: string; email?: string }[],
     isPublished: true,
   });
 
@@ -93,6 +107,12 @@ export const AdminInsightsManager: React.FC = () => {
 
   useEffect(() => {
     fetchInsightData();
+    fetch("/api/admins")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setAdminProfiles(data);
+      })
+      .catch((err) => console.error("Failed to load admin profiles:", err));
   }, []);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,6 +132,10 @@ export const AdminInsightsManager: React.FC = () => {
       category: "Strategy & Architecture",
       content: "<h3>1. Strategic Framework</h3><p>Start typing your comprehensive thought leadership perspective here...</p>",
       coverImage: UNSPLASH_PRESETS[0].url,
+      authorName: "Amélie Laurent",
+      authorRole: "Partner, Brand Architecture",
+      authorAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+      contributors: [],
       isPublished: true,
     });
     setShowModal(true);
@@ -125,6 +149,10 @@ export const AdminInsightsManager: React.FC = () => {
       category: item.category || "Strategy & Architecture",
       content: item.content || "",
       coverImage: item.coverImage || UNSPLASH_PRESETS[0].url,
+      authorName: item.authorName || "Amélie Laurent",
+      authorRole: item.authorRole || "Partner, Brand Architecture",
+      authorAvatar: item.authorAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+      contributors: item.contributors || [],
       isPublished: item.isPublished ?? true,
     });
     setShowModal(true);
@@ -451,21 +479,264 @@ export const AdminInsightsManager: React.FC = () => {
                     </button>
                   ))}
                 </div>
-                <input
-                  type="url"
-                  value={formData.coverImage}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, coverImage: e.target.value }))}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-4 py-2.5 rounded-xl bg-navy-900 border border-navy-800 text-warm-50 font-mono text-xs focus:outline-none focus:border-bronze-500"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    value={formData.coverImage}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, coverImage: e.target.value }))}
+                    placeholder="https://images.unsplash.com/..."
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-navy-900 border border-navy-800 text-warm-50 font-mono text-xs focus:outline-none focus:border-bronze-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPhotoTarget("cover");
+                      setShowPhotoModal(true);
+                    }}
+                    className="px-4 py-2 bg-navy-900 hover:bg-bronze-950 text-bronze-400 hover:text-bronze-300 rounded-xl border border-bronze-500/40 text-xs font-mono font-bold flex items-center gap-2 shadow transition-all flex-shrink-0"
+                  >
+                    <Zap className="w-3.5 h-3.5 text-amber-400" />
+                    <span>⚡ PIPELINE</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Lead Author / Editorial Director Section */}
+              <div className="bg-navy-900/60 p-5 rounded-2xl border border-navy-800 space-y-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-navy-800/80 pb-3 gap-2">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-bronze-400" />
+                    <span className="text-xs font-mono font-bold text-warm-100 uppercase tracking-wider">
+                      Lead Author / Editorial Director
+                    </span>
+                  </div>
+                  <select
+                    onChange={(e) => {
+                      const selected = adminProfiles.find((p) => p.email === e.target.value);
+                      if (selected) {
+                        setFormData((prev) => ({
+                          ...prev,
+                          authorName: selected.name,
+                          authorRole: selected.role,
+                          authorAvatar: selected.avatar,
+                        }));
+                      }
+                    }}
+                    defaultValue=""
+                    className="bg-navy-950 border border-navy-700 text-bronze-400 text-xs font-mono rounded-lg px-3 py-1.5 focus:outline-none focus:border-bronze-500 w-full sm:w-auto"
+                  >
+                    <option value="" disabled>⚡ Select from Admin Board...</option>
+                    {adminProfiles.map((p, idx) => (
+                      <option key={idx} value={p.email}>
+                        {p.name} ({p.email}) - {p.role}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-mono text-navy-400 uppercase mb-1">Author Name</label>
+                    <input
+                      type="text"
+                      value={formData.authorName}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, authorName: e.target.value }))}
+                      className="w-full px-3 py-2 rounded-lg bg-navy-950 border border-navy-800 text-warm-50 text-xs font-medium focus:outline-none focus:border-bronze-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-mono text-navy-400 uppercase mb-1">Author Role / Title</label>
+                    <input
+                      type="text"
+                      value={formData.authorRole}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, authorRole: e.target.value }))}
+                      className="w-full px-3 py-2 rounded-lg bg-navy-950 border border-navy-800 text-warm-50 text-xs font-medium focus:outline-none focus:border-bronze-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-mono text-navy-400 uppercase mb-1">Avatar Photo URL</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="url"
+                        value={formData.authorAvatar}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, authorAvatar: e.target.value }))}
+                        className="flex-1 px-3 py-2 rounded-lg bg-navy-950 border border-navy-800 text-warm-50 text-xs font-mono focus:outline-none focus:border-bronze-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPhotoTarget("author");
+                          setShowPhotoModal(true);
+                        }}
+                        className="px-3 py-2 bg-navy-950 hover:bg-bronze-950 text-bronze-400 rounded-lg border border-bronze-500/40 text-xs font-mono"
+                        title="Pick from Image Pipeline"
+                      >
+                        📷
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Co-Contributors & Research Board */}
+              <div className="bg-navy-900/60 p-5 rounded-2xl border border-navy-800 space-y-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-navy-800/80 pb-3 gap-2">
+                  <div className="flex items-center gap-2">
+                    <UserPlus className="w-4 h-4 text-bronze-400" />
+                    <span className="text-xs font-mono font-bold text-warm-100 uppercase tracking-wider">
+                      Co-Contributors &amp; Research Board ({formData.contributors.length})
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                    <select
+                      onChange={(e) => {
+                        const selected = adminProfiles.find((p) => p.email === e.target.value);
+                        if (selected) {
+                          setFormData((prev) => ({
+                            ...prev,
+                            contributors: [
+                              ...prev.contributors,
+                              { name: selected.name, role: selected.role, avatar: selected.avatar, email: selected.email }
+                            ]
+                          }));
+                        }
+                        e.target.value = "";
+                      }}
+                      defaultValue=""
+                      className="bg-navy-950 border border-emerald-600/60 text-emerald-400 text-xs font-mono font-bold rounded-lg px-3 py-1.5 focus:outline-none focus:border-emerald-500 flex-1 sm:flex-initial"
+                    >
+                      <option value="" disabled>+ Add Contributor from Admin Board...</option>
+                      {adminProfiles.map((p, idx) => (
+                        <option key={idx} value={p.email}>
+                          + {p.name} ({p.email})
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          contributors: [
+                            ...prev.contributors,
+                            { name: "New Contributor", role: "Researcher", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80", email: "" }
+                          ]
+                        }));
+                      }}
+                      className="px-3 py-1.5 bg-navy-950 hover:bg-navy-900 text-bronze-400 border border-navy-700 text-xs font-mono rounded-lg font-bold"
+                    >
+                      + Custom
+                    </button>
+                  </div>
+                </div>
+
+                {formData.contributors.length === 0 ? (
+                  <p className="text-xs text-navy-500 font-mono italic py-2">
+                    No co-contributors added. Select an admin from the dropdown above to credit co-authors.
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {formData.contributors.map((c, i) => (
+                      <div key={i} className="p-3.5 bg-navy-950 rounded-xl border border-navy-800/80 grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+                        <div className="sm:col-span-3">
+                          <label className="block text-[9px] font-mono text-navy-500 uppercase mb-0.5">Name</label>
+                          <input
+                            type="text"
+                            value={c.name}
+                            onChange={(e) => {
+                              const updated = [...formData.contributors];
+                              updated[i].name = e.target.value;
+                              setFormData((prev) => ({ ...prev, contributors: updated }));
+                            }}
+                            className="w-full px-2.5 py-1.5 rounded bg-navy-900 border border-navy-800 text-warm-100 text-xs font-medium focus:outline-none focus:border-bronze-500"
+                          />
+                        </div>
+                        <div className="sm:col-span-3">
+                          <label className="block text-[9px] font-mono text-navy-500 uppercase mb-0.5">Role / Discipline</label>
+                          <input
+                            type="text"
+                            value={c.role}
+                            onChange={(e) => {
+                              const updated = [...formData.contributors];
+                              updated[i].role = e.target.value;
+                              setFormData((prev) => ({ ...prev, contributors: updated }));
+                            }}
+                            className="w-full px-2.5 py-1.5 rounded bg-navy-900 border border-navy-800 text-warm-100 text-xs font-medium focus:outline-none focus:border-bronze-500"
+                          />
+                        </div>
+                        <div className="sm:col-span-4">
+                          <label className="block text-[9px] font-mono text-navy-500 uppercase mb-0.5">Avatar URL</label>
+                          <div className="flex gap-1.5">
+                            <input
+                              type="url"
+                              value={c.avatar}
+                              onChange={(e) => {
+                                const updated = [...formData.contributors];
+                                updated[i].avatar = e.target.value;
+                                setFormData((prev) => ({ ...prev, contributors: updated }));
+                              }}
+                              className="flex-1 px-2.5 py-1.5 rounded bg-navy-900 border border-navy-800 text-warm-100 text-xs font-mono focus:outline-none focus:border-bronze-500"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setPhotoTarget(`contributor-${i}`);
+                                setShowPhotoModal(true);
+                              }}
+                              className="px-2.5 py-1 bg-navy-900 hover:bg-bronze-950 text-bronze-400 rounded border border-bronze-500/40 text-xs font-mono"
+                              title="Pick from Image Pipeline"
+                            >
+                              📷
+                            </button>
+                          </div>
+                        </div>
+                        <div className="sm:col-span-2 flex items-end justify-end mt-2 sm:mt-0">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = formData.contributors.filter((_, idx) => idx !== i);
+                              setFormData((prev) => ({ ...prev, contributors: updated }));
+                            }}
+                            className="px-3 py-1.5 bg-red-950/80 hover:bg-red-900 text-red-300 text-xs font-mono rounded border border-red-800/80 w-full sm:w-auto flex items-center justify-center gap-1"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Remove</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* React Quill WYSIWYG Editor */}
               <div>
-                <label className="block text-xs font-mono font-bold text-navy-300 uppercase tracking-wider mb-2 flex items-center justify-between">
-                  <span>Editorial Body Content (Rich Text)</span>
-                  <span className="text-[10px] text-bronze-400 font-normal">Powered by React Quill</span>
-                </label>
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-2 bg-navy-900/80 p-3 rounded-xl border border-navy-800">
+                  <span className="text-xs font-mono font-bold text-navy-300 uppercase tracking-wider flex items-center gap-2">
+                    <span>Editorial Body Content (Rich Text)</span>
+                    <span className="text-[10px] text-bronze-400 font-normal">Powered by React Quill</span>
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPhotoTarget("content");
+                        setShowPhotoModal(true);
+                      }}
+                      className="px-3 py-1.5 bg-navy-950 hover:bg-bronze-950 text-bronze-300 font-mono text-xs font-bold rounded-lg border border-bronze-500/40 flex items-center gap-1.5 shadow transition-all"
+                    >
+                      <span>🖼️ Insert Image Pipeline Asset</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowVideoModal(true)}
+                      className="px-3 py-1.5 bg-navy-950 hover:bg-emerald-950 text-emerald-300 font-mono text-xs font-bold rounded-lg border border-emerald-500/40 flex items-center gap-1.5 shadow transition-all"
+                    >
+                      <Film className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>🎬 Insert Video Pipeline Asset</span>
+                    </button>
+                  </div>
+                </div>
                 <div className="rounded-xl overflow-hidden shadow-inner">
                   <ReactQuill
                     theme="snow"
@@ -496,6 +767,79 @@ export const AdminInsightsManager: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Photo Pipeline Modal Overlay */}
+      {showPhotoModal && (
+        <div className="fixed inset-0 z-[60] bg-navy-950/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 overflow-y-auto animate-in fade-in duration-200">
+          <div className="bg-[#0b111e] border-2 border-bronze-500/40 rounded-3xl p-6 sm:p-10 max-w-7xl w-full max-h-[92vh] overflow-y-auto shadow-2xl relative my-8">
+            <div className="flex items-center justify-between pb-6 mb-6 border-b border-navy-800">
+              <div>
+                <span className="text-xs font-mono uppercase tracking-widest text-bronze-400 font-black block mb-1">
+                  ⚡ MODAL INJECTION PIPELINE / ASSET SELECTION
+                </span>
+                <h2 className="text-2xl font-bold text-white tracking-tight">Select Cloud Image Asset</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowPhotoModal(false)}
+                className="px-5 py-2.5 rounded-xl bg-navy-900 hover:bg-red-950 text-warm-100 hover:text-red-300 border border-navy-700 hover:border-red-700 font-mono text-xs font-bold transition-all shadow-lg"
+              >
+                ✕ CLOSE PIPELINE
+              </button>
+            </div>
+            <AdminPhotoManager
+              isModal={true}
+              onSelectPhoto={(url) => {
+                if (photoTarget === "cover") {
+                  setFormData((prev) => ({ ...prev, coverImage: url }));
+                } else if (photoTarget === "author") {
+                  setFormData((prev) => ({ ...prev, authorAvatar: url }));
+                } else if (photoTarget?.startsWith("contributor-")) {
+                  const idx = parseInt(photoTarget.replace("contributor-", ""), 10);
+                  const updated = [...formData.contributors];
+                  if (updated[idx]) updated[idx].avatar = url;
+                  setFormData((prev) => ({ ...prev, contributors: updated }));
+                } else if (photoTarget === "content") {
+                  const imgTag = `<p><img src="${url}" alt="Editorial Asset" style="max-width: 100%; border-radius: 12px; margin: 24px 0; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);" /></p>`;
+                  setFormData((prev) => ({ ...prev, content: prev.content + imgTag }));
+                }
+                setShowPhotoModal(false);
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Video Pipeline Modal Overlay */}
+      {showVideoModal && (
+        <div className="fixed inset-0 z-[60] bg-navy-950/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 overflow-y-auto animate-in fade-in duration-200">
+          <div className="bg-[#0b111e] border-2 border-emerald-500/40 rounded-3xl p-6 sm:p-10 max-w-7xl w-full max-h-[92vh] overflow-y-auto shadow-2xl relative my-8">
+            <div className="flex items-center justify-between pb-6 mb-6 border-b border-navy-800">
+              <div>
+                <span className="text-xs font-mono uppercase tracking-widest text-emerald-400 font-black block mb-1">
+                  ⚡ MODAL INJECTION PIPELINE / VIDEO SELECTION
+                </span>
+                <h2 className="text-2xl font-bold text-white tracking-tight">Select Cloud Video Asset</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowVideoModal(false)}
+                className="px-5 py-2.5 rounded-xl bg-navy-900 hover:bg-red-950 text-warm-100 hover:text-red-300 border border-navy-700 hover:border-red-700 font-mono text-xs font-bold transition-all shadow-lg"
+              >
+                ✕ CLOSE PIPELINE
+              </button>
+            </div>
+            <AdminVideoManager
+              isModal={true}
+              onSelectVideo={(url) => {
+                const videoTag = `<p><video src="${url}" controls style="max-width: 100%; border-radius: 12px; margin: 24px 0; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);"></video></p>`;
+                setFormData((prev) => ({ ...prev, content: prev.content + videoTag }));
+                setShowVideoModal(false);
+              }}
+            />
           </div>
         </div>
       )}
