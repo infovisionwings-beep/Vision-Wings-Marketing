@@ -1,27 +1,11 @@
 "use client";
 
-// Reading this as: Executive editorial dispatch console for Thinking & Perspectives, featuring React Quill rich text editor and high-contrast publication modals.
-// DESIGN_VARIANCE: 8
-// MOTION_INTENSITY: 5
-// VISUAL_DENSITY: 6
-
 import React, { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
-import { Plus, Trash2, Edit3, FileText, Loader2, RefreshCw, Sparkles, BookOpen, Clock, ArrowUpRight, Image as ImageIcon, Film, Users, UserPlus, Zap } from "lucide-react";
-import "react-quill-new/dist/quill.snow.css";
-import { AdminPhotoManager } from "./AdminPhotoManager";
-import { AdminVideoManager } from "./AdminVideoManager";
-
-// Dynamically import ReactQuill to avoid SSR window errors in Next.js 16 / React 19
-const ReactQuill = dynamic(() => import("react-quill-new"), { 
-  ssr: false,
-  loading: () => (
-    <div className="h-64 w-full rounded-xl bg-navy-900/80 border border-navy-800 flex items-center justify-center text-navy-400 font-mono text-xs">
-      <Loader2 className="w-5 h-5 animate-spin mr-2 text-bronze-500" />
-      LOADING RICH TEXT EDITOR...
-    </div>
-  )
-});
+import { useRouter } from "next/navigation";
+import { 
+  Plus, Trash2, Edit3, FileText, Loader2, RefreshCw, 
+  Sparkles, BookOpen, Clock, ArrowUpRight, CheckCircle2, AlertCircle 
+} from "lucide-react";
 
 interface InsightItem {
   id: number;
@@ -39,54 +23,11 @@ interface InsightItem {
   createdAt?: string | Date | null;
 }
 
-const UNSPLASH_PRESETS = [
-  { label: "Architecture", url: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1600&q=80" },
-  { label: "Minimal Studio", url: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80" },
-  { label: "Design Craft", url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1200&q=80" },
-  { label: "Spatial Property", url: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80" },
-  { label: "Abstract Texture", url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80" },
-];
-
-const quillModules = {
-  toolbar: [
-    [{ header: [2, 3, false] }],
-    ["bold", "italic", "underline", "blockquote"],
-    [{ list: "ordered" }, { list: "bullet" }],
-    ["link", "code-block"],
-    ["clean"],
-  ],
-};
-
-const quillFormats = [
-  "header",
-  "bold", "italic", "underline", "blockquote",
-  "list",
-  "link", "code-block"
-];
-
 export const AdminInsightsManager: React.FC = () => {
+  const router = useRouter();
   const [insights, setInsights] = useState<InsightItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [adminProfiles, setAdminProfiles] = useState<{email: string; name: string; role: string; avatar: string}[]>([]);
-  const [showPhotoModal, setShowPhotoModal] = useState(false);
-  const [photoTarget, setPhotoTarget] = useState<string | null>(null);
-  const [showVideoModal, setShowVideoModal] = useState(false);
-  
-  const [formData, setFormData] = useState({
-    title: "",
-    slug: "",
-    category: "Strategy & Architecture",
-    content: "",
-    coverImage: UNSPLASH_PRESETS[0].url,
-    authorName: "Amélie Laurent",
-    authorRole: "Partner, Brand Architecture",
-    authorAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
-    contributors: [] as { name: string; role: string; avatar: string; email?: string }[],
-    isPublished: true,
-  });
+  const [filter, setFilter] = useState<"all" | "published" | "drafts">("all");
 
   const fetchInsightData = async () => {
     try {
@@ -107,742 +48,228 @@ export const AdminInsightsManager: React.FC = () => {
 
   useEffect(() => {
     fetchInsightData();
-    fetch("/api/admins")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) setAdminProfiles(data);
-      })
-      .catch((err) => console.error("Failed to load admin profiles:", err));
   }, []);
 
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const title = e.target.value;
-    const slug = title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)+/g, "");
-    setFormData((prev) => ({ ...prev, title, slug }));
-  };
-
-  const openNewModal = () => {
-    setEditingId(null);
-    setFormData({
-      title: "",
-      slug: "",
-      category: "Strategy & Architecture",
-      content: "<h3>1. Strategic Framework</h3><p>Start typing your comprehensive thought leadership perspective here...</p>",
-      coverImage: UNSPLASH_PRESETS[0].url,
-      authorName: "Amélie Laurent",
-      authorRole: "Partner, Brand Architecture",
-      authorAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
-      contributors: [],
-      isPublished: true,
-    });
-    setShowModal(true);
-  };
-
-  const openEditModal = (item: InsightItem) => {
-    setEditingId(item.id);
-    setFormData({
-      title: item.title || "",
-      slug: item.slug || "",
-      category: item.category || "Strategy & Architecture",
-      content: item.content || "",
-      coverImage: item.coverImage || UNSPLASH_PRESETS[0].url,
-      authorName: item.authorName || "Amélie Laurent",
-      authorRole: item.authorRole || "Partner, Brand Architecture",
-      authorAvatar: item.authorAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
-      contributors: item.contributors || [],
-      isPublished: item.isPublished ?? true,
-    });
-    setShowModal(true);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.title || !formData.content) return;
-
-    try {
-      setIsSubmitting(true);
-      if (editingId) {
-        const res = await fetch(`/api/insights/${editingId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        });
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.error || "Failed to update essay");
-        }
-      } else {
-        const res = await fetch("/api/insights", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        });
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.error || "Failed to create essay");
-        }
-      }
-      setShowModal(false);
-      setEditingId(null);
-      fetchInsightData();
-    } catch (err: any) {
-      console.error("Failed to save essay:", err);
-      alert("Error saving essay: " + (err.message || "Unknown error"));
-    } finally {
-      setIsSubmitting(false);
+  const handleDelete = async (id: number, title: string) => {
+    if (!window.confirm(`Are you certain you wish to delete "${title}"? This action cannot be reversed.`)) {
+      return;
     }
-  };
-
-  const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to retract and delete this published essay?")) return;
     try {
       const res = await fetch(`/api/insights/${id}`, { method: "DELETE" });
       if (res.ok) {
         setInsights((prev) => prev.filter((item) => item.id !== id));
       } else {
-        const errData = await res.json().catch(() => ({}));
-        alert("Failed to delete essay: " + (errData.error || res.statusText));
+        alert("Failed to delete dispatch.");
       }
     } catch (err) {
-      console.error("Failed to delete essay:", err);
+      console.error("Delete error:", err);
+      alert("An error occurred during deletion.");
     }
   };
 
-  return (
-    <div className="space-y-12">
-      
-      {/* Custom Quill Dark Mode Styling Overrides */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        .ql-toolbar.ql-snow {
-          border-top-left-radius: 0.75rem;
-          border-top-right-radius: 0.75rem;
-          border-color: #334155;
-          background-color: #1E293B;
-        }
-        .ql-toolbar.ql-snow .ql-stroke {
-          stroke: #CBD5E1;
-        }
-        .ql-toolbar.ql-snow .ql-fill {
-          fill: #CBD5E1;
-        }
-        .ql-toolbar.ql-snow .ql-picker-label {
-          color: #CBD5E1;
-        }
-        .ql-container.ql-snow {
-          border-bottom-left-radius: 0.75rem;
-          border-bottom-right-radius: 0.75rem;
-          border-color: #334155;
-          background-color: #0F172A;
-          color: #F8FAFC;
-          font-family: inherit;
-          font-size: 0.95rem;
-          min-height: 220px;
-        }
-        .ql-editor {
-          min-height: 220px;
-          line-height: 1.7;
-        }
-        .ql-editor h2, .ql-editor h3 {
-          font-weight: 800;
-          color: #F8FAFC;
-          margin-top: 1rem;
-          margin-bottom: 0.5rem;
-        }
-        .ql-editor blockquote {
-          border-left: 3px solid #B87333;
-          padding-left: 1rem;
-          color: #CBD5E1;
-          font-style: italic;
-        }
-      `}} />
+  const filteredInsights = insights.filter((item) => {
+    if (filter === "published") return item.isPublished;
+    if (filter === "drafts") return !item.isPublished;
+    return true;
+  });
 
-      {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-navy-200/80 pb-6">
+  const publishedCount = insights.filter((i) => i.isPublished).length;
+  const draftCount = insights.filter((i) => !i.isPublished).length;
+
+  return (
+    <div className="space-y-8 text-navy-950 pb-20">
+      
+      {/* Header & Main Action */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 sm:p-8 rounded-3xl border border-navy-200 shadow-sm">
         <div>
-          <span className="text-xs font-mono font-semibold uppercase tracking-wider text-bronze-600 block mb-1">
-            THINKING &amp; PERSPECTIVES / CONSOLE
+          <span className="text-xs font-mono font-bold uppercase tracking-widest text-bronze-600 block mb-1">
+            EDITORIAL CONSOLE / LIGHT SCHEME
           </span>
-          <h1 className="text-display sm:text-h2 font-bold text-navy-950 tracking-tight">
-            Essays &amp; Monograph Dispatch
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-navy-950 tracking-tight font-display">
+            Thinking &amp; Perspectives Archive
           </h1>
-          <p className="text-navy-600 text-sm mt-1 max-w-xl leading-relaxed">
-            Publish high-contrast thought leadership with full rich-text formatting. Articles automatically synchronize with the Asymmetric Bento Grid and editorial reading pages.
+          <p className="text-navy-600 text-sm mt-1 max-w-2xl leading-relaxed">
+            Manage your agency&apos;s strategic essays, thought leadership, and cultural telemetry. Create new dispatches on standalone editing pages with popup media modals.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+
+        <div className="flex items-center gap-3 w-full sm:w-auto">
           <button
             onClick={fetchInsightData}
-            className="flex items-center gap-2 text-xs font-mono font-bold text-navy-900 hover:text-bronze-600 active:scale-[0.98] transition-all bg-warm-200/80 hover:bg-warm-200 px-4 py-2.5 rounded-xl border border-navy-300/40 shadow-sm"
-            data-interactive
+            title="Refresh database archive"
+            className="p-3 rounded-2xl bg-warm-50 text-navy-700 hover:text-navy-950 hover:bg-warm-100 border border-navy-200 transition-all shadow-sm active:scale-95 flex-shrink-0"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>SYNC ARCHIVE</span>
+            <RefreshCw className={`w-5 h-5 ${isLoading ? "animate-spin text-bronze-600" : ""}`} />
           </button>
+          
           <button
-            onClick={openNewModal}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-navy-950 text-warm-50 text-xs font-mono font-bold hover:bg-navy-900 active:scale-[0.98] transition-all shadow-lg"
-            data-interactive
+            onClick={() => router.push("/admin/insights/new")}
+            className="w-full sm:w-auto px-6 py-3.5 bg-navy-950 hover:bg-navy-900 text-white font-mono text-xs font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2.5 active:scale-[0.98]"
           >
             <Plus className="w-4 h-4 text-bronze-400" />
-            <span>NEW ESSAY DISPATCH</span>
+            <span>+ NEW DISPATCH DOSSIER (PAGE)</span>
           </button>
         </div>
       </div>
 
-      {/* Editorial Archive List */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-h3 font-bold text-navy-950">Published Perspectives ({insights.length})</h3>
-          <span className="text-xs font-mono text-navy-500">PUBLIC ROUTE: `/insights/[slug]`</span>
+      {/* Telemetry Bar & Filter Tabs */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white p-5 rounded-2xl border border-navy-200 shadow-sm flex items-center justify-between">
+          <div>
+            <span className="text-[11px] font-mono font-bold uppercase text-navy-500 block">Total Dispatches</span>
+            <span className="text-2xl font-bold font-display text-navy-950">{insights.length}</span>
+          </div>
+          <BookOpen className="w-8 h-8 text-bronze-500/20" />
+        </div>
+
+        <div className="bg-white p-5 rounded-2xl border border-navy-200 shadow-sm flex items-center justify-between">
+          <div>
+            <span className="text-[11px] font-mono font-bold uppercase text-navy-500 block">Publicly Exhibitioned</span>
+            <span className="text-2xl font-bold font-display text-emerald-700">{publishedCount}</span>
+          </div>
+          <CheckCircle2 className="w-8 h-8 text-emerald-500/20" />
+        </div>
+
+        <div className="bg-white p-5 rounded-2xl border border-navy-200 shadow-sm flex items-center justify-between">
+          <div>
+            <span className="text-[11px] font-mono font-bold uppercase text-navy-500 block">Internal Drafts</span>
+            <span className="text-2xl font-bold font-display text-amber-700">{draftCount}</span>
+          </div>
+          <Clock className="w-8 h-8 text-amber-500/20" />
+        </div>
+
+        <div className="bg-white p-2 rounded-2xl border border-navy-200 shadow-sm flex items-center justify-around gap-1 font-mono text-xs font-bold">
+          <button
+            onClick={() => setFilter("all")}
+            className={`flex-1 py-3 rounded-xl transition-all ${
+              filter === "all" ? "bg-navy-950 text-white shadow" : "text-navy-600 hover:bg-warm-50"
+            }`}
+          >
+            ALL
+          </button>
+          <button
+            onClick={() => setFilter("published")}
+            className={`flex-1 py-3 rounded-xl transition-all ${
+              filter === "published" ? "bg-navy-950 text-white shadow" : "text-navy-600 hover:bg-warm-50"
+            }`}
+          >
+            LIVE
+          </button>
+          <button
+            onClick={() => setFilter("drafts")}
+            className={`flex-1 py-3 rounded-xl transition-all ${
+              filter === "drafts" ? "bg-navy-950 text-white shadow" : "text-navy-600 hover:bg-warm-50"
+            }`}
+          >
+            DRAFTS
+          </button>
+        </div>
+      </div>
+
+      {/* Archive List Grid */}
+      <div className="bg-white rounded-3xl border border-navy-200 shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-navy-200 bg-warm-50/50 flex items-center justify-between text-xs font-mono font-bold text-navy-600 uppercase tracking-wider">
+          <span>Dossier Archive List</span>
+          <span>Showing {filteredInsights.length} of {insights.length}</span>
         </div>
 
         {isLoading ? (
-          <div className="py-20 flex flex-col items-center justify-center text-navy-500 gap-3">
+          <div className="py-24 flex flex-col items-center justify-center text-navy-500 gap-3">
             <Loader2 className="w-8 h-8 animate-spin text-bronze-600" />
-            <span className="text-xs font-mono">LOADING PERSPECTIVES ARCHIVE FROM DATABASE...</span>
+            <span className="text-xs font-mono font-bold">SYNCHRONIZING EDITORIAL ARCHIVE...</span>
           </div>
-        ) : insights.length === 0 ? (
-          <div className="bg-warm-50 p-12 rounded-2xl text-center border border-navy-200/80 text-navy-500 font-mono text-xs space-y-3">
-            <p>No editorial essays published yet.</p>
-            <button onClick={openNewModal} className="px-4 py-2 bg-navy-950 text-warm-50 rounded-lg text-xs font-bold font-mono">
-              PUBLISH YOUR FIRST ESSAY
-            </button>
+        ) : filteredInsights.length === 0 ? (
+          <div className="py-20 text-center text-navy-400 font-mono text-xs p-6">
+            No dispatches matching the selected filter criteria. Click &ldquo;+ NEW DISPATCH DOSSIER&rdquo; above to create one on a standalone page.
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {insights.map((item, idx) => {
-              const textOnly = item.content?.replace(/<[^>]*>?/gm, "") || "";
-              const wordCount = textOnly.split(/\s+/).length || 100;
-              const readTime = Math.max(1, Math.ceil(wordCount / 200));
+          <div className="divide-y divide-navy-100">
+            {filteredInsights.map((item) => (
+              <div
+                key={item.id}
+                className="p-6 hover:bg-warm-50/60 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 group"
+              >
+                {/* Left Info & Thumb */}
+                <div className="flex items-start gap-4 flex-1 min-w-0">
+                  <div className="w-20 h-16 rounded-xl overflow-hidden bg-navy-100 border border-navy-200 flex-shrink-0 relative">
+                    {item.coverImage ? (
+                      <img src={item.coverImage} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-navy-400 font-mono text-[10px]">NO IMG</div>
+                    )}
+                  </div>
 
-              return (
-                <div
-                  key={item.id}
-                  className="bg-warm-50 p-8 rounded-3xl border border-navy-200/80 shadow-md hover:shadow-xl transition-all flex flex-col justify-between space-y-6 group relative overflow-hidden"
-                >
-                  <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-navy-950 via-bronze-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="px-3 py-1 rounded-full bg-navy-950 text-warm-50 font-mono text-[11px] font-semibold tracking-wider uppercase">
-                          {item.category}
+                  <div className="space-y-1 min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="px-2.5 py-0.5 rounded bg-bronze-50 border border-bronze-200 text-bronze-700 font-mono text-[10px] font-bold uppercase tracking-wider">
+                        {item.category}
+                      </span>
+                      {item.isPublished ? (
+                        <span className="px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-700 font-mono text-[10px] font-bold uppercase">
+                          ● PUBLIC
                         </span>
-                        <span className="text-[11px] font-mono text-navy-500 flex items-center gap-1 bg-warm-200/60 px-2.5 py-0.5 rounded">
-                          <Clock className="w-3 h-3 text-bronze-700" /> {readTime} MIN READ
+                      ) : (
+                        <span className="px-2 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-700 font-mono text-[10px] font-bold uppercase">
+                          ○ DRAFT
                         </span>
-                      </div>
-                      <span className="text-xs font-mono text-navy-400 font-medium">
-                        DISPATCH 0{idx + 1}
+                      )}
+                      <span className="text-xs font-mono text-navy-400">
+                        {item.publishedAt ? new Date(item.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Recent"}
                       </span>
                     </div>
 
-                    {item.coverImage && (
-                      <div className="w-full h-40 rounded-2xl overflow-hidden bg-navy-900 border border-navy-200/60">
-                        <img src={item.coverImage} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      </div>
-                    )}
+                    <h3 className="text-lg font-bold text-navy-950 font-display truncate group-hover:text-bronze-600 transition-colors">
+                      {item.title}
+                    </h3>
 
-                    <div>
-                      <h3 className="text-xl font-bold font-display text-navy-950 group-hover:text-bronze-700 transition-colors leading-snug mb-2">
-                        {item.title}
-                      </h3>
-                      <p className="text-sm text-navy-600 line-clamp-3 leading-relaxed font-sans">
-                        {textOnly || "No text content available."}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 border-t border-navy-200/80 flex items-center justify-between text-xs">
-                    <a 
-                      href={`/insights/${item.slug}`} 
-                      target="_blank" 
-                      rel="noreferrer"
-                      className="font-mono text-bronze-600 hover:underline flex items-center gap-1"
-                    >
-                      <span>VIEW LIVE</span>
-                      <ArrowUpRight className="w-3.5 h-3.5" />
-                    </a>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => openEditModal(item)}
-                        className="p-2 text-navy-600 hover:text-bronze-600 hover:bg-warm-200 rounded-xl transition-all active:scale-95 flex items-center gap-1 font-mono text-xs font-bold"
-                        title="Edit essay with React Quill"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                        <span>EDIT</span>
-                      </button>
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        className="p-2 text-navy-400 hover:text-red-700 hover:bg-red-100/80 rounded-xl transition-all active:scale-95"
-                        title="Retract and delete essay"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                    <div className="flex items-center gap-2 text-xs font-mono text-navy-500">
+                      <img 
+                        src={item.authorAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"} 
+                        alt="Author" 
+                        className="w-4 h-4 rounded-full object-cover"
+                      />
+                      <span>By {item.authorName || "Editorial Board"}</span>
+                      {item.contributors && item.contributors.length > 0 && (
+                        <span className="text-bronze-600">+{item.contributors.length} co-contributors</span>
+                      )}
                     </div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
 
-      {/* React Quill Publication Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 bg-navy-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-navy-950 text-warm-50 rounded-3xl max-w-3xl w-full p-8 sm:p-10 shadow-2xl border border-navy-800 space-y-6 relative overflow-hidden my-8">
-            
-            <div className="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-bronze-500/15 blur-3xl pointer-events-none" />
-
-            <div className="flex items-center justify-between border-b border-navy-800 pb-4 relative z-10">
-              <div>
-                <span className="text-[11px] font-mono uppercase tracking-widest text-bronze-400 block mb-1">
-                  {editingId ? "EDITING DISPATCH DOSSIER" : "NEW DISPATCH DOSSIER"}
-                </span>
-                <h3 className="text-2xl font-bold font-display text-warm-50">
-                  {editingId ? "Update Perspective" : "Publish Thought Leadership"}
-                </h3>
-              </div>
-              <div className="w-10 h-10 rounded-xl bg-navy-900 border border-navy-800 flex items-center justify-center text-bronze-400">
-                <BookOpen className="w-5 h-5" />
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
-              <div>
-                <label className="block text-xs font-mono font-bold text-navy-300 uppercase tracking-wider mb-2">
-                  Essay Title
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.title}
-                  onChange={handleTitleChange}
-                  placeholder="e.g. The Architecture of Anti-Slop Digital Experiences"
-                  className="w-full px-4 py-3 rounded-xl bg-navy-900 border border-navy-800 text-warm-50 focus:outline-none focus:border-bronze-500 text-base font-medium transition-colors placeholder:text-navy-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-mono font-bold text-navy-300 uppercase tracking-wider mb-2">
-                    Discipline Category
-                  </label>
-                  <select
-                    value={formData.category}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
-                    className="w-full px-4 py-3 rounded-xl bg-navy-900 border border-navy-800 text-warm-50 focus:outline-none focus:border-bronze-500 text-sm font-medium transition-colors"
+                {/* Right Actions */}
+                <div className="flex items-center gap-2 self-end md:self-center flex-shrink-0">
+                  <a
+                    href={`/insights/${item.slug}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    title="View live essay on public site"
+                    className="p-2.5 rounded-xl bg-warm-100 hover:bg-warm-200 text-navy-700 transition-colors border border-navy-200 flex items-center gap-1.5 font-mono text-xs font-bold"
                   >
-                    <option value="Strategy & Architecture">Strategy &amp; Architecture</option>
-                    <option value="Monograph & Dispatch">Monograph &amp; Dispatch</option>
-                    <option value="Design Craft">Design Craft</option>
-                    <option value="Property Marketing">Property Marketing</option>
-                    <option value="Growth Engineering">Growth Engineering</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-mono font-bold text-navy-300 uppercase tracking-wider mb-2">
-                    Routing Slug (URL)
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.slug}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, slug: e.target.value }))}
-                    className="w-full px-4 py-3 rounded-xl bg-navy-900 border border-navy-800 text-bronze-400 font-mono text-xs focus:outline-none focus:border-bronze-500"
-                  />
-                </div>
-              </div>
+                    <span>VIEW LIVE</span>
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </a>
 
-              {/* Cover Image Selector */}
-              <div>
-                <label className="block text-xs font-mono font-bold text-navy-300 uppercase tracking-wider mb-2 flex items-center justify-between">
-                  <span>Cover Image URL</span>
-                  <span className="text-[10px] text-navy-400 font-normal">Pick preset or paste URL</span>
-                </label>
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {UNSPLASH_PRESETS.map((preset, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => setFormData((prev) => ({ ...prev, coverImage: preset.url }))}
-                      className={`px-3 py-1 rounded-lg text-xs font-mono font-semibold border transition-all ${
-                        formData.coverImage === preset.url
-                          ? "bg-bronze-600 border-bronze-500 text-warm-50"
-                          : "bg-navy-900 border-navy-800 text-navy-300 hover:border-navy-700"
-                      }`}
-                    >
-                      {preset.label}
-                    </button>
-                  ))}
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="url"
-                    value={formData.coverImage}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, coverImage: e.target.value }))}
-                    placeholder="https://images.unsplash.com/..."
-                    className="flex-1 px-4 py-2.5 rounded-xl bg-navy-900 border border-navy-800 text-warm-50 font-mono text-xs focus:outline-none focus:border-bronze-500"
-                  />
                   <button
-                    type="button"
-                    onClick={() => {
-                      setPhotoTarget("cover");
-                      setShowPhotoModal(true);
-                    }}
-                    className="px-4 py-2 bg-navy-900 hover:bg-bronze-950 text-bronze-400 hover:text-bronze-300 rounded-xl border border-bronze-500/40 text-xs font-mono font-bold flex items-center gap-2 shadow transition-all flex-shrink-0"
+                    onClick={() => router.push(`/admin/insights/${item.id}/edit`)}
+                    className="px-4 py-2.5 rounded-xl bg-navy-950 hover:bg-navy-900 text-white font-mono text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95"
                   >
-                    <Zap className="w-3.5 h-3.5 text-amber-400" />
-                    <span>⚡ PIPELINE</span>
+                    <Edit3 className="w-3.5 h-3.5 text-bronze-400" />
+                    <span>EDIT PAGE</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleDelete(item.id, item.title)}
+                    title="Delete dispatch"
+                    className="p-2.5 rounded-xl bg-red-50 hover:bg-red-500 text-red-600 hover:text-white border border-red-200 hover:border-red-500 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
-
-              {/* Lead Author / Editorial Director Section */}
-              <div className="bg-navy-900/60 p-5 rounded-2xl border border-navy-800 space-y-4">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-navy-800/80 pb-3 gap-2">
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-bronze-400" />
-                    <span className="text-xs font-mono font-bold text-warm-100 uppercase tracking-wider">
-                      Lead Author / Editorial Director
-                    </span>
-                  </div>
-                  <select
-                    onChange={(e) => {
-                      const selected = adminProfiles.find((p) => p.email === e.target.value);
-                      if (selected) {
-                        setFormData((prev) => ({
-                          ...prev,
-                          authorName: selected.name,
-                          authorRole: selected.role,
-                          authorAvatar: selected.avatar,
-                        }));
-                      }
-                    }}
-                    defaultValue=""
-                    className="bg-navy-950 border border-navy-700 text-bronze-400 text-xs font-mono rounded-lg px-3 py-1.5 focus:outline-none focus:border-bronze-500 w-full sm:w-auto"
-                  >
-                    <option value="" disabled>⚡ Select from Admin Board...</option>
-                    {adminProfiles.map((p, idx) => (
-                      <option key={idx} value={p.email}>
-                        {p.name} ({p.email}) - {p.role}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-[10px] font-mono text-navy-400 uppercase mb-1">Author Name</label>
-                    <input
-                      type="text"
-                      value={formData.authorName}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, authorName: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-lg bg-navy-950 border border-navy-800 text-warm-50 text-xs font-medium focus:outline-none focus:border-bronze-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-mono text-navy-400 uppercase mb-1">Author Role / Title</label>
-                    <input
-                      type="text"
-                      value={formData.authorRole}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, authorRole: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-lg bg-navy-950 border border-navy-800 text-warm-50 text-xs font-medium focus:outline-none focus:border-bronze-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-mono text-navy-400 uppercase mb-1">Avatar Photo URL</label>
-                    <div className="flex gap-2">
-                      <input
-                        type="url"
-                        value={formData.authorAvatar}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, authorAvatar: e.target.value }))}
-                        className="flex-1 px-3 py-2 rounded-lg bg-navy-950 border border-navy-800 text-warm-50 text-xs font-mono focus:outline-none focus:border-bronze-500"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setPhotoTarget("author");
-                          setShowPhotoModal(true);
-                        }}
-                        className="px-3 py-2 bg-navy-950 hover:bg-bronze-950 text-bronze-400 rounded-lg border border-bronze-500/40 text-xs font-mono"
-                        title="Pick from Image Pipeline"
-                      >
-                        📷
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Co-Contributors & Research Board */}
-              <div className="bg-navy-900/60 p-5 rounded-2xl border border-navy-800 space-y-4">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-navy-800/80 pb-3 gap-2">
-                  <div className="flex items-center gap-2">
-                    <UserPlus className="w-4 h-4 text-bronze-400" />
-                    <span className="text-xs font-mono font-bold text-warm-100 uppercase tracking-wider">
-                      Co-Contributors &amp; Research Board ({formData.contributors.length})
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                    <select
-                      onChange={(e) => {
-                        const selected = adminProfiles.find((p) => p.email === e.target.value);
-                        if (selected) {
-                          setFormData((prev) => ({
-                            ...prev,
-                            contributors: [
-                              ...prev.contributors,
-                              { name: selected.name, role: selected.role, avatar: selected.avatar, email: selected.email }
-                            ]
-                          }));
-                        }
-                        e.target.value = "";
-                      }}
-                      defaultValue=""
-                      className="bg-navy-950 border border-emerald-600/60 text-emerald-400 text-xs font-mono font-bold rounded-lg px-3 py-1.5 focus:outline-none focus:border-emerald-500 flex-1 sm:flex-initial"
-                    >
-                      <option value="" disabled>+ Add Contributor from Admin Board...</option>
-                      {adminProfiles.map((p, idx) => (
-                        <option key={idx} value={p.email}>
-                          + {p.name} ({p.email})
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          contributors: [
-                            ...prev.contributors,
-                            { name: "New Contributor", role: "Researcher", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80", email: "" }
-                          ]
-                        }));
-                      }}
-                      className="px-3 py-1.5 bg-navy-950 hover:bg-navy-900 text-bronze-400 border border-navy-700 text-xs font-mono rounded-lg font-bold"
-                    >
-                      + Custom
-                    </button>
-                  </div>
-                </div>
-
-                {formData.contributors.length === 0 ? (
-                  <p className="text-xs text-navy-500 font-mono italic py-2">
-                    No co-contributors added. Select an admin from the dropdown above to credit co-authors.
-                  </p>
-                ) : (
-                  <div className="space-y-3">
-                    {formData.contributors.map((c, i) => (
-                      <div key={i} className="p-3.5 bg-navy-950 rounded-xl border border-navy-800/80 grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
-                        <div className="sm:col-span-3">
-                          <label className="block text-[9px] font-mono text-navy-500 uppercase mb-0.5">Name</label>
-                          <input
-                            type="text"
-                            value={c.name}
-                            onChange={(e) => {
-                              const updated = [...formData.contributors];
-                              updated[i].name = e.target.value;
-                              setFormData((prev) => ({ ...prev, contributors: updated }));
-                            }}
-                            className="w-full px-2.5 py-1.5 rounded bg-navy-900 border border-navy-800 text-warm-100 text-xs font-medium focus:outline-none focus:border-bronze-500"
-                          />
-                        </div>
-                        <div className="sm:col-span-3">
-                          <label className="block text-[9px] font-mono text-navy-500 uppercase mb-0.5">Role / Discipline</label>
-                          <input
-                            type="text"
-                            value={c.role}
-                            onChange={(e) => {
-                              const updated = [...formData.contributors];
-                              updated[i].role = e.target.value;
-                              setFormData((prev) => ({ ...prev, contributors: updated }));
-                            }}
-                            className="w-full px-2.5 py-1.5 rounded bg-navy-900 border border-navy-800 text-warm-100 text-xs font-medium focus:outline-none focus:border-bronze-500"
-                          />
-                        </div>
-                        <div className="sm:col-span-4">
-                          <label className="block text-[9px] font-mono text-navy-500 uppercase mb-0.5">Avatar URL</label>
-                          <div className="flex gap-1.5">
-                            <input
-                              type="url"
-                              value={c.avatar}
-                              onChange={(e) => {
-                                const updated = [...formData.contributors];
-                                updated[i].avatar = e.target.value;
-                                setFormData((prev) => ({ ...prev, contributors: updated }));
-                              }}
-                              className="flex-1 px-2.5 py-1.5 rounded bg-navy-900 border border-navy-800 text-warm-100 text-xs font-mono focus:outline-none focus:border-bronze-500"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setPhotoTarget(`contributor-${i}`);
-                                setShowPhotoModal(true);
-                              }}
-                              className="px-2.5 py-1 bg-navy-900 hover:bg-bronze-950 text-bronze-400 rounded border border-bronze-500/40 text-xs font-mono"
-                              title="Pick from Image Pipeline"
-                            >
-                              📷
-                            </button>
-                          </div>
-                        </div>
-                        <div className="sm:col-span-2 flex items-end justify-end mt-2 sm:mt-0">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const updated = formData.contributors.filter((_, idx) => idx !== i);
-                              setFormData((prev) => ({ ...prev, contributors: updated }));
-                            }}
-                            className="px-3 py-1.5 bg-red-950/80 hover:bg-red-900 text-red-300 text-xs font-mono rounded border border-red-800/80 w-full sm:w-auto flex items-center justify-center gap-1"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                            <span>Remove</span>
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* React Quill WYSIWYG Editor */}
-              <div>
-                <div className="flex flex-wrap items-center justify-between gap-2 mb-2 bg-navy-900/80 p-3 rounded-xl border border-navy-800">
-                  <span className="text-xs font-mono font-bold text-navy-300 uppercase tracking-wider flex items-center gap-2">
-                    <span>Editorial Body Content (Rich Text)</span>
-                    <span className="text-[10px] text-bronze-400 font-normal">Powered by React Quill</span>
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPhotoTarget("content");
-                        setShowPhotoModal(true);
-                      }}
-                      className="px-3 py-1.5 bg-navy-950 hover:bg-bronze-950 text-bronze-300 font-mono text-xs font-bold rounded-lg border border-bronze-500/40 flex items-center gap-1.5 shadow transition-all"
-                    >
-                      <span>🖼️ Insert Image Pipeline Asset</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setShowVideoModal(true)}
-                      className="px-3 py-1.5 bg-navy-950 hover:bg-emerald-950 text-emerald-300 font-mono text-xs font-bold rounded-lg border border-emerald-500/40 flex items-center gap-1.5 shadow transition-all"
-                    >
-                      <Film className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>🎬 Insert Video Pipeline Asset</span>
-                    </button>
-                  </div>
-                </div>
-                <div className="rounded-xl overflow-hidden shadow-inner">
-                  <ReactQuill
-                    theme="snow"
-                    value={formData.content}
-                    onChange={(content) => setFormData((prev) => ({ ...prev, content }))}
-                    modules={quillModules}
-                    formats={quillFormats}
-                    placeholder="Write your comprehensive thought leadership perspective here..."
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-6 border-t border-navy-800">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-5 py-3 rounded-xl border border-navy-800 text-xs font-mono font-bold text-navy-300 hover:bg-navy-900 hover:text-warm-50 transition-all active:scale-[0.98]"
-                >
-                  CANCEL
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="px-8 py-3 rounded-xl bg-gradient-to-r from-bronze-600 to-bronze-500 text-warm-50 text-xs font-mono font-bold hover:from-bronze-500 hover:to-bronze-400 transition-all flex items-center gap-2 shadow-lg active:scale-[0.98]"
-                >
-                  {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                  <span>{isSubmitting ? "SAVING TO WIRE..." : editingId ? "UPDATE PERSPECTIVE" : "PUBLISH TO WIRE"}</span>
-                </button>
-              </div>
-            </form>
+            ))}
           </div>
-        </div>
-      )}
-
-      {/* Photo Pipeline Modal Overlay */}
-      {showPhotoModal && (
-        <div className="fixed inset-0 z-[60] bg-navy-950/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 overflow-y-auto animate-in fade-in duration-200">
-          <div className="bg-[#0b111e] border-2 border-bronze-500/40 rounded-3xl p-6 sm:p-10 max-w-7xl w-full max-h-[92vh] overflow-y-auto shadow-2xl relative my-8">
-            <div className="flex items-center justify-between pb-6 mb-6 border-b border-navy-800">
-              <div>
-                <span className="text-xs font-mono uppercase tracking-widest text-bronze-400 font-black block mb-1">
-                  ⚡ MODAL INJECTION PIPELINE / ASSET SELECTION
-                </span>
-                <h2 className="text-2xl font-bold text-white tracking-tight">Select Cloud Image Asset</h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowPhotoModal(false)}
-                className="px-5 py-2.5 rounded-xl bg-navy-900 hover:bg-red-950 text-warm-100 hover:text-red-300 border border-navy-700 hover:border-red-700 font-mono text-xs font-bold transition-all shadow-lg"
-              >
-                ✕ CLOSE PIPELINE
-              </button>
-            </div>
-            <AdminPhotoManager
-              isModal={true}
-              onSelectPhoto={(url) => {
-                if (photoTarget === "cover") {
-                  setFormData((prev) => ({ ...prev, coverImage: url }));
-                } else if (photoTarget === "author") {
-                  setFormData((prev) => ({ ...prev, authorAvatar: url }));
-                } else if (photoTarget?.startsWith("contributor-")) {
-                  const idx = parseInt(photoTarget.replace("contributor-", ""), 10);
-                  const updated = [...formData.contributors];
-                  if (updated[idx]) updated[idx].avatar = url;
-                  setFormData((prev) => ({ ...prev, contributors: updated }));
-                } else if (photoTarget === "content") {
-                  const imgTag = `<p><img src="${url}" alt="Editorial Asset" style="max-width: 100%; border-radius: 12px; margin: 24px 0; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);" /></p>`;
-                  setFormData((prev) => ({ ...prev, content: prev.content + imgTag }));
-                }
-                setShowPhotoModal(false);
-              }}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Video Pipeline Modal Overlay */}
-      {showVideoModal && (
-        <div className="fixed inset-0 z-[60] bg-navy-950/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 overflow-y-auto animate-in fade-in duration-200">
-          <div className="bg-[#0b111e] border-2 border-emerald-500/40 rounded-3xl p-6 sm:p-10 max-w-7xl w-full max-h-[92vh] overflow-y-auto shadow-2xl relative my-8">
-            <div className="flex items-center justify-between pb-6 mb-6 border-b border-navy-800">
-              <div>
-                <span className="text-xs font-mono uppercase tracking-widest text-emerald-400 font-black block mb-1">
-                  ⚡ MODAL INJECTION PIPELINE / VIDEO SELECTION
-                </span>
-                <h2 className="text-2xl font-bold text-white tracking-tight">Select Cloud Video Asset</h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowVideoModal(false)}
-                className="px-5 py-2.5 rounded-xl bg-navy-900 hover:bg-red-950 text-warm-100 hover:text-red-300 border border-navy-700 hover:border-red-700 font-mono text-xs font-bold transition-all shadow-lg"
-              >
-                ✕ CLOSE PIPELINE
-              </button>
-            </div>
-            <AdminVideoManager
-              isModal={true}
-              onSelectVideo={(url) => {
-                const videoTag = `<p><video src="${url}" controls style="max-width: 100%; border-radius: 12px; margin: 24px 0; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);"></video></p>`;
-                setFormData((prev) => ({ ...prev, content: prev.content + videoTag }));
-                setShowVideoModal(false);
-              }}
-            />
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

@@ -263,23 +263,23 @@ export default function ProjectForm({ project }: { project?: any }) {
           </button>
         </div>
       </form>
-      {/* Photo Pipeline Modal Overlay */}
+      {/* 🖼️ PHOTO PIPELINE POPUP MODAL OVERLAY (LIGHT COLOR SCHEME WRAPPER) */}
       {showPhotoModal && (
-        <div className="fixed inset-0 z-[60] bg-navy-950/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 overflow-y-auto animate-in fade-in duration-200">
-          <div className="bg-[#0b111e] border-2 border-bronze-500/40 rounded-3xl p-6 sm:p-10 max-w-7xl w-full max-h-[92vh] overflow-y-auto shadow-2xl relative my-8 text-warm-50">
-            <div className="flex items-center justify-between pb-6 mb-6 border-b border-navy-800">
+        <div className="fixed inset-0 z-[70] bg-navy-950/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8 overflow-y-auto animate-in fade-in duration-200">
+          <div className="bg-white border-2 border-navy-300 rounded-3xl p-6 sm:p-10 max-w-7xl w-full max-h-[92vh] overflow-y-auto shadow-2xl relative my-8 text-navy-950">
+            <div className="flex items-center justify-between pb-6 mb-6 border-b border-navy-200">
               <div>
-                <span className="text-xs font-mono uppercase tracking-widest text-bronze-400 font-black block mb-1">
-                  ⚡ MODAL INJECTION PIPELINE / ASSET SELECTION
+                <span className="text-xs font-mono uppercase tracking-widest text-bronze-600 font-black block mb-1">
+                  ⚡ POPUP MODAL PIPELINE / ASSET SELECTION (LIGHT SCHEME)
                 </span>
-                <h2 className="text-2xl font-bold text-white tracking-tight">Select Cloud Image Asset</h2>
+                <h2 className="text-2xl font-bold text-navy-950 tracking-tight font-display">Select Cloud Image Asset</h2>
               </div>
               <button
                 type="button"
                 onClick={() => setShowPhotoModal(false)}
-                className="px-5 py-2.5 rounded-xl bg-navy-900 hover:bg-red-950 text-warm-100 hover:text-red-300 border border-navy-700 hover:border-red-700 font-mono text-xs font-bold transition-all shadow-lg"
+                className="px-5 py-2.5 rounded-xl bg-warm-100 hover:bg-red-50 text-navy-800 hover:text-red-700 border border-navy-300 hover:border-red-300 font-mono text-xs font-bold transition-all shadow-sm"
               >
-                ✕ CLOSE PIPELINE
+                ✕ CLOSE POPUP MODAL
               </button>
             </div>
             <AdminPhotoManager
@@ -298,23 +298,23 @@ export default function ProjectForm({ project }: { project?: any }) {
         </div>
       )}
 
-      {/* Video Pipeline Modal Overlay */}
+      {/* 🎬 VIDEO PIPELINE POPUP MODAL OVERLAY (LIGHT COLOR SCHEME WRAPPER) */}
       {showVideoModal && (
-        <div className="fixed inset-0 z-[60] bg-navy-950/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 overflow-y-auto animate-in fade-in duration-200">
-          <div className="bg-[#0b111e] border-2 border-emerald-500/40 rounded-3xl p-6 sm:p-10 max-w-7xl w-full max-h-[92vh] overflow-y-auto shadow-2xl relative my-8 text-warm-50">
-            <div className="flex items-center justify-between pb-6 mb-6 border-b border-navy-800">
+        <div className="fixed inset-0 z-[70] bg-navy-950/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8 overflow-y-auto animate-in fade-in duration-200">
+          <div className="bg-white border-2 border-navy-300 rounded-3xl p-6 sm:p-10 max-w-7xl w-full max-h-[92vh] overflow-y-auto shadow-2xl relative my-8 text-navy-950">
+            <div className="flex items-center justify-between pb-6 mb-6 border-b border-navy-200">
               <div>
-                <span className="text-xs font-mono uppercase tracking-widest text-emerald-400 font-black block mb-1">
-                  ⚡ MODAL INJECTION PIPELINE / VIDEO SELECTION
+                <span className="text-xs font-mono uppercase tracking-widest text-emerald-600 font-black block mb-1">
+                  ⚡ POPUP MODAL PIPELINE / VIDEO SELECTION (LIGHT SCHEME)
                 </span>
-                <h2 className="text-2xl font-bold text-white tracking-tight">Select Cloud Video Asset</h2>
+                <h2 className="text-2xl font-bold text-navy-950 tracking-tight font-display">Select Cloud Video Asset</h2>
               </div>
               <button
                 type="button"
                 onClick={() => setShowVideoModal(false)}
-                className="px-5 py-2.5 rounded-xl bg-navy-900 hover:bg-red-950 text-warm-100 hover:text-red-300 border border-navy-700 hover:border-red-700 font-mono text-xs font-bold transition-all shadow-lg"
+                className="px-5 py-2.5 rounded-xl bg-warm-100 hover:bg-red-50 text-navy-800 hover:text-red-700 border border-navy-300 hover:border-red-300 font-mono text-xs font-bold transition-all shadow-sm"
               >
-                ✕ CLOSE PIPELINE
+                ✕ CLOSE POPUP MODAL
               </button>
             </div>
             <AdminVideoManager
