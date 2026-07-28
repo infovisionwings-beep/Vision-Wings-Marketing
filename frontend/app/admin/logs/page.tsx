@@ -30,17 +30,17 @@ export default async function AuditLogsPage() {
 
   return (
     <div className="space-y-8">
-      <header className="flex justify-between items-end">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h1 className="text-3xl font-display font-bold text-navy-950">Security Audit Logs</h1>
           <p className="text-navy-500 mt-2">Immutable record of all administrative actions and security events.</p>
         </div>
-        <div className="flex gap-3">
-          <div className="relative">
+        <div className="flex flex-wrap sm:flex-nowrap gap-3 w-full md:w-auto">
+          <div className="relative w-full sm:w-auto">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-navy-400" />
-            <input type="text" placeholder="Search logs..." className="pl-9 pr-4 py-2 border border-navy-200 rounded-lg text-sm outline-none focus:border-bronze-500 bg-white" />
+            <input type="text" placeholder="Search logs..." className="w-full sm:w-auto pl-9 pr-4 py-2 border border-navy-200 rounded-lg text-sm outline-none focus:border-bronze-500 bg-white" />
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 border border-navy-200 rounded-lg text-sm bg-white hover:bg-warm-50 text-navy-700 transition-colors shadow-sm">
+          <button className="flex items-center gap-2 px-4 py-2 border border-navy-200 rounded-lg text-sm bg-white hover:bg-warm-50 text-navy-700 transition-colors shadow-sm w-full sm:w-auto justify-center">
             <Filter className="h-4 w-4" />
             Filters
           </button>
