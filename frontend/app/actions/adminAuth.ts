@@ -1,11 +1,13 @@
 'use server'
 
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { auth } from '@/lib/auth/server';
 
 export async function loginAdmin(password: string) {
   try {
-    const sessionRes = await auth.getSession();
+    const sessionRes = await auth.getSession({
+      headers: await headers()
+    });
     if (!sessionRes?.data?.user) {
       return { error: 'Not authenticated on main site. Please log in to the main site first.' };
     }
