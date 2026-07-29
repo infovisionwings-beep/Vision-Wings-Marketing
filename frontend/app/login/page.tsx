@@ -27,9 +27,6 @@ export default function LoginPage() {
       const result = await authenticateWithTurnstile(formData)
       if (result?.error) {
         setError(result.error)
-      } else if (result?.requireOtp) {
-        setRegisteredEmail(result.email!)
-        setShowOtp(true)
       }
     })
   }

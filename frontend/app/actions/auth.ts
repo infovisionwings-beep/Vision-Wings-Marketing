@@ -77,13 +77,12 @@ export async function authenticateWithTurnstile(formData: FormData) {
     { success: true }
   );
 
-  // If this was a sign up, Neon Auth will send a verification OTP
-  // We return a flag to tell the UI to show the OTP entry form
+  // On successful sign-up, redirect directly to onboarding flow
   if (isSignUp) {
-    return { requireOtp: true, email }
+    redirect('/onboarding')
   }
 
-  // 3. Redirect on success
+  // 3. Redirect on sign-in success
   redirect('/')
 }
 
