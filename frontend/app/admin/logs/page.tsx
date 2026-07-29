@@ -3,11 +3,13 @@ import { ShieldCheck, Calendar, User, Activity, Monitor, Search, Filter } from '
 import { format } from 'date-fns';
 import { cookies } from 'next/headers';
 
+import { getBackendUrl } from '@/lib/utils/backendUrl';
+
 export const dynamic = 'force-dynamic';
 
 async function getLogs(token: string) {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://vwapi.onrender.com';
+    const backendUrl = getBackendUrl();
     const res = await fetch(`${backendUrl}/api/admin/logs`, {
       headers: {
         'Authorization': `Bearer ${token}`

@@ -1,8 +1,9 @@
 'use server'
 
 import { auth } from '@/lib/auth/server'
+import { getBackendUrl } from '@/lib/utils/backendUrl';
 
-const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://vwapi.onrender.com';
+const API_URL = getBackendUrl();
 
 export async function saveOnboardingProfile(formData: FormData) {
   // 1. Check if user is authenticated

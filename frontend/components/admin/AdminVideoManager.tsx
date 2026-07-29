@@ -43,7 +43,9 @@ interface VideoRecord {
   isStarred?: boolean;
 }
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://vwapi.onrender.com";
+import { getBackendUrl } from "@/lib/utils/backendUrl";
+
+const BACKEND_URL = getBackendUrl();
 
 interface AdminVideoManagerProps {
   isModal?: boolean;
