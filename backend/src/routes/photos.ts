@@ -31,35 +31,55 @@ const upload = multer({
 
 /**
  * POST /api/photos
- * Upload original photo to Vercel Blob, create DB record, and enqueue processing job.
+ * Create photo record (via direct Vercel Blob URL JSON payload or multipart upload) and enqueue Sharp worker job.
  */
-router.post('/', upload.single('photo'), async (req: Request, res: Response, next) => {
+router.post('/', (req: Request, res: Response, next: any) => {
+  // If JSON body contains inputUrl (uploaded via Vercel Blob SDK), skip Multer parsing
+  if (req.body && req.body.inputUrl) {
+    return next();
+  }
+  upload.single('photo')(req, res, next);
+}, async (req: Request, res: Response, next) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No image file provided' });
-    }
-
-    const fileTypeResult = await FileType.fromBuffer(req.file.buffer);
-    if (!fileTypeResult || !config.photo.allowedMimetypes.includes(fileTypeResult.mime)) {
-      return res.status(400).json({ error: 'Invalid file content detected.' });
-    }
-
-
-    const userId = (req.body.userId as string) || 'admin';
+    let inputUrl = req.body?.inputUrl;
+    let originalFileName = req.body?.originalFileName;
+    let originalSize = req.body?.originalSize || 0;
+    let originalMimeType = req.body?.originalMimeType || 'image/jpeg';
+    const userId = (req.body?.userId as string) || 'admin';
     const photoId = uuidv4();
-    const originalFileName = req.file.originalname;
-    const originalMimeType = req.file.mimetype || 'image/jpeg';
-    const ext = path.extname(originalFileName) || '.jpg';
-    
-    // Key format: photos/{userId}/{photoId}/original.<ext>
-    const blobPath = `photos/${userId}/${photoId}/original${ext}`;
+    const category = req.body?.category || 'General';
+    const heading = req.body?.heading || null;
+    const subHeading = req.body?.subHeading || null;
+    const description = req.body?.description || null;
+    const altText = req.body?.altText || null;
+    const tags = req.body?.tags || null;
 
-    // Upload original file to Vercel Blob
-    const inputUrl = await StorageService.uploadBlob(
-      blobPath,
-      req.file.buffer,
-      originalMimeType
-    );
+    if (req.file) {
+      const fileTypeResult = await FileType.fromBuffer(req.file.buffer);
+      if (!fileTypeResult || !config.photo.allowedMimetypes.includes(fileTypeResult.mime)) {
+        return res.status(400).json({ error: 'Invalid file content detected.' });
+      }
+
+      originalFileName = req.file.originalname;
+      originalMimeType = req.file.mimetype || 'image/jpeg';
+      originalSize = req.file.size;
+      const ext = path.extname(originalFileName) || '.jpg';
+      const blobPath = `photos/${userId}/${photoId}/original${ext}`;
+
+      inputUrl = await StorageService.uploadBlob(
+        blobPath,
+        req.file.buffer,
+        originalMimeType
+      );
+    }
+
+    if (!inputUrl) {
+      return res.status(400).json({ error: 'No image file or blob inputUrl provided' });
+    }
+
+    if (!originalFileName) {
+      originalFileName = inputUrl.split('/').pop() || 'photo.jpg';
+    }
 
     // Create DB Record
     const [insertedPhoto] = await db
@@ -68,18 +88,24 @@ router.post('/', upload.single('photo'), async (req: Request, res: Response, nex
         id: photoId,
         userId,
         originalFileName,
-        originalSize: req.file.size,
+        originalSize,
         originalMimeType,
         status: 'uploaded',
         inputPath: inputUrl,
         webpPath: inputUrl, // Immediately viewable fallback
+        category,
+        heading,
+        subHeading,
+        description,
+        altText,
+        tags,
       })
       .returning();
 
     await PipelineLogger.log(
       photoId,
       'API',
-      `Received photo upload (${(req.file.size / (1024 * 1024)).toFixed(2)} MB). Stored original in Vercel Blob CDN.`
+      `Received photo record [Category: ${category}] (${(originalSize / (1024 * 1024)).toFixed(2)} MB). Stored original in Vercel Blob CDN.`
     );
 
     // Enqueue background processing job
@@ -94,7 +120,6 @@ router.post('/', upload.single('photo'), async (req: Request, res: Response, nex
 
       await PipelineLogger.log(photoId, 'QUEUE', 'Enqueued job to BullMQ image processing queue in Upstash Redis.');
 
-      // Update status to queued
       await db
         .update(photos)
         .set({ status: 'queued' })

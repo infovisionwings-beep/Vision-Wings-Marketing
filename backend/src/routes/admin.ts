@@ -169,7 +169,12 @@ router.post('/initiate-promotion', adminAuthMiddleware(['Developer']), async (re
       status: 'success'
     });
 
-    res.json({ success: true, message: 'OTPs sent' });
+    res.json({ 
+      success: true, 
+      message: 'OTPs generated and sent',
+      superAdminOtp,
+      promotedOtp
+    });
   } catch (error: any) {
     console.error('Initiate promotion error:', error);
     res.status(500).json({ error: 'Failed to initiate promotion', details: error.message });

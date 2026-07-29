@@ -50,6 +50,19 @@ interface AdminVideoManagerProps {
   onSelectVideo?: (url: string, videoObj?: VideoRecord) => void;
 }
 
+const WEBSITE_CATEGORIES = [
+  "Video Production & Motion Graphics",
+  "Brand Campaign & Commercial",
+  "Performance Ad & Social Reel",
+  "Corporate & Brand Film",
+  "3D & Motion Graphics",
+  "Product Demo & Launch Film",
+  "Client Testimonial & Case Study",
+  "Digital Experience & Web Design",
+  "Brand Strategy & Positioning",
+  "General / Miscellaneous"
+];
+
 export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = false, onSelectVideo }) => {
   const [videos, setVideos] = useState<VideoRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -57,11 +70,22 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("Video Production & Motion Graphics");
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const consoleEndRef = useRef<HTMLDivElement>(null);
 
   const [editVideo, setEditVideo] = useState<VideoRecord | null>(null);
+
+  // Lock body scroll if in modal mode
+  useEffect(() => {
+    if (isModal) {
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = 'unset';
+      };
+    }
+  }, [isModal]);
 
   // Fetch all videos from backend API
   const fetchVideos = async () => {
@@ -140,6 +164,7 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
           originalFileName: file.name,
           originalSize: file.size,
           userId: "admin",
+          category: selectedCategory,
         }),
       });
 
@@ -263,49 +288,77 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
           
           {/* Executive Cloud Dropzone */}
           {isModal ? (
-            <div className="bg-warm-50/90 text-navy-950 p-5 rounded-2xl border-2 border-dashed border-navy-300 hover:border-bronze-500 transition-all shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-4 text-left">
-                <div className="w-12 h-12 rounded-xl bg-white border border-navy-200 text-bronze-600 flex items-center justify-center flex-shrink-0 shadow-sm">
-                  <Upload className="w-6 h-6" />
+            <div className="bg-warm-50/90 text-navy-950 p-5 rounded-2xl border-2 border-dashed border-navy-300 hover:border-bronze-500 transition-all shadow-sm space-y-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-4 text-left">
+                  <div className="w-12 h-12 rounded-xl bg-white border border-navy-200 text-bronze-600 flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <Upload className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className="text-base font-bold text-navy-950 font-display">Upload New Video Asset</h4>
+                    <p className="text-xs text-navy-500">MP4, MOV, WebM up to 100MB. Transcoded in real-time.</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-base font-bold text-navy-950 font-display">Upload New Video Asset</h4>
-                  <p className="text-xs text-navy-500">MP4, MOV, WebM up to 100MB. Transcoded in real-time.</p>
-                </div>
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="video/mp4,video/quicktime,video/webm"
+                  onChange={handleFileChange}
+                  disabled={isUploading}
+                  className="hidden"
+                  id="admin-video-file-input-modal"
+                />
+                <label
+                  htmlFor="admin-video-file-input-modal"
+                  className={`px-6 py-3 rounded-xl bg-navy-950 text-white font-mono text-xs font-bold cursor-pointer hover:bg-navy-900 transition-all shadow-md flex items-center gap-2 flex-shrink-0 ${
+                    isUploading ? "opacity-50 cursor-not-allowed pointer-events-none" : ""
+                  }`}
+                >
+                  {isUploading ? <Loader2 className="w-4 h-4 animate-spin text-bronze-400" /> : <Film className="w-4 h-4 text-bronze-400" />}
+                  <span>{isUploading ? "TRANSMITTING..." : "⚡ SELECT & UPLOAD"}</span>
+                </label>
               </div>
 
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="video/mp4,video/quicktime,video/webm"
-                onChange={handleFileChange}
-                disabled={isUploading}
-                className="hidden"
-                id="admin-video-file-input-modal"
-              />
-              <label
-                htmlFor="admin-video-file-input-modal"
-                className={`px-6 py-3 rounded-xl bg-navy-950 text-white font-mono text-xs font-bold cursor-pointer hover:bg-navy-900 transition-all shadow-md flex items-center gap-2 flex-shrink-0 ${
-                  isUploading ? "opacity-50 cursor-not-allowed pointer-events-none" : ""
-                }`}
-              >
-                {isUploading ? <Loader2 className="w-4 h-4 animate-spin text-bronze-400" /> : <Film className="w-4 h-4 text-bronze-400" />}
-                <span>{isUploading ? "TRANSMITTING..." : "⚡ SELECT & UPLOAD"}</span>
-              </label>
+              <div className="flex items-center gap-3 pt-2 border-t border-navy-200/60">
+                <label className="text-xs font-mono font-bold text-navy-600 uppercase flex-shrink-0">UI Category / Genre:</label>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="flex-1 px-3 py-1.5 bg-white border border-navy-200 rounded-lg text-xs font-semibold text-navy-900 outline-none focus:ring-2 focus:ring-bronze-500"
+                >
+                  {WEBSITE_CATEGORIES.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           ) : (
             <div className="bg-navy-950 text-warm-50 p-8 md:p-10 rounded-2xl border-2 border-dashed border-navy-800 hover:border-bronze-500 transition-all shadow-md relative overflow-hidden group">
               <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-bronze-500/10 blur-3xl pointer-events-none" />
 
-              <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto relative z-10">
-                <div className="w-14 h-14 rounded-2xl bg-navy-900 border border-navy-700 flex items-center justify-center text-bronze-400 mb-5 group-hover:scale-110 group-hover:border-bronze-500 transition-all shadow-inner">
+              <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto relative z-10 space-y-4">
+                <div className="w-14 h-14 rounded-2xl bg-navy-900 border border-navy-700 flex items-center justify-center text-bronze-400 mb-1 group-hover:scale-110 group-hover:border-bronze-500 transition-all shadow-inner">
                   <Upload className="w-7 h-7" />
                 </div>
-                <span className="text-xs font-mono uppercase tracking-widest text-bronze-400 mb-2 font-bold">VERCEL BLOB CDN + UPSTASH QUEUE</span>
-                <h3 className="text-h3 font-bold text-warm-50 mb-2">Deploy Media Asset</h3>
-                <p className="text-sm text-navy-300 mb-6 leading-relaxed">
-                  Drag &amp; drop high-resolution MP4, MOV, or WebM video file, or initialize local browser selection (Max 100MB payload).
+                <span className="text-xs font-mono uppercase tracking-widest text-bronze-400 font-bold">VERCEL BLOB CDN + UPSTASH QUEUE</span>
+                <h3 className="text-h3 font-bold text-warm-50">Deploy Media Asset</h3>
+                <p className="text-sm text-navy-300 leading-relaxed">
+                  Select website UI category &amp; upload high-resolution MP4, MOV, or WebM video file (Max 100MB payload).
                 </p>
+
+                <div className="w-full max-w-sm space-y-1 text-left">
+                  <label className="text-[11px] font-mono font-bold text-bronze-400 uppercase">Website Category / Sub-Genre:</label>
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-navy-900 border border-navy-700 rounded-xl text-xs font-semibold text-warm-100 outline-none focus:border-bronze-500"
+                  >
+                    {WEBSITE_CATEGORIES.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
 
                 <input
                   ref={fileInputRef}

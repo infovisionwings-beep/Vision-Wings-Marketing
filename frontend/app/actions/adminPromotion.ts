@@ -12,7 +12,7 @@ export async function initiatePromotion(name: string, email: string, role: strin
     if (!token) return { error: 'Unauthorized' };
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8500); // Vercel times out at 10s on hobby
+    const timeoutId = setTimeout(() => controller.abort(), 8500);
 
     const response = await fetch(`${getBackendUrl()}/api/admin/initiate-promotion`, {
       method: 'POST',
@@ -26,9 +26,21 @@ export async function initiatePromotion(name: string, email: string, role: strin
 
     clearTimeout(timeoutId);
 
-    const data = await response.json();
+    const rawText = await response.text();
+    let data: any = {};
+    try {
+      data = JSON.parse(rawText);
+    } catch (e) {
+      console.error('Non-JSON response from initiate-promotion:', rawText);
+      return { error: 'Backend returned an unexpected response. Please check backend connection.' };
+    }
+
     if (!response.ok) return { error: data.error || 'Failed to initiate promotion' };
-    return { success: true };
+    return { 
+      success: true, 
+      superAdminOtp: data.superAdminOtp, 
+      promotedOtp: data.promotedOtp 
+    };
   } catch (error: any) {
     if (error.name === 'AbortError') {
       return { error: 'Request timed out. The backend server might be waking up. Please try again in 30 seconds.' };
@@ -59,7 +71,15 @@ export async function verifyPromotion(email: string, superAdminOtp: string, prom
 
     clearTimeout(timeoutId);
 
-    const data = await response.json();
+    const rawText = await response.text();
+    let data: any = {};
+    try {
+      data = JSON.parse(rawText);
+    } catch (e) {
+      console.error('Non-JSON response from verify-promotion:', rawText);
+      return { error: 'Backend returned an unexpected response. Please check backend connection.' };
+    }
+
     if (!response.ok) return { error: data.error || 'Failed to verify promotion' };
     return { success: true };
   } catch (error: any) {

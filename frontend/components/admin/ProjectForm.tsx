@@ -5,7 +5,7 @@
 // MOTION_INTENSITY: 5
 // VISUAL_DENSITY: 5
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createProject, updateProject } from "@/app/actions/projects";
 import { uploadImage } from "@/app/actions/upload";
 import Button from "@/components/ui/Button";
@@ -22,6 +22,16 @@ export default function ProjectForm({ project }: { project?: any }) {
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [photoTarget, setPhotoTarget] = useState<"cover" | "content">("cover");
   const [showVideoModal, setShowVideoModal] = useState(false);
+
+  // Lock body scroll when photo or video modal popup is active
+  useEffect(() => {
+    if (showPhotoModal || showVideoModal) {
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = 'unset';
+      };
+    }
+  }, [showPhotoModal, showVideoModal]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -284,7 +294,7 @@ export default function ProjectForm({ project }: { project?: any }) {
             </div>
             <AdminPhotoManager
               isModal={true}
-              onSelectPhoto={(url) => {
+              onSelectPhoto={(url: string) => {
                 if (photoTarget === "cover") {
                   setCoverImageUrl(url);
                 } else {
@@ -319,7 +329,7 @@ export default function ProjectForm({ project }: { project?: any }) {
             </div>
             <AdminVideoManager
               isModal={true}
-              onSelectVideo={(url, videoObj) => {
+              onSelectVideo={(url: string, videoObj?: any) => {
                 let videoTag = "";
                 if (videoObj && videoObj.webmPath && videoObj.mp4Path) {
                   videoTag = `\n\n<p><video controls style="max-width: 100%; border-radius: 12px; margin: 24px 0;"><source src="${videoObj.webmPath}" type="video/webm" /><source src="${videoObj.mp4Path}" type="video/mp4" /></video></p>\n\n`;
