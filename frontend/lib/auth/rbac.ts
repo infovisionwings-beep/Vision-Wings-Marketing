@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { checkRateLimit } from '@/lib/auth/rate-limit';
 import { cookies } from 'next/headers';
 import * as jose from 'jose';
+import { getBackendUrl } from '@/lib/utils/backendUrl';
 
 // Rate limit: 30 admin requests per minute per user
 const ADMIN_RATE_LIMIT_MAX = 30;
@@ -42,7 +43,7 @@ export async function requireAdmin(requiredRoles?: string[]): Promise<AdminUser>
     let isRegisteredAdmin = (userEmail === superAdminEmail || adminEmails.includes(userEmail));
 
     if (!isRegisteredAdmin) {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://vwapi.onrender.com';
+      const backendUrl = getBackendUrl();
       try {
         const res = await fetch(`${backendUrl}/api/admin/is-admin/${encodeURIComponent(userEmail)}`, { cache: 'no-store' });
         if (res.ok) {

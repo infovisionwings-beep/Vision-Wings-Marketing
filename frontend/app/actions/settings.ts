@@ -1,8 +1,10 @@
 'use server'
 
+import { getBackendUrl } from '@/lib/utils/backendUrl';
+
 export async function getSettings() {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://vwapi.onrender.com';
+    const backendUrl = getBackendUrl();
     const response = await fetch(`${backendUrl}/api/settings`, {
       cache: 'no-store'
     });

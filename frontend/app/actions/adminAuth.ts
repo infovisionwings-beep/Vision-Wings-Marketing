@@ -3,6 +3,7 @@
 import { cookies } from 'next/headers';
 import { auth } from '@/lib/auth/server';
 import * as jose from 'jose';
+import { getBackendUrl } from '@/lib/utils/backendUrl';
 
 export async function loginAdmin(password: string) {
   try {
@@ -27,7 +28,7 @@ export async function loginAdmin(password: string) {
         .setExpirationTime('12h')
         .sign(secretKey);
     } else {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://vwapi.onrender.com';
+      const backendUrl = getBackendUrl();
       const response = await fetch(`${backendUrl}/api/admin/auth`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

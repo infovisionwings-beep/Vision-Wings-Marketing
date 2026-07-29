@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ShieldCheck, Save, Loader2, RefreshCw } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import { getBackendUrl } from '@/lib/utils/backendUrl';
 
 export default function ContentSettingsPage() {
   const [settings, setSettings] = useState<Record<string, string>>({});
@@ -13,7 +14,7 @@ export default function ContentSettingsPage() {
   const fetchSettings = async () => {
     setLoading(true);
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://vwapi.onrender.com';
+      const backendUrl = getBackendUrl();
       const res = await fetch(`${backendUrl}/api/settings`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
@@ -34,7 +35,7 @@ export default function ContentSettingsPage() {
     setSaving(true);
     setMessage('');
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://vwapi.onrender.com';
+      const backendUrl = getBackendUrl();
       const token = document.cookie.split('; ').find(row => row.startsWith('admin_session='))?.split('=')[1];
       const res = await fetch(`${backendUrl}/api/settings`, {
         method: 'PUT',

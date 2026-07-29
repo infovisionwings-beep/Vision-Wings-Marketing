@@ -1,8 +1,7 @@
 'use server'
 
 import { cookies } from 'next/headers';
-
-const getBackendUrl = () => process.env.NEXT_PUBLIC_BACKEND_URL || 'https://vwapi.onrender.com';
+import { getBackendUrl } from '@/lib/utils/backendUrl';
 
 export async function initiatePromotion(name: string, email: string, role: string) {
   try {

@@ -1,9 +1,7 @@
 'use server'
 
 import { cookies } from 'next/headers';
-import { auth } from '@/lib/auth/server';
-
-const getBackendUrl = () => process.env.NEXT_PUBLIC_BACKEND_URL || 'https://vwapi.onrender.com';
+import { getBackendUrl } from '@/lib/utils/backendUrl';
 
 export async function getAdminMedia(type: 'photos' | 'videos') {
   try {
@@ -18,11 +16,20 @@ export async function getAdminMedia(type: 'photos' | 'videos') {
       cache: 'no-store'
     });
     
-    if (!response.ok) return { error: 'Failed to fetch media' };
-    const data = await response.json();
+    const rawText = await response.text();
+    let data: any = [];
+    try {
+      data = JSON.parse(rawText);
+    } catch (e) {
+      console.error(`Non-JSON response from getAdminMedia (${type}):`, rawText);
+      return { error: 'Backend returned invalid response' };
+    }
+
+    if (!response.ok) return { error: data.error || 'Failed to fetch media' };
     return { success: true, data };
-  } catch (error) {
-    return { error: 'Unexpected error' };
+  } catch (error: any) {
+    console.error('getAdminMedia error:', error);
+    return { error: `Unexpected error: ${error.message}` };
   }
 }
 
@@ -42,11 +49,18 @@ export async function updateMedia(type: 'photos' | 'videos', id: string, data: a
       body: JSON.stringify(data)
     });
 
-    const resData = await response.json();
+    const rawText = await response.text();
+    let resData: any = {};
+    try {
+      resData = JSON.parse(rawText);
+    } catch (e) {
+      return { error: 'Backend returned invalid response' };
+    }
+
     if (!response.ok) return { error: resData.error || 'Failed to update media' };
     return { success: true, data: resData };
-  } catch (error) {
-    return { error: 'An unexpected error occurred.' };
+  } catch (error: any) {
+    return { error: `An unexpected error occurred: ${error.message}` };
   }
 }
 
@@ -64,10 +78,17 @@ export async function softDeleteMedia(type: 'photos' | 'videos', id: string) {
       }
     });
 
-    const resData = await response.json();
+    const rawText = await response.text();
+    let resData: any = {};
+    try {
+      resData = JSON.parse(rawText);
+    } catch (e) {
+      return { error: 'Backend returned invalid response' };
+    }
+
     if (!response.ok) return { error: resData.error || 'Failed to delete media' };
     return { success: true };
-  } catch (error) {
-    return { error: 'An unexpected error occurred.' };
+  } catch (error: any) {
+    return { error: `An unexpected error occurred: ${error.message}` };
   }
 }
