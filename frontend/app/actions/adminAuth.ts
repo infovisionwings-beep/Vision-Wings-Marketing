@@ -2,6 +2,7 @@
 
 import { cookies } from 'next/headers';
 import { auth } from '@/lib/auth/server';
+import * as jose from 'jose';
 
 export async function loginAdmin(password: string) {
   try {
@@ -11,23 +12,39 @@ export async function loginAdmin(password: string) {
     }
 
     const email = sessionRes.data.user.email;
-    
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://vwapi.onrender.com';
-    const response = await fetch(`${backendUrl}/api/admin/auth`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-      cache: 'no-store'
-    });
+    const superAdminEmail = (process.env.SUPER_ADMIN_EMAIL || '').toLowerCase();
+    const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD;
 
-    const data = await response.json();
+    let token = '';
 
-    if (!response.ok) {
-      return { error: data.error || 'Failed to authenticate admin' };
+    if (email.toLowerCase() === superAdminEmail && password === superAdminPassword) {
+      const JWT_SECRET = process.env.ADMIN_JWT_SECRET || 'fallback-secret-for-admin-session-please-change';
+      const secretKey = new TextEncoder().encode(JWT_SECRET);
+
+      token = await new jose.SignJWT({ email, role: 'Developer', name: 'Super Admin' })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setIssuedAt()
+        .setExpirationTime('12h')
+        .sign(secretKey);
+    } else {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://vwapi.onrender.com';
+      const response = await fetch(`${backendUrl}/api/admin/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+        cache: 'no-store'
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { error: data.error || 'Failed to authenticate admin' };
+      }
+      token = data.token;
     }
 
     const cookieStore = await cookies();
-    cookieStore.set('admin_session', data.token, {
+    cookieStore.set('admin_session', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

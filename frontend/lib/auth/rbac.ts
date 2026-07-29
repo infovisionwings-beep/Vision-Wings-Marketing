@@ -36,16 +36,22 @@ export async function requireAdmin(requiredRoles?: string[]): Promise<AdminUser>
     const userEmail = (user.email ?? '').toLowerCase();
 
     // Check if the user is registered as admin
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://vwapi.onrender.com';
-    let isRegisteredAdmin = false;
-    try {
-      const res = await fetch(`${backendUrl}/api/admin/is-admin/${encodeURIComponent(userEmail)}`, { cache: 'no-store' });
-      if (res.ok) {
-        const data = await res.json();
-        isRegisteredAdmin = data.isAdmin === true;
+    const superAdminEmail = (process.env.SUPER_ADMIN_EMAIL || '').toLowerCase();
+    const adminEmails = (process.env.ADMIN_EMAILS || '').toLowerCase().split(',').map(e => e.trim());
+
+    let isRegisteredAdmin = (userEmail === superAdminEmail || adminEmails.includes(userEmail));
+
+    if (!isRegisteredAdmin) {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://vwapi.onrender.com';
+      try {
+        const res = await fetch(`${backendUrl}/api/admin/is-admin/${encodeURIComponent(userEmail)}`, { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          isRegisteredAdmin = data.isAdmin === true;
+        }
+      } catch (e) {
+        console.error('Failed to check admin status', e);
       }
-    } catch (e) {
-      console.error('Failed to check admin status', e);
     }
 
     if (!isRegisteredAdmin) {
