@@ -108,9 +108,12 @@ router.post('/auth', async (req, res) => {
     });
 
     res.json({ token, user: { email, role, name } });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Auth error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    if (error?.code === '28P01' || error?.message?.includes('password authentication failed')) {
+      return res.status(500).json({ error: 'Database authentication failed. Please update DATABASE_URL in .env with valid Neon credentials.' });
+    }
+    res.status(500).json({ error: error?.message || 'Internal server error' });
   }
 });
 

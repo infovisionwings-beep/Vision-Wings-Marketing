@@ -60,7 +60,11 @@ export async function authenticateWithTurnstile(formData: FormData) {
     }
   } catch (err: any) {
     console.error("Auth action error:", err);
-    return { error: "An unexpected authentication error occurred." }
+    const msg = err?.message || "";
+    if (msg.includes('password authentication failed') || msg.includes('28P01')) {
+      return { error: "Database connection failed. Please verify DATABASE_URL credentials in environment settings." };
+    }
+    return { error: msg || "An unexpected authentication error occurred." };
   }
 
   // Clear rate limit on successful authentication
