@@ -74,8 +74,18 @@ export const InsightForm: React.FC<InsightFormProps> = ({ insight }) => {
   
   // Modal Popup States
   const [showPhotoModal, setShowPhotoModal] = useState(false);
-  const [photoTarget, setPhotoTarget] = useState<string | null>(null); // "cover" | "author" | "contributor-idx" | "content"
+  const [photoTarget, setPhotoTarget] = useState<"cover" | "content" | "author" | string | null>(null);
   const [showVideoModal, setShowVideoModal] = useState(false);
+
+  // Lock body scroll when photo or video modal popup is active
+  useEffect(() => {
+    if (showPhotoModal || showVideoModal) {
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = 'unset';
+      };
+    }
+  }, [showPhotoModal, showVideoModal]);
 
   const [formData, setFormData] = useState({
     title: insight?.title || "",
@@ -625,7 +635,7 @@ export const InsightForm: React.FC<InsightFormProps> = ({ insight }) => {
             </div>
             <AdminPhotoManager
               isModal={true}
-              onSelectPhoto={(url) => {
+              onSelectPhoto={(url: string) => {
                 if (photoTarget === "cover") {
                   setFormData((prev) => ({ ...prev, coverImage: url }));
                 } else if (photoTarget === "author") {
@@ -667,7 +677,7 @@ export const InsightForm: React.FC<InsightFormProps> = ({ insight }) => {
             </div>
             <AdminVideoManager
               isModal={true}
-              onSelectVideo={(url, videoObj) => {
+              onSelectVideo={(url: string, videoObj?: any) => {
                 let videoTag = "";
                 if (videoObj && videoObj.webmPath && videoObj.mp4Path) {
                   videoTag = `\n\n<p><video controls style="max-width: 100%; border-radius: 12px; margin: 24px 0;"><source src="${videoObj.webmPath}" type="video/webm" /><source src="${videoObj.mp4Path}" type="video/mp4" /></video></p>\n\n`;

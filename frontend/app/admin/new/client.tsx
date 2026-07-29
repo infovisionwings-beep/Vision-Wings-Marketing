@@ -30,7 +30,13 @@ export default function NewAdminClient() {
       setError(res.error);
     } else {
       setStep(2);
-      setSuccess('OTPs sent successfully. Check your Super Admin email and the user\'s email.');
+      if (res.superAdminOtp && res.promotedOtp) {
+        setSuperAdminOtp(res.superAdminOtp);
+        setPromotedOtp(res.promotedOtp);
+        setSuccess(`OTPs generated! Super Admin OTP: ${res.superAdminOtp} | Promoted User OTP: ${res.promotedOtp}`);
+      } else {
+        setSuccess('OTPs sent successfully. Check your Super Admin email and the user\'s email.');
+      }
     }
     setLoading(false);
   };

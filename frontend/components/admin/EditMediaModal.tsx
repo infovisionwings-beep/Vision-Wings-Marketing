@@ -1,8 +1,21 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { updateMedia } from '@/app/actions/mediaActions';
 import { X, Save, AlertCircle, Loader2 } from 'lucide-react';
+
+const WEBSITE_CATEGORIES = [
+  "Brand Strategy & Positioning",
+  "Digital Experience & Web Design",
+  "Paid Ads & Performance Growth",
+  "Video Production & Motion Graphics",
+  "Growth Marketing & SEO",
+  "PR & Executive Positioning",
+  "Conversion Rate Optimization (CRO)",
+  "Case Study & Portfolio Showcase",
+  "Social Media & Campaign Creative",
+  "General / Miscellaneous"
+];
 
 export function EditMediaModal({ media, type, onClose, onRefresh }: { media: any, type: 'photos' | 'videos', onClose: () => void, onRefresh: () => void }) {
   const [loading, setLoading] = useState(false);
@@ -12,12 +25,20 @@ export function EditMediaModal({ media, type, onClose, onRefresh }: { media: any
     heading: media.heading || '',
     subHeading: media.subHeading || '',
     description: media.description || '',
-    category: media.category || '',
+    category: media.category || 'General / Miscellaneous',
     publishStatus: media.publishStatus || 'draft',
     isStarred: media.isStarred || false,
     displayOrder: media.displayOrder || 0,
     altText: media.altText || '', // Only for photos
   });
+
+  // Lock body scroll while modal is active
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,8 +60,14 @@ export function EditMediaModal({ media, type, onClose, onRefresh }: { media: any
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/80 backdrop-blur-sm">
-      <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/80 backdrop-blur-sm overflow-hidden"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="p-6 border-b border-navy-100 flex items-center justify-between">
           <h2 className="text-xl font-bold font-display text-navy-950">Edit {type === 'photos' ? 'Photo' : 'Video'} Details</h2>
           <button onClick={onClose} className="p-2 text-navy-400 hover:text-navy-900 transition-colors">
@@ -60,30 +87,38 @@ export function EditMediaModal({ media, type, onClose, onRefresh }: { media: any
             <div className="grid grid-cols-2 gap-5">
               <div className="space-y-2">
                 <label className="text-xs font-mono font-medium text-navy-500 uppercase">Heading</label>
-                <input type="text" value={formData.heading} onChange={e => setFormData({...formData, heading: e.target.value})} className="w-full px-4 py-2 bg-warm-50 border border-navy-200 rounded-xl focus:ring-2 focus:ring-bronze-500 outline-none" />
+                <input type="text" value={formData.heading} onChange={e => setFormData({...formData, heading: e.target.value})} className="w-full px-4 py-2 bg-warm-50 border border-navy-200 rounded-xl focus:ring-2 focus:ring-bronze-500 outline-none" placeholder="Primary Title" />
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-mono font-medium text-navy-500 uppercase">Sub Heading</label>
-                <input type="text" value={formData.subHeading} onChange={e => setFormData({...formData, subHeading: e.target.value})} className="w-full px-4 py-2 bg-warm-50 border border-navy-200 rounded-xl focus:ring-2 focus:ring-bronze-500 outline-none" />
+                <input type="text" value={formData.subHeading} onChange={e => setFormData({...formData, subHeading: e.target.value})} className="w-full px-4 py-2 bg-warm-50 border border-navy-200 rounded-xl focus:ring-2 focus:ring-bronze-500 outline-none" placeholder="Secondary Subtitle" />
               </div>
             </div>
 
             <div className="space-y-2">
               <label className="text-xs font-mono font-medium text-navy-500 uppercase">Description</label>
-              <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} rows={3} className="w-full px-4 py-2 bg-warm-50 border border-navy-200 rounded-xl focus:ring-2 focus:ring-bronze-500 outline-none" />
+              <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} rows={3} className="w-full px-4 py-2 bg-warm-50 border border-navy-200 rounded-xl focus:ring-2 focus:ring-bronze-500 outline-none" placeholder="Asset description or notes" />
             </div>
 
             {type === 'photos' && (
               <div className="space-y-2">
                 <label className="text-xs font-mono font-medium text-navy-500 uppercase">Alt Text (Accessibility & SEO)</label>
-                <input type="text" value={formData.altText} onChange={e => setFormData({...formData, altText: e.target.value})} className="w-full px-4 py-2 bg-warm-50 border border-navy-200 rounded-xl focus:ring-2 focus:ring-bronze-500 outline-none" />
+                <input type="text" value={formData.altText} onChange={e => setFormData({...formData, altText: e.target.value})} className="w-full px-4 py-2 bg-warm-50 border border-navy-200 rounded-xl focus:ring-2 focus:ring-bronze-500 outline-none" placeholder="Keywords for image SEO" />
               </div>
             )}
 
             <div className="grid grid-cols-2 gap-5">
               <div className="space-y-2">
-                <label className="text-xs font-mono font-medium text-navy-500 uppercase">Category</label>
-                <input type="text" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full px-4 py-2 bg-warm-50 border border-navy-200 rounded-xl focus:ring-2 focus:ring-bronze-500 outline-none" />
+                <label className="text-xs font-mono font-medium text-navy-500 uppercase">Website Category / Sub-Genre</label>
+                <select 
+                  value={formData.category} 
+                  onChange={e => setFormData({...formData, category: e.target.value})} 
+                  className="w-full px-4 py-2 bg-warm-50 border border-navy-200 rounded-xl focus:ring-2 focus:ring-bronze-500 outline-none text-navy-900 font-medium"
+                >
+                  {WEBSITE_CATEGORIES.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-mono font-medium text-navy-500 uppercase">Publish Status</label>

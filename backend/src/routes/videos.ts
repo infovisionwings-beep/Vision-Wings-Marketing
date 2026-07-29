@@ -31,33 +31,51 @@ const upload = multer({
 
 /**
  * POST /api/videos
- * Upload original MP4 video to Vercel Blob, create DB record, and enqueue processing job.
+ * Create video record (via direct Vercel Blob URL JSON payload or multipart upload) and enqueue FFmpeg worker job.
  */
-router.post('/', upload.single('video'), async (req: Request, res: Response, next) => {
+router.post('/', (req: Request, res: Response, next: any) => {
+  if (req.body && req.body.inputUrl) {
+    return next();
+  }
+  upload.single('video')(req, res, next);
+}, async (req: Request, res: Response, next) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No video file provided' });
-    }
-
-    const fileTypeResult = await FileType.fromBuffer(req.file.buffer);
-    if (!fileTypeResult || !config.video.allowedMimetypes.includes(fileTypeResult.mime)) {
-      return res.status(400).json({ error: 'Invalid file content detected.' });
-    }
-
-    const userId = (req.body.userId as string) || 'admin';
+    let inputUrl = req.body?.inputUrl;
+    let originalFileName = req.body?.originalFileName;
+    let originalSize = req.body?.originalSize || 0;
+    const userId = (req.body?.userId as string) || 'admin';
     const videoId = uuidv4();
-    const originalFileName = req.file.originalname;
-    const ext = path.extname(originalFileName) || '.mp4';
-    
-    // Key format: videos/{userId}/{videoId}/original.<ext>
-    const blobPath = `videos/${userId}/${videoId}/original${ext}`;
+    const category = req.body?.category || 'General';
+    const heading = req.body?.heading || null;
+    const subHeading = req.body?.subHeading || null;
+    const description = req.body?.description || null;
+    const tags = req.body?.tags || null;
 
-    // Upload original file to Vercel Blob
-    const inputUrl = await StorageService.uploadBlob(
-      blobPath,
-      req.file.buffer,
-      req.file.mimetype || 'video/mp4'
-    );
+    if (req.file) {
+      const fileTypeResult = await FileType.fromBuffer(req.file.buffer);
+      if (!fileTypeResult || !config.video.allowedMimetypes.includes(fileTypeResult.mime)) {
+        return res.status(400).json({ error: 'Invalid file content detected.' });
+      }
+
+      originalFileName = req.file.originalname;
+      originalSize = req.file.size;
+      const ext = path.extname(originalFileName) || '.mp4';
+      const blobPath = `videos/${userId}/${videoId}/original${ext}`;
+
+      inputUrl = await StorageService.uploadBlob(
+        blobPath,
+        req.file.buffer,
+        req.file.mimetype || 'video/mp4'
+      );
+    }
+
+    if (!inputUrl) {
+      return res.status(400).json({ error: 'No video file or blob inputUrl provided' });
+    }
+
+    if (!originalFileName) {
+      originalFileName = inputUrl.split('/').pop() || 'video.mp4';
+    }
 
     // Create DB Record
     const [insertedVideo] = await db
@@ -66,16 +84,21 @@ router.post('/', upload.single('video'), async (req: Request, res: Response, nex
         id: videoId,
         userId,
         originalFileName,
-        originalSize: req.file.size,
+        originalSize,
         status: 'uploaded',
         inputPath: inputUrl,
+        category,
+        heading,
+        subHeading,
+        description,
+        tags,
       })
       .returning();
 
     await PipelineLogger.log(
       videoId,
       'API',
-      `Received payload (${(req.file.size / (1024 * 1024)).toFixed(2)} MB). Stored original file in Vercel Blob CDN.`
+      `Received video payload [Category: ${category}] (${(originalSize / (1024 * 1024)).toFixed(2)} MB). Stored original file in Vercel Blob CDN.`
     );
 
     // Enqueue background processing job
@@ -89,7 +112,6 @@ router.post('/', upload.single('video'), async (req: Request, res: Response, nex
 
       await PipelineLogger.log(videoId, 'QUEUE', 'Enqueued job to BullMQ processing queue in Upstash Redis.');
 
-      // Update status to queued
       await db
         .update(videos)
         .set({ status: 'queued' })
