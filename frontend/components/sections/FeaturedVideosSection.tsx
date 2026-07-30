@@ -16,6 +16,7 @@ import Image from "next/image";
 interface FeaturedVideosProps {
   dbVideos?: any[];
   settings?: Record<string, string>;
+  dbCampaigns?: any[];
 }
 
 const fallbackFeaturedVideos = [
@@ -54,21 +55,43 @@ const fallbackFeaturedVideos = [
   },
 ];
 
-export default function FeaturedVideosSection({ dbVideos = [], settings = {} }: FeaturedVideosProps) {
-  // If we have live DB videos, map up to 3 of them into our featured gallery structure
-  const displayVideos = (dbVideos && dbVideos.length > 0)
-    ? dbVideos.slice(0, 3).map((v, idx) => ({
-        id: v.id || `db-${idx}`,
-        title: v.title || `Campaign Showcase 0${idx + 1}`,
-        client: v.client || "Vision Wings Exclusive",
-        category: idx === 0 ? "Brand Campaign & Commercial" : "Performance Ad Campaign",
-        duration: v.duration ? `${Math.floor(v.duration / 60)}:${(v.duration % 60).toString().padStart(2, "0")}` : "02:45",
-        year: new Date(v.createdAt || Date.now()).getFullYear().toString(),
-        thumbnail: v.thumbnailUrl || fallbackFeaturedVideos[idx]?.thumbnail || fallbackFeaturedVideos[0].thumbnail,
-        desc: v.description || fallbackFeaturedVideos[idx]?.desc || "High-conversion video marketing pipeline.",
-        isHero: idx === 0,
-      }))
-    : fallbackFeaturedVideos;
+export default function FeaturedVideosSection({
+  dbVideos = [],
+  settings = {},
+  dbCampaigns = [],
+}: FeaturedVideosProps) {
+  // 1. First priority: CMS Campaigns created in Admin panel
+  let displayVideos: any[] = [];
+
+  if (dbCampaigns && dbCampaigns.length > 0) {
+    displayVideos = dbCampaigns.slice(0, 3).map((c, idx) => ({
+      id: c.id || `camp-${idx}`,
+      title: c.title,
+      client: c.client || "Vision Wings Exclusive",
+      category: c.category || (idx === 0 ? "Brand Campaign & Commercial" : "Performance Ad Campaign"),
+      duration: c.duration || "03:45",
+      year: c.year || "2025",
+      thumbnail: c.coverImage || fallbackFeaturedVideos[idx]?.thumbnail || fallbackFeaturedVideos[0].thumbnail,
+      desc: c.description || fallbackFeaturedVideos[idx]?.desc || "High-conversion marketing campaign.",
+      isHero: idx === 0,
+    }));
+  } else if (dbVideos && dbVideos.length > 0) {
+    // 2. Second priority: Transcoded videos pipeline
+    displayVideos = dbVideos.slice(0, 3).map((v, idx) => ({
+      id: v.id || `db-${idx}`,
+      title: v.title || `Campaign Showcase 0${idx + 1}`,
+      client: v.client || "Vision Wings Exclusive",
+      category: idx === 0 ? "Brand Campaign & Commercial" : "Performance Ad Campaign",
+      duration: v.duration ? `${Math.floor(v.duration / 60)}:${(v.duration % 60).toString().padStart(2, "0")}` : "02:45",
+      year: new Date(v.createdAt || Date.now()).getFullYear().toString(),
+      thumbnail: v.thumbnailUrl || fallbackFeaturedVideos[idx]?.thumbnail || fallbackFeaturedVideos[0].thumbnail,
+      desc: v.description || fallbackFeaturedVideos[idx]?.desc || "High-conversion video marketing pipeline.",
+      isHero: idx === 0,
+    }));
+  } else {
+    // 3. Third priority: Curated fallback videos
+    displayVideos = fallbackFeaturedVideos;
+  }
 
   // Ensure we always have 3 items for our exact 1 + 2 Asymmetric Bento Grid
   while (displayVideos.length < 3) {

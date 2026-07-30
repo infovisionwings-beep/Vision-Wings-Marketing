@@ -101,12 +101,45 @@ const curatedSupplementalPhotos = [
   "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=1200&q=85",
 ];
 
-export default function Work() {
+interface WorkProps {
+  dbCampaigns?: any[];
+}
+
+export default function Work({ dbCampaigns = [] }: WorkProps) {
   const [bricks, setBricks] = useState<GalleryBrick[]>(fallbackBricks);
 
   useEffect(() => {
     async function load() {
       try {
+        // If CMS archive campaigns exist, map them into bricks
+        if (dbCampaigns && dbCampaigns.length > 0) {
+          const campBricks: GalleryBrick[] = dbCampaigns.map((c: any, idx: number) => {
+            if (c.quoteText) {
+              return {
+                id: c.id || `quote-${idx}`,
+                type: "quote",
+                quoteText: c.quoteText,
+                quoteSubtitle: c.subtitle || "CLIENT GROWTH IMPACT",
+              };
+            }
+            return {
+              id: c.id || `camp-${idx}`,
+              type: "photo",
+              title: c.title,
+              category: c.category || "Brand Archive",
+              year: c.year || "2025",
+              slug: c.slug,
+              imageUrl: c.coverImage || curatedSupplementalPhotos[idx % curatedSupplementalPhotos.length],
+            };
+          });
+
+          // Prepend default quote if no quote cards exist in DB
+          const hasQuote = campBricks.some((b) => b.type === "quote");
+          const merged: GalleryBrick[] = hasQuote ? campBricks : [fallbackBricks[0], ...campBricks];
+          setBricks(merged);
+          return;
+        }
+
         const data = await getProjects();
         if (data && data.length > 0) {
           const dbBricks: GalleryBrick[] = data.map((p: any, idx: number) => ({
@@ -121,7 +154,7 @@ export default function Work() {
 
           const merged: GalleryBrick[] = [];
           merged.push(fallbackBricks[0]);
-          
+
           dbBricks.forEach((b, i) => {
             merged.push(b);
             if (i === 1 && dbBricks.length >= 2) {
@@ -140,11 +173,11 @@ export default function Work() {
           setBricks(merged);
         }
       } catch (err) {
-        console.error("Failed to load projects client-side for Exhibition Gallery:", err);
+        console.error("Failed to load projects for Exhibition Gallery:", err);
       }
     }
     load();
-  }, []);
+  }, [dbCampaigns]);
 
   return (
     <section id="work" className="py-20 md:py-32 lg:py-40 px-5 md:px-10 xl:px-20 bg-warm-50 text-navy-950 overflow-hidden">

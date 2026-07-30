@@ -5,10 +5,11 @@
 
 import { getProjects } from "@/app/actions/projects";
 import { getInsights } from "@/app/actions/insights";
+import { getAdminCampaigns } from "@/app/actions/campaigns";
 import { db } from "@/lib/db";
 import { userProfiles } from "@/lib/db/schema";
 import { Link } from "@/components/ui/Link";
-import { ArrowRight, Briefcase, FileText, Video, Users, Sparkles, Plus, CheckCircle2, ShieldAlert } from "lucide-react";
+import { ArrowRight, Briefcase, FileText, Video, Users, Sparkles, Plus, CheckCircle2, ShieldAlert, Layers } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -16,17 +17,20 @@ export default async function AdminDashboard() {
   let projects: any[] = [];
   let insights: any[] = [];
   let leads: any[] = [];
+  let campaignsCount = 0;
   let dbError = null;
 
   try {
-    const [pData, iData, lData] = await Promise.all([
+    const [pData, iData, lData, cData] = await Promise.all([
       getProjects(),
       getInsights(),
-      db.select().from(userProfiles)
+      db.select().from(userProfiles),
+      getAdminCampaigns()
     ]);
     projects = pData || [];
     insights = iData || [];
     leads = lData || [];
+    campaignsCount = (cData || []).filter((c: any) => c.publishStatus === "published").length;
   } catch (e: any) {
     console.error("Dashboard DB Error:", e);
     dbError = e;
@@ -74,34 +78,34 @@ export default async function AdminDashboard() {
         </div>
       )}
 
-      {/* Plain-Layout Live Telemetry Strip (Rule 4.4: Data metrics breathe in plain layout without generic boxes) */}
+      {/* Plain-Layout Live Telemetry Strip */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 py-4 border-b border-navy-200/80">
         <div>
-          <span className="text-xs font-mono text-navy-500 block mb-1">01 / PROJECTS ARCHIVE</span>
+          <span className="text-xs font-mono text-navy-500 block mb-1">01 / MARKETING CAMPAIGNS</span>
           <div className="flex items-baseline gap-2">
-            <span className="text-display font-bold text-navy-950 tracking-tighter">{projects.length}</span>
-            <span className="text-xs font-mono text-bronze-600 font-semibold">ACTIVE</span>
+            <span className="text-display font-bold text-navy-950 tracking-tighter">{campaignsCount}</span>
+            <span className="text-xs font-mono text-bronze-600 font-semibold">CMS LIVE</span>
           </div>
         </div>
         <div>
-          <span className="text-xs font-mono text-navy-500 block mb-1">02 / PUBLISHED ESSAYS</span>
+          <span className="text-xs font-mono text-navy-500 block mb-1">02 / PROJECTS ARCHIVE</span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-display font-bold text-navy-950 tracking-tighter">{projects.length}</span>
+            <span className="text-xs font-mono text-navy-700 font-semibold">INDEXED</span>
+          </div>
+        </div>
+        <div>
+          <span className="text-xs font-mono text-navy-500 block mb-1">03 / PUBLISHED ESSAYS</span>
           <div className="flex items-baseline gap-2">
             <span className="text-display font-bold text-navy-950 tracking-tighter">{insights.length}</span>
             <span className="text-xs font-mono text-emerald-600 font-semibold">LIVE</span>
           </div>
         </div>
         <div>
-          <span className="text-xs font-mono text-navy-500 block mb-1">03 / ONBOARDED LEADS</span>
+          <span className="text-xs font-mono text-navy-500 block mb-1">04 / CLIENT PROSPECTS</span>
           <div className="flex items-baseline gap-2">
             <span className="text-display font-bold text-navy-950 tracking-tighter">{leads.length}</span>
-            <span className="text-xs font-mono text-bronze-600 font-semibold">PROSPECTS</span>
-          </div>
-        </div>
-        <div>
-          <span className="text-xs font-mono text-navy-500 block mb-1">04 / VIDEO TRANSCODERS</span>
-          <div className="flex items-baseline gap-2">
-            <span className="text-display font-bold text-navy-950 tracking-tighter">100%</span>
-            <span className="text-xs font-mono text-emerald-600 font-semibold">CLOUD CDN</span>
+            <span className="text-xs font-mono text-bronze-600 font-semibold">LEADS</span>
           </div>
         </div>
       </div>

@@ -89,33 +89,46 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
     }
   }, [isModal]);
 
+  // Track consecutive failures for backoff
+  const failCountRef = useRef(0);
+  const selectedVideoIdRef = useRef(selectedVideoId);
+  selectedVideoIdRef.current = selectedVideoId;
+
   // Fetch all videos from backend API
   const fetchVideos = async () => {
     try {
       const res = await getAdminMedia('videos');
       if (res.success) {
+        failCountRef.current = 0; // Reset on success
         setVideos(res.data);
         
         // Auto-select most recently active or first video if none selected
-        if (!selectedVideoId && res.data.length > 0) {
+        if (!selectedVideoIdRef.current && res.data.length > 0) {
           setSelectedVideoId(res.data[0].id);
         }
+      } else {
+        failCountRef.current++;
       }
     } catch (err) {
+      failCountRef.current++;
       console.error("Failed to fetch videos:", err);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Poll for active/processing videos every 3 seconds
+  // Smart polling: backs off on consecutive failures, fixed interval (not re-created on selection change)
   useEffect(() => {
     fetchVideos();
     const interval = setInterval(() => {
-      fetchVideos();
-    }, 3000);
+      // Back off after 3+ consecutive failures
+      const shouldSkip = failCountRef.current >= 3 && failCountRef.current % 3 !== 0;
+      if (!shouldSkip) {
+        fetchVideos();
+      }
+    }, 4000);
     return () => clearInterval(interval);
-  }, [selectedVideoId]);
+  }, []); // Empty deps: don't restart interval on selection change
 
   // Auto-scroll console window to bottom when logs update
   useEffect(() => {
@@ -411,7 +424,7 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
           <div className="space-y-6 pt-2">
             <div className="flex items-center justify-between">
               <h3 className="text-h3 font-bold text-navy-950">Indexed Cloud Assets ({videos.length})</h3>
-              <span className="text-xs font-mono text-navy-500">AUTO-REFRESHING EVERY 3S</span>
+              <span className="text-xs font-mono text-navy-500">AUTO-REFRESHING EVERY 4S</span>
             </div>
 
             {isLoading ? (
@@ -667,7 +680,7 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
                 <div className="flex items-center justify-between text-[11px] text-navy-400">
                   <div className="flex items-center gap-2">
                     <Clock className="w-3.5 h-3.5 text-navy-500" />
-                    <span>POLL INTERVAL: 3000ms</span>
+                    <span>POLL INTERVAL: 4000ms</span>
                   </div>
                   <div className="text-navy-500">
                     {selectedVideo?.logs?.length || 0} EVENTS LOGGED

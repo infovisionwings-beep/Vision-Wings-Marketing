@@ -151,3 +151,52 @@ export const siteSettings = pgTable("site_settings", {
   value: text("value").notNull(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+// Campaigns – Unified CMS table powering homepage marketing sections
+export const campaigns = pgTable("campaigns", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  subtitle: varchar("subtitle", { length: 255 }),
+  description: text("description"),
+
+  // Media
+  coverImage: text("cover_image"),
+  videoUrl: text("video_url"),
+  posterImage: text("poster_image"),
+
+  // Metadata
+  client: varchar("client", { length: 255 }),
+  category: varchar("category", { length: 100 }),
+  year: varchar("year", { length: 4 }),
+  duration: varchar("duration", { length: 20 }),
+  quoteText: text("quote_text"),
+
+  // Section assignment: "hero" | "samples" | "showcases" | "archive"
+  section: varchar("section", { length: 50 }).notNull(),
+
+  // Badges / Features (e.g. ["4K", "HLS", "HDR"])
+  badges: jsonb("badges"),
+
+  // CTAs (primarily for hero section)
+  primaryCtaText: varchar("primary_cta_text", { length: 100 }),
+  primaryCtaLink: varchar("primary_cta_link", { length: 500 }),
+  secondaryCtaText: varchar("secondary_cta_text", { length: 100 }),
+  secondaryCtaLink: varchar("secondary_cta_link", { length: 500 }),
+
+  // SEO
+  seoTitle: varchar("seo_title", { length: 255 }),
+  seoDescription: text("seo_description"),
+
+  // Publishing
+  publishStatus: varchar("publish_status", { length: 50 }).notNull().default("draft"),
+  isFeatured: boolean("is_featured").default(false),
+  isStarred: boolean("is_starred").default(false),
+  displayOrder: integer("display_order").default(0),
+  scheduledAt: timestamp("scheduled_at"),
+
+  // Audit
+  createdBy: varchar("created_by", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});

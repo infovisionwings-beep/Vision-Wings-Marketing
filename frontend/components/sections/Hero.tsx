@@ -11,7 +11,11 @@ import AnimatedLogo from "@/components/motion/AnimatedLogo";
 import Button from "@/components/ui/Button";
 import { Link } from "@/components/ui/Link";
 
-export default function Hero() {
+interface HeroProps {
+  campaign?: any;
+}
+
+export default function Hero({ campaign }: HeroProps) {
   const prefersReducedMotion = useReducedMotion();
   const [isLogoRevealed, setIsLogoRevealed] = useState(false);
   const [skipAnimation, setSkipAnimation] = useState(false);
@@ -36,6 +40,15 @@ export default function Hero() {
   };
 
   const showContent = prefersReducedMotion || skipAnimation || isLogoRevealed;
+
+  const title = campaign?.title || "WE GIVE WINGS TO YOUR VISION";
+  const description =
+    campaign?.description ||
+    "For ambitious businesses ready to transcend the competition, Vision Wings delivers high-velocity marketing strategies, creative content funnels, and brand acceleration that propel your growth to new heights.";
+  const primaryCtaText = campaign?.primaryCtaText || "Launch Your Campaign";
+  const primaryCtaLink = campaign?.primaryCtaLink || "/contact";
+  const secondaryCtaText = campaign?.secondaryCtaText || "Explore Marketing Services";
+  const secondaryCtaLink = campaign?.secondaryCtaLink || "#strategy";
 
   return (
     <section className="relative min-h-[100dvh] pt-20 pb-16 md:pt-24 lg:pt-24 flex flex-col justify-center bg-warm-50 overflow-hidden">
@@ -77,13 +90,24 @@ export default function Hero() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center max-w-[1280px] mx-auto">
           
           <div className="order-last lg:order-first lg:col-span-7 flex flex-col text-center lg:text-left">
+            {campaign?.subtitle && (
+              <motion.span
+                className="text-xs font-mono font-bold tracking-widest text-bronze-600 uppercase mb-3 block"
+                initial={{ opacity: 0, y: 15 }}
+                animate={showContent ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
+                transition={{ duration: 0.6 }}
+              >
+                {campaign.subtitle}
+              </motion.span>
+            )}
+
             <motion.h1
               className="text-display sm:text-h1 font-bold text-navy-950 mb-6 tracking-tight leading-[1.05]"
               initial={{ opacity: 0, y: 20 }}
               animate={showContent ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             >
-              WE GIVE WINGS TO YOUR VISION
+              {title}
             </motion.h1>
 
             <motion.p
@@ -92,7 +116,7 @@ export default function Hero() {
               animate={showContent ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             >
-              For ambitious businesses ready to transcend the competition, Vision Wings delivers high-velocity marketing strategies, creative content funnels, and brand acceleration that propel your growth to new heights.
+              {description}
             </motion.p>
 
             <motion.div
@@ -101,11 +125,15 @@ export default function Hero() {
               animate={showContent ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             >
-              <Link href="/contact" className="w-full sm:w-auto">
-                <Button variant="primary" className="w-full sm:w-auto min-h-[48px] justify-center whitespace-nowrap shadow-xl" data-interactive>Launch Your Campaign</Button>
+              <Link href={primaryCtaLink} className="w-full sm:w-auto">
+                <Button variant="primary" className="w-full sm:w-auto min-h-[48px] justify-center whitespace-nowrap shadow-xl" data-interactive>
+                  {primaryCtaText}
+                </Button>
               </Link>
-              <Link href="#strategy" className="w-full sm:w-auto">
-                <Button variant="secondary" className="w-full sm:w-auto min-h-[48px] justify-center whitespace-nowrap shadow-sm" data-interactive>Explore Marketing Services</Button>
+              <Link href={secondaryCtaLink} className="w-full sm:w-auto">
+                <Button variant="secondary" className="w-full sm:w-auto min-h-[48px] justify-center whitespace-nowrap shadow-sm" data-interactive>
+                  {secondaryCtaText}
+                </Button>
               </Link>
             </motion.div>
           </div>
