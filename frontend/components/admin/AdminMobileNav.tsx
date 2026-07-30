@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, X, Briefcase, FileText, Video, Image as ImageIcon, User, LogOut } from "lucide-react";
+import { Menu, X, Briefcase, FileText, Video, Image as ImageIcon, User, LogOut, Layers } from "lucide-react";
 import { Link } from "@/components/ui/Link";
 
 export function AdminMobileNav() {
@@ -43,8 +43,12 @@ export function AdminMobileNav() {
             <nav className="flex-1 px-4 py-6 space-y-6">
               <div className="space-y-2">
                 <div className="px-3 text-[10px] font-mono font-semibold uppercase tracking-wider text-navy-500">
-                  Archive & Content
+                  Marketing &amp; CMS
                 </div>
+                <Link href="/admin/campaigns" onClick={() => setIsOpen(false)} className="flex items-center gap-3 p-3 rounded-lg hover:bg-navy-900 text-navy-200 hover:text-warm-50 transition-colors">
+                  <Layers className="w-4 h-4 text-bronze-400" />
+                  <span className="text-sm font-medium">Campaign Manager</span>
+                </Link>
                 <Link href="/admin/projects" onClick={() => setIsOpen(false)} className="flex items-center gap-3 p-3 rounded-lg hover:bg-navy-900 text-navy-200 hover:text-warm-50 transition-colors">
                   <Briefcase className="w-4 h-4 text-bronze-400" />
                   <span className="text-sm font-medium">Projects Archive</span>

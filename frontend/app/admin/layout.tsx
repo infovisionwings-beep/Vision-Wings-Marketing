@@ -4,7 +4,7 @@
 // VISUAL_DENSITY: 5
 
 import { Link } from "@/components/ui/Link";
-import { Eye, Briefcase, FileText, LogOut, User, Video, ShieldCheck, Activity, Terminal, Image as ImageIcon } from "lucide-react";
+import { Eye, Briefcase, FileText, LogOut, User, Video, ShieldCheck, Activity, Terminal, Image as ImageIcon, Layers, Sparkles } from "lucide-react";
 import { requireAdmin } from "@/lib/auth/rbac";
 import { AdminMobileNav } from "@/components/admin/AdminMobileNav";
 
@@ -37,8 +37,20 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         {/* Monospace Navigation Chrome */}
         <nav className="flex-1 p-4 flex flex-col gap-1.5 overflow-y-auto">
           <div className="px-3 py-2 text-[10px] font-mono font-semibold uppercase tracking-wider text-navy-500">
-            Archive &amp; Content
+            Marketing &amp; CMS
           </div>
+
+          <Link 
+            href="/admin/campaigns" 
+            className="flex items-center justify-between p-3 rounded-lg hover:bg-navy-900/90 text-navy-200 hover:text-warm-50 transition-all group border border-transparent hover:border-navy-800"
+            data-interactive
+          >
+            <div className="flex items-center gap-3">
+              <Layers className="w-4 h-4 text-bronze-400 group-hover:text-bronze-300 transition-colors" />
+              <span className="text-sm font-medium">Campaign Manager</span>
+            </div>
+            <span className="text-[10px] font-mono text-navy-500 group-hover:text-bronze-400">01</span>
+          </Link>
 
           <Link 
             href="/admin/projects" 
@@ -49,7 +61,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <Briefcase className="w-4 h-4 text-bronze-400 group-hover:text-bronze-300 transition-colors" />
               <span className="text-sm font-medium">Projects Archive</span>
             </div>
-            <span className="text-[10px] font-mono text-navy-500 group-hover:text-bronze-400">01</span>
+            <span className="text-[10px] font-mono text-navy-500 group-hover:text-bronze-400">02</span>
           </Link>
 
           <Link 
@@ -61,7 +73,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <FileText className="w-4 h-4 text-bronze-400 group-hover:text-bronze-300 transition-colors" />
               <span className="text-sm font-medium">Editorial Insights</span>
             </div>
-            <span className="text-[10px] font-mono text-navy-500 group-hover:text-bronze-400">02</span>
+            <span className="text-[10px] font-mono text-navy-500 group-hover:text-bronze-400">03</span>
           </Link>
 
           <Link 
@@ -73,7 +85,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <FileText className="w-4 h-4 text-bronze-400 group-hover:text-bronze-300 transition-colors" />
               <span className="text-sm font-medium">Site Content</span>
             </div>
-            <span className="text-[10px] font-mono text-navy-500 group-hover:text-bronze-400">03</span>
+            <span className="text-[10px] font-mono text-navy-500 group-hover:text-bronze-400">04</span>
           </Link>
 
           <div className="px-3 pt-6 pb-2 text-[10px] font-mono font-semibold uppercase tracking-wider text-navy-500">
@@ -89,7 +101,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <Video className="w-4 h-4 text-bronze-400 group-hover:text-bronze-300 transition-colors" />
               <span className="text-sm font-medium">Video Pipeline</span>
             </div>
-            <span className="text-[10px] font-mono text-navy-500 group-hover:text-bronze-400">04</span>
+            <span className="text-[10px] font-mono text-navy-500 group-hover:text-bronze-400">05</span>
           </Link>
 
           <Link 
@@ -101,7 +113,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <ImageIcon className="w-4 h-4 text-bronze-400 group-hover:text-bronze-300 transition-colors" />
               <span className="text-sm font-medium">Image Pipeline</span>
             </div>
-            <span className="text-[10px] font-mono text-navy-500 group-hover:text-bronze-400">05</span>
+            <span className="text-[10px] font-mono text-navy-500 group-hover:text-bronze-400">06</span>
           </Link>
 
           <Link 
@@ -113,7 +125,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <User className="w-4 h-4 text-bronze-400 group-hover:text-bronze-300 transition-colors" />
               <span className="text-sm font-medium">Client Leads</span>
             </div>
-            <span className="text-[10px] font-mono text-navy-500 group-hover:text-bronze-400">06</span>
+            <span className="text-[10px] font-mono text-navy-500 group-hover:text-bronze-400">07</span>
           </Link>
         </nav>
 

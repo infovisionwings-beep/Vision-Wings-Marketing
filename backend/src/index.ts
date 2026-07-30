@@ -8,6 +8,7 @@ import videoRoutes from './routes/videos';
 import photoRoutes from './routes/photos';
 import adminRoutes from './routes/admin';
 import settingsRoutes from './routes/settings';
+import campaignRoutes from './routes/campaigns';
 import './worker';
 import './photoWorker';
 import { authRateLimitMiddleware, publicRateLimitMiddleware, userActionRateLimitMiddleware } from './middleware/rateLimiter';
@@ -39,6 +40,9 @@ app.use('/api/admin', adminRoutes);
 
 // Settings API
 app.use('/api/settings', settingsRoutes);
+
+// Public Campaigns API
+app.use('/api/campaigns', publicRateLimitMiddleware, campaignRoutes);
 
 // Health check
 app.get('/health', publicRateLimitMiddleware, (req, res) => {

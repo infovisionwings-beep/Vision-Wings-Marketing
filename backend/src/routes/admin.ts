@@ -2,8 +2,8 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import * as jose from 'jose';
 import { db } from '../db';
-import { adminRoles, adminAuditLogs, adminOtps, photos, videos } from '../db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { adminRoles, adminAuditLogs, adminOtps, photos, videos, campaigns } from '../db/schema';
+import { eq, desc, asc, and } from 'drizzle-orm';
 import { Resend } from 'resend';
 import { adminAuthMiddleware } from '../middleware/rbac';
 
@@ -395,6 +395,184 @@ router.delete('/media/videos/:id', adminAuthMiddleware(), async (req, res, next)
       status: 'success'
     });
     res.json({ success: true, message: 'Video archived (soft deleted)' });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ==========================================
+// CAMPAIGN CMS CRUD OPERATIONS
+// ==========================================
+
+router.get('/media/campaigns', adminAuthMiddleware(), async (req, res, next) => {
+  try {
+    const list = await db
+      .select()
+      .from(campaigns)
+      .orderBy(asc(campaigns.displayOrder), desc(campaigns.createdAt));
+    res.json(list);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/media/campaigns', adminAuthMiddleware(), async (req, res, next) => {
+  try {
+    const adminEmail = (req as any).admin?.email || 'admin';
+    const body = req.body;
+
+    if (!body.title || !body.section) {
+      return res.status(400).json({ error: 'Title and section are required' });
+    }
+
+    // Auto-generate slug if not provided
+    const slug = body.slug || body.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '')
+      .slice(0, 200) + '-' + Date.now().toString(36);
+
+    const insertData: any = {
+      title: body.title,
+      slug,
+      subtitle: body.subtitle || null,
+      description: body.description || null,
+      coverImage: body.coverImage || null,
+      videoUrl: body.videoUrl || null,
+      posterImage: body.posterImage || null,
+      client: body.client || null,
+      category: body.category || null,
+      year: body.year || null,
+      duration: body.duration || null,
+      quoteText: body.quoteText || null,
+      section: body.section,
+      badges: body.badges || null,
+      primaryCtaText: body.primaryCtaText || null,
+      primaryCtaLink: body.primaryCtaLink || null,
+      secondaryCtaText: body.secondaryCtaText || null,
+      secondaryCtaLink: body.secondaryCtaLink || null,
+      seoTitle: body.seoTitle || null,
+      seoDescription: body.seoDescription || null,
+      publishStatus: body.publishStatus || 'draft',
+      isFeatured: body.isFeatured || false,
+      isStarred: body.isStarred || false,
+      displayOrder: body.displayOrder || 0,
+      scheduledAt: body.scheduledAt ? new Date(body.scheduledAt) : null,
+      createdBy: adminEmail,
+    };
+
+    const [inserted] = await db.insert(campaigns).values(insertData).returning();
+
+    await logAdminAction({
+      adminEmail,
+      action: 'CREATE_CAMPAIGN',
+      resourceType: 'campaign',
+      resourceId: inserted.id,
+      newValue: inserted,
+      status: 'success',
+    });
+
+    res.status(201).json({ success: true, campaign: inserted });
+  } catch (error: any) {
+    if (error?.code === '23505') {
+      return res.status(409).json({ error: 'A campaign with this slug already exists' });
+    }
+    next(error);
+  }
+});
+
+router.put('/media/campaigns/:id', adminAuthMiddleware(), async (req, res, next) => {
+  try {
+    const id = String(req.params.id);
+    const adminEmail = (req as any).admin?.email || 'admin';
+    const body = req.body;
+
+    const prev = await db.select().from(campaigns).where(eq(campaigns.id, id));
+    if (prev.length === 0) return res.status(404).json({ error: 'Campaign not found' });
+
+    const updateData: any = {};
+    const allowedFields = [
+      'title', 'slug', 'subtitle', 'description',
+      'coverImage', 'videoUrl', 'posterImage',
+      'client', 'category', 'year', 'duration', 'quoteText',
+      'section', 'badges',
+      'primaryCtaText', 'primaryCtaLink', 'secondaryCtaText', 'secondaryCtaLink',
+      'seoTitle', 'seoDescription',
+      'publishStatus', 'isFeatured', 'isStarred', 'displayOrder', 'scheduledAt',
+    ];
+    for (const key of allowedFields) {
+      if (body[key] !== undefined) {
+        updateData[key] = key === 'scheduledAt' && body[key] ? new Date(body[key]) : body[key];
+      }
+    }
+    updateData.updatedAt = new Date();
+
+    const [updated] = await db.update(campaigns).set(updateData).where(eq(campaigns.id, id)).returning();
+
+    await logAdminAction({
+      adminEmail,
+      action: 'UPDATE_CAMPAIGN',
+      resourceType: 'campaign',
+      resourceId: id,
+      previousValue: prev[0],
+      newValue: updated,
+      status: 'success',
+    });
+
+    res.json(updated);
+  } catch (error: any) {
+    if (error?.code === '23505') {
+      return res.status(409).json({ error: 'A campaign with this slug already exists' });
+    }
+    next(error);
+  }
+});
+
+router.delete('/media/campaigns/:id', adminAuthMiddleware(), async (req, res, next) => {
+  try {
+    const id = String(req.params.id);
+    const adminEmail = (req as any).admin?.email || 'admin';
+
+    const prev = await db.select().from(campaigns).where(eq(campaigns.id, id));
+    if (prev.length === 0) return res.status(404).json({ error: 'Campaign not found' });
+
+    const [updated] = await db
+      .update(campaigns)
+      .set({ publishStatus: 'archived', updatedAt: new Date() })
+      .where(eq(campaigns.id, id))
+      .returning();
+
+    await logAdminAction({
+      adminEmail,
+      action: 'SOFT_DELETE_CAMPAIGN',
+      resourceType: 'campaign',
+      resourceId: id,
+      previousValue: prev[0],
+      newValue: updated,
+      status: 'success',
+    });
+
+    res.json({ success: true, message: 'Campaign archived (soft deleted)' });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Batch reorder campaigns
+router.put('/media/campaigns-reorder', adminAuthMiddleware(), async (req, res, next) => {
+  try {
+    const { orderedIds } = req.body;
+    if (!Array.isArray(orderedIds)) {
+      return res.status(400).json({ error: 'orderedIds must be an array' });
+    }
+
+    await Promise.all(
+      orderedIds.map((id: string, index: number) =>
+        db.update(campaigns).set({ displayOrder: index, updatedAt: new Date() }).where(eq(campaigns.id, id))
+      )
+    );
+
+    res.json({ success: true });
   } catch (error) {
     next(error);
   }

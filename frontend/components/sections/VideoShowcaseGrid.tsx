@@ -87,9 +87,22 @@ const fallbackShowcaseVideos: VideoAsset[] = [
 
 interface VideoShowcaseGridProps {
   dbVideos?: any[];
+  dbCampaigns?: any[];
 }
 
-export default function VideoShowcaseGrid({ dbVideos = [] }: VideoShowcaseGridProps) {
+export default function VideoShowcaseGrid({ dbVideos = [], dbCampaigns = [] }: VideoShowcaseGridProps) {
+  // Map CMS Sample campaigns
+  const cmsAssets: VideoAsset[] = dbCampaigns.map((c) => ({
+    id: c.id,
+    title: c.title,
+    category: c.category || "CMS Sample Video",
+    date: c.year || "2025",
+    duration: c.duration || "02:45",
+    coverImage: c.coverImage || fallbackShowcaseVideos[0].coverImage,
+    videoUrl: c.videoUrl || fallbackShowcaseVideos[0].videoUrl,
+    description: c.description || "CMS driven sample video asset.",
+  }));
+
   // Merge live database transcoded videos with high-definition fallback curation
   const liveAssets: VideoAsset[] = dbVideos.map((v) => ({
     id: v.id,
@@ -103,7 +116,7 @@ export default function VideoShowcaseGrid({ dbVideos = [] }: VideoShowcaseGridPr
     isLiveDb: true
   }));
 
-  const allVideos = [...liveAssets, ...fallbackShowcaseVideos];
+  const allVideos = [...cmsAssets, ...liveAssets, ...fallbackShowcaseVideos];
   const featuredVideo = allVideos[0];
   const samplesGrid = allVideos.slice(1, 4); // Exactly 3 items for Bento Cell Count Rule
   const editorialSeries = allVideos.slice(4, 6); // Exactly 2 items for Zigzag Alternation Cap (max 2 rows)

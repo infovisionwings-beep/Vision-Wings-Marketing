@@ -8,33 +8,63 @@ import Insights from "@/components/sections/Insights";
 import Contact from "@/components/sections/Contact";
 import { getCompletedVideos } from "@/app/actions/videos";
 import { getSettings } from "@/app/actions/settings";
+import { getCampaigns } from "@/app/actions/campaigns";
 
-export const revalidate = 3600;
+export const revalidate = 60; // 1 minute revalidation for CMS freshness
 
-async function FeaturedVideosLoader() {
+async function DynamicHomepageContent() {
   let dbVideos: any[] = [];
   let settings: any = {};
-  try {
-    dbVideos = await getCompletedVideos();
-    settings = await getSettings();
-  } catch (err) {
-    console.error("Failed to fetch data for homepage:", err);
-  }
-  return <FeaturedVideosSection dbVideos={dbVideos} settings={settings} />;
-}
+  let heroCampaigns: any[] = [];
+  let showcaseCampaigns: any[] = [];
+  let archiveCampaigns: any[] = [];
 
-export default function Home() {
+  try {
+    const [vData, sData, heroData, showData, archData] = await Promise.all([
+      getCompletedVideos().catch(() => []),
+      getSettings().catch(() => ({})),
+      getCampaigns("hero").catch(() => []),
+      getCampaigns("showcases").catch(() => []),
+      getCampaigns("archive").catch(() => []),
+    ]);
+
+    dbVideos = vData || [];
+    settings = sData || {};
+    heroCampaigns = heroData || [];
+    showcaseCampaigns = showData || [];
+    archiveCampaigns = archData || [];
+  } catch (err) {
+    console.error("Failed to fetch CMS data for homepage:", err);
+  }
+
   return (
     <>
-      <Hero />
+      <Hero campaign={heroCampaigns[0]} />
       <AboutVision />
       <Services />
-      <Work />
-      <Suspense fallback={<FeaturedVideosSection dbVideos={[]} settings={{}} />}>
-        <FeaturedVideosLoader />
-      </Suspense>
+      <Work dbCampaigns={archiveCampaigns} />
+      <FeaturedVideosSection dbVideos={dbVideos} settings={settings} dbCampaigns={showcaseCampaigns} />
       <Insights />
       <Contact />
     </>
   );
 }
+
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <>
+        <Hero />
+        <AboutVision />
+        <Services />
+        <Work />
+        <FeaturedVideosSection dbVideos={[]} settings={{}} />
+        <Insights />
+        <Contact />
+      </>
+    }>
+      <DynamicHomepageContent />
+    </Suspense>
+  );
+}
+
