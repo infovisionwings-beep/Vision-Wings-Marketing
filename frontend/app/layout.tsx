@@ -120,6 +120,22 @@ export default async function RootLayout({
       className={`${leagueSpartan.variable} ${dmSans.variable} h-full antialiased`}
     >
       <head>
+        {/* Google tag (gtag.js) */}
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-KGL4WL9DLW"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-KGL4WL9DLW');
+`,
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
