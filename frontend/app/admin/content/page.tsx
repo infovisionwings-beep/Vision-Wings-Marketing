@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ShieldCheck, Save, Loader2, RefreshCw } from 'lucide-react';
 import Button from '@/components/ui/Button';
-import { getBackendUrl } from '@/lib/utils/backendUrl';
+import { getSettings, updateSettings } from '@/app/actions/settings';
 
 export default function ContentSettingsPage() {
   const [settings, setSettings] = useState<Record<string, string>>({});
@@ -14,12 +14,8 @@ export default function ContentSettingsPage() {
   const fetchSettings = async () => {
     setLoading(true);
     try {
-      const backendUrl = getBackendUrl();
-      const res = await fetch(`${backendUrl}/api/settings`, { cache: 'no-store' });
-      if (res.ok) {
-        const data = await res.json();
-        setSettings(data);
-      }
+      const data = await getSettings();
+      setSettings(data || {});
     } catch (e) {
       console.error(e);
     }
@@ -35,20 +31,11 @@ export default function ContentSettingsPage() {
     setSaving(true);
     setMessage('');
     try {
-      const backendUrl = getBackendUrl();
-      const token = document.cookie.split('; ').find(row => row.startsWith('admin_session='))?.split('=')[1];
-      const res = await fetch(`${backendUrl}/api/settings`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(settings)
-      });
-      if (res.ok) {
+      const res = await updateSettings(settings);
+      if (res.success) {
         setMessage('Settings saved successfully. Refresh homepage to see changes.');
       } else {
-        setMessage('Failed to save settings.');
+        setMessage(res.error || 'Failed to save settings.');
       }
     } catch (e) {
       setMessage('Error saving settings.');
