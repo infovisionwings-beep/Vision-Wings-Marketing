@@ -33,11 +33,10 @@ export const ADMIN_NAV: { heading: string; items: AdminNavItem[] }[] = [
     ],
   },
   {
+    // One entry, not the two pipeline pages. Media is put on the site from Site
+    // Content, where each slot has a picker; this is where the library lives.
     heading: "Media",
-    items: [
-      { href: "/admin/videos", label: "Videos", icon: Video },
-      { href: "/admin/photos", label: "Photos", icon: ImageIcon },
-    ],
+    items: [{ href: "/admin/media", label: "Media Library", icon: ImageIcon }],
   },
   {
     heading: "People",

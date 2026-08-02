@@ -8,114 +8,77 @@
 import { useState } from "react";
 import RevealOnScroll from "@/components/motion/RevealOnScroll";
 import Image from "next/image";
-import { 
-  Sparkles, 
-  Code, 
-  TrendingUp, 
-  PenTool, 
-  Video, 
-  Check, 
-  ArrowUpRight 
-} from "lucide-react";
+import { Sparkles, Code, TrendingUp, PenTool, Video, Check } from "lucide-react";
+import { content, contentList } from "@/lib/content";
 
-const capabilities = [
+/**
+ * Card copy lives in Site Content → Services. What stays here is presentation
+ * only: the icon, the bento span and the surface treatment, which are layout
+ * decisions rather than things an editor should have to reason about.
+ */
+const CARD_STYLES = [
   {
-    id: "strategy",
-    title: "Brand Strategy & Positioning",
-    desc: "We articulate your brand's unique market advantage and build irresistible narratives that make your business the clear industry authority.",
-    deliverables: ["Market & Competitor Audit", "Value Proposition Architecture", "Brand Storytelling & Voice", "Go-to-Market Strategy"],
-    tools: ["Audience Insights", "Positioning Frameworks", "Brand Systems"],
     icon: Sparkles,
     gridClass: "col-span-12 lg:col-span-7 bg-navy-950 text-warm-50 border border-navy-800",
     isDark: true,
     hasImage: false,
   },
   {
-    id: "design",
-    title: "Conversion Web & Campaign Funnels",
-    desc: "High-converting web surfaces, landing pages, and interactive campaigns engineered to captivate executive buyers and multiply customer acquisition.",
-    deliverables: ["High-Converting Landing Pages", "Interactive Campaign Funnels", "CRO & UX Optimization", "Design Systems"],
-    tools: ["Figma", "Next.js 15", "Radix UI", "Vercel"],
     icon: PenTool,
     gridClass: "col-span-12 lg:col-span-5 bg-warm-50 text-navy-950 border border-navy-200/80 shadow-[0_4px_20px_rgba(15,23,42,0.03)]",
     isDark: false,
     hasImage: false,
   },
   {
-    id: "development",
-    title: "Paid Ads & Performance Growth",
-    desc: "Precision-targeted omnichannel ad campaigns engineered to scale customer acquisition with predictable, profitable ROI.",
-    deliverables: ["Google & LinkedIn Ads Scaling", "Paid Social & Retargeting", "CAC & LTV Optimization", "Ad Creative Testing"],
-    tools: ["Google Ads", "Meta Pro", "LinkedIn Campaigns", "HubSpot"],
     icon: TrendingUp,
     gridClass: "col-span-12 md:col-span-6 lg:col-span-4 bg-navy-900 text-warm-100 border border-navy-800",
     isDark: true,
     hasImage: false,
   },
   {
-    id: "video",
-    title: "Viral Video & Commercial Production",
-    desc: "Cinematic commercials, short-form social video, and visual storytelling that ignite brand awareness and command audience attention.",
-    deliverables: ["Brand Commercials & Anthems", "Short-Form Social Video", "Product Storytelling", "3D & Motion Design"],
-    tools: ["Premiere Pro", "DaVinci Resolve", "After Effects", "Cinema 4D"],
     icon: Video,
     gridClass: "col-span-12 md:col-span-6 lg:col-span-4 bg-navy-950 text-warm-50 border border-navy-800 relative overflow-hidden group",
     isDark: true,
     hasImage: true,
-    imageUrl: "https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?auto=format&fit=crop&w=1000&q=85",
   },
   {
-    id: "marketing",
-    title: "Organic Authority & SEO Mastery",
-    desc: "Compounding organic growth engines, thought leadership content, and technical SEO that dominate search rankings and generate inbound demand.",
-    deliverables: ["Technical & Content SEO", "Thought Leadership Campaigns", "Inbound Demand Generation", "Analytics & Attribution"],
-    tools: ["GA4 / PostHog", "Ahrefs / Semrush", "Content Engines", "HubSpot"],
     icon: Code,
     gridClass: "col-span-12 lg:col-span-4 bg-gradient-to-br from-warm-100 to-warm-200/80 text-navy-950 border border-bronze-500/20",
     isDark: false,
     hasImage: false,
   },
-];
+] as const;
 
-const strengths = [
-  {
-    title: "Zero Junior Delegation",
-    desc: "You never get sold by a senior partner only to have your brand handed off to interns. Senior practitioners execute 100% of your work."
-  },
-  {
-    title: "Speed Without Slop",
-    desc: "We leverage modern design engineering and AI-assisted workflows to ship in weeks what traditional agencies take 6 months to debate."
-  },
-  {
-    title: "Total Architectural Transparency",
-    desc: "No proprietary black-box code or vendor lock-in. We build on open, industry-standard modern stacks that your internal team can easily inherit."
-  }
-];
+type CardItem = (typeof CARD_STYLES)[number] & {
+  id: string;
+  title: string;
+  desc: string;
+  deliverables: string[];
+  tools: string[];
+  imageUrl?: string;
+};
 
-const industries = [
-  "B2B SaaS & DevTools",
-  "Fintech & Digital Banking",
-  "High-Growth E-Commerce",
-  "AI & Machine Learning Platforms",
-  "Venture Capital & Private Equity",
-  "Executive Consulting & Advisory"
-];
-
-function ServiceCard({ item, idx }: { item: typeof capabilities[0] & { imageUrl?: string }; idx: number }) {
+function ServiceCard({ item, idx }: { item: CardItem; idx: number }) {
   const [isOpen, setIsOpen] = useState(false);
   const IconComponent = item.icon;
 
   return (
-    <RevealOnScroll 
+    // No lift on hover: nothing here is clickable on desktop, so the motion
+    // promised a target that does not exist. The one real control is the
+    // mobile disclosure button, which carries its own state.
+    <RevealOnScroll
       delay={idx * 0.08}
-      className={`${item.gridClass} rounded-2xl p-6 sm:p-8 md:p-10 flex flex-col justify-between hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-md`}
+      className={`${item.gridClass} rounded-2xl p-6 sm:p-8 md:p-10 flex flex-col justify-between shadow-sm`}
     >
-      {/* Background image for video card */}
-      {item.hasImage && (
+      {/* Background image for video card. Guarded on the URL, not just on
+          hasImage: clearing the image in Site Content would otherwise hand
+          next/image an empty src. */}
+      {item.hasImage && item.imageUrl && (
         <>
           <Image
-            src={item.imageUrl || `https://picsum.photos/seed/vw-video-production/800/800`}
-            alt={item.title}
+            src={item.imageUrl}
+            alt=""
+            aria-hidden="true"
             fill
             className="object-cover opacity-25 group-hover:scale-105 transition-transform duration-700 pointer-events-none"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -192,24 +155,49 @@ function ServiceCard({ item, idx }: { item: typeof capabilities[0] & { imageUrl?
   );
 }
 
-export default function Services() {
+interface ServicesProps {
+  settings?: Record<string, string>;
+}
+
+export default function Services({ settings }: ServicesProps) {
+  const capabilities: CardItem[] = CARD_STYLES.map((style, i) => {
+    const n = i + 1;
+    return {
+      ...style,
+      id: `card${n}`,
+      title: content(settings, `services.card${n}_title`),
+      desc: content(settings, `services.card${n}_desc`),
+      deliverables: contentList(settings, `services.card${n}_deliverables`),
+      tools: contentList(settings, `services.card${n}_tools`),
+      imageUrl: style.hasImage ? content(settings, `services.card${n}_image`) : undefined,
+    };
+  });
+
+  const strengths = [1, 2, 3].map((n) => ({
+    title: content(settings, `services.strength${n}_title`),
+    desc: content(settings, `services.strength${n}_desc`),
+  }));
+
+  const industries = contentList(settings, "services.industries");
+
   return (
-    <section id="strategy" className="py-20 md:py-32 lg:py-40 px-5 md:px-10 xl:px-20 bg-warm-100 text-navy-950">
+    // warm-50, not warm-100: this section and AboutVision above it shared one
+    // background with no divider, so ~2000px of page read as a single slab.
+    <section id="strategy" className="py-20 md:py-32 lg:py-40 px-5 md:px-10 xl:px-20 bg-warm-50 text-navy-950">
       <div className="max-w-[1280px] mx-auto space-y-20 md:space-y-32">
         
-        {/* Section Header (With our single allowed eyebrow per Rule 4.7) */}
+        {/* Section Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-8 border-b border-navy-200 pb-10">
+          {/* The "MARKETING & BRAND GROWTH" eyebrow is gone: it restated the heading
+              it sat above and cost a typographic step. The heading carries itself. */}
           <RevealOnScroll className="max-w-2xl">
-            <span className="text-xs font-mono font-semibold uppercase tracking-widest text-bronze-600 block mb-3">
-              MARKETING &amp; BRAND GROWTH
-            </span>
-            <h2 className="text-display sm:text-h1 font-bold text-navy-950 tracking-tight leading-[1.05]">
-              We give wings to your vision.
+            <h2 className="text-h1 font-bold text-navy-950 text-balance">
+              {content(settings, "services.heading")}
             </h2>
           </RevealOnScroll>
           <RevealOnScroll delay={0.1} className="max-w-md">
             <p className="text-body text-navy-700 leading-relaxed">
-              We focus strictly on five marketing and growth disciplines where we execute at a master level. From high-ROI ad campaigns and conversion funnels to category-defining brand strategy, we give your business the altitude it deserves.
+              {content(settings, "services.intro")}
             </p>
           </RevealOnScroll>
         </div>
@@ -224,17 +212,22 @@ export default function Services() {
         {/* Why Choose Us (Operational Strengths - Clean 3-Col layout without card containers per Rule 4.4 / 4.7) */}
         <div className="pt-16 border-t border-navy-200 space-y-12">
           <RevealOnScroll className="max-w-xl">
-            <h3 className="text-h2 font-bold text-navy-950">How We Operate Differently</h3>
+            <h3 className="text-h2 font-bold text-navy-950">{content(settings, "services.strengths_heading")}</h3>
             <p className="text-body text-navy-700 mt-2">
-              Why fast-scaling teams choose Vision Wings over legacy agencies and bloated consultancies.
+              {content(settings, "services.strengths_intro")}
             </p>
           </RevealOnScroll>
 
+          {/* Titles were text-h4 — a 14px uppercase token, the same size as the
+              text-body-sm beneath them, so title and description read as one block.
+              text-h3 restores the step. The 2px navy rule is now a hairline: at 2px
+              it read as a decorative bar rather than the editorial rules used
+              everywhere else in this section. */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 sm:gap-12 lg:gap-16">
             {strengths.map((s, idx) => (
-              <RevealOnScroll key={idx} delay={idx * 0.1} className="space-y-3 border-l-2 border-navy-950 pl-6">
+              <RevealOnScroll key={idx} delay={idx * 0.1} className="space-y-3 border-l border-navy-300 pl-6">
                 <span className="text-xs font-mono font-semibold text-bronze-600 block">STRENGTH / 0{idx + 1}</span>
-                <h4 className="text-h4 font-bold text-navy-950">{s.title}</h4>
+                <h4 className="text-h3 font-bold text-navy-950">{s.title}</h4>
                 <p className="text-body-sm text-navy-600 leading-relaxed">{s.desc}</p>
               </RevealOnScroll>
             ))}
@@ -244,14 +237,16 @@ export default function Services() {
         {/* Industries Served (Sleek Horizontal Pill Cluster without eyebrows) */}
         <div className="pt-16 border-t border-navy-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
           <RevealOnScroll className="max-w-sm">
-            <h3 className="text-h3 font-bold text-navy-950">Proven Across Sectors</h3>
-            <p className="text-body-sm text-navy-600 mt-1">Deep domain experience where complex technology meets discerning users.</p>
+            <h3 className="text-h3 font-bold text-navy-950">{content(settings, "services.industries_heading")}</h3>
+            <p className="text-body-sm text-navy-600 mt-1">{content(settings, "services.industries_intro")}</p>
           </RevealOnScroll>
+          {/* No hover state on the pills: they are labels, not controls. A border
+              that lit up on hover promised a click target that does not exist. */}
           <RevealOnScroll delay={0.1} className="flex flex-wrap gap-2.5 sm:gap-3 max-w-2xl justify-start md:justify-end">
             {industries.map((ind, idx) => (
-              <span 
+              <span
                 key={idx}
-                className="px-4 py-2.5 min-h-[44px] inline-flex items-center rounded-full bg-navy-950 text-warm-50 text-xs sm:text-sm font-medium border border-navy-800 hover:border-bronze-500 transition-colors cursor-default"
+                className="px-4 py-2.5 min-h-[44px] inline-flex items-center rounded-full bg-navy-950 text-warm-50 text-xs sm:text-sm font-medium border border-navy-800"
               >
                 {ind}
               </span>

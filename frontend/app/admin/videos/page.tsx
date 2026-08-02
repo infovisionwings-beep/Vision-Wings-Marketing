@@ -1,13 +1,7 @@
-import { AdminVideoManager } from "@/components/admin/AdminVideoManager";
+import { redirect } from "next/navigation";
 
-export const metadata = {
-  title: "Video Management - Admin Portal",
-};
-
+// Folded into the single Media Library. Kept as a redirect so existing
+// bookmarks and links do not 404.
 export default function AdminVideosPage() {
-  return (
-    <div className="py-2">
-      <AdminVideoManager />
-    </div>
-  );
+  redirect("/admin/media");
 }

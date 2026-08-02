@@ -9,8 +9,15 @@ import RevealOnScroll from "@/components/motion/RevealOnScroll";
 import Button from "@/components/ui/Button";
 import { Link } from "@/components/ui/Link";
 import { Mail, MapPin, ArrowRight } from "lucide-react";
+import { content } from "@/lib/content";
 
-export default function Contact() {
+interface ContactProps {
+  settings?: Record<string, string>;
+}
+
+export default function Contact({ settings }: ContactProps) {
+  const email = content(settings, "contact.email");
+
   return (
     <section id="contact" className="relative py-24 md:py-36 lg:py-48 px-5 md:px-10 xl:px-20 bg-navy-950 text-center overflow-hidden">
       {/* Subtle copper radial glow for atmospheric depth */}
@@ -32,22 +39,22 @@ export default function Contact() {
 
       <div className="max-w-4xl mx-auto flex flex-col items-center relative z-10 space-y-12">
         <RevealOnScroll className="space-y-6">
-          <h2 className="text-display sm:text-h1 font-bold text-warm-50 tracking-tight leading-[1.05]">
-            Ready to give wings to your vision?
+          <h2 className="text-h1 font-bold text-warm-50 text-balance">
+            {content(settings, "contact.heading")}
           </h2>
           <p className="text-body-lg text-navy-300 max-w-2xl mx-auto leading-relaxed">
-            Stop competing on incremental tactics. Let&apos;s build high-converting marketing funnels, strategic brand authority, and performance campaigns that accelerate your business in a league of its own.
+            {content(settings, "contact.body")}
           </p>
         </RevealOnScroll>
 
         <RevealOnScroll delay={0.1}>
-          <Link href="/contact" className="inline-block w-full sm:w-auto">
+          <Link href={content(settings, "contact.cta_link")} className="inline-block w-full sm:w-auto">
             <Button 
               variant="primary" 
               className="bg-warm-50 text-navy-950 hover:bg-warm-100 active:bg-warm-200 active:scale-[0.98] active:-translate-y-[1px] transition-all w-full sm:w-auto px-8 py-4 text-base font-bold whitespace-nowrap shadow-xl group" 
               data-interactive
             >
-              <span>Launch Your Campaign</span>
+              <span>{content(settings, "contact.cta_text")}</span>
               <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
             </Button>
           </Link>
@@ -57,13 +64,13 @@ export default function Contact() {
         <RevealOnScroll delay={0.2} className="pt-12 border-t border-navy-800/80 w-full max-w-xl flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 text-xs font-mono text-navy-400">
           <div className="flex items-center gap-2">
             <Mail className="w-4 h-4 text-bronze-400" />
-            <a href="mailto:hello@visionwing.agency" className="hover:text-warm-50 transition-colors" data-interactive>
-              hello@visionwing.agency
+            <a href={`mailto:${email}`} className="hover:text-warm-50 transition-colors" data-interactive>
+              {email}
             </a>
           </div>
           <div className="flex items-center gap-2">
             <MapPin className="w-4 h-4 text-bronze-400" />
-            <span>Varanasi, UP &middot; Global Partners</span>
+            <span>{content(settings, "contact.location")}</span>
           </div>
         </RevealOnScroll>
       </div>

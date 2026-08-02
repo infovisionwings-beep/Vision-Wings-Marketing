@@ -39,18 +39,20 @@ async function DynamicHomepageContent() {
 
   return (
     <>
-      <Hero campaign={heroCampaigns[0]} />
-      <AboutVision />
-      <Services />
-      <Work dbCampaigns={archiveCampaigns} />
+      <Hero campaign={heroCampaigns[0]} settings={settings} />
+      <AboutVision settings={settings} />
+      <Services settings={settings} />
+      <Work dbCampaigns={archiveCampaigns} settings={settings} />
       <FeaturedVideosSection dbVideos={dbVideos} settings={settings} dbCampaigns={showcaseCampaigns} />
-      <Insights />
-      <Contact />
+      <Insights settings={settings} />
+      <Contact settings={settings} />
     </>
   );
 }
 
 export default function Home() {
+  // The fallback passes no settings on purpose: `content()` falls back to the
+  // schema defaults, so the skeleton renders real copy rather than empty headings.
   return (
     <Suspense fallback={
       <>

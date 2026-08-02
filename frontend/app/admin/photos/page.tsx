@@ -1,13 +1,7 @@
-import { AdminPhotoManager } from "@/components/admin/AdminPhotoManager";
+import { redirect } from "next/navigation";
 
-export const metadata = {
-  title: "Image & GIF Pipeline - Admin Portal",
-};
-
+// Folded into the single Media Library. Kept as a redirect so existing
+// bookmarks and links do not 404.
 export default function AdminPhotosPage() {
-  return (
-    <div className="py-2">
-      <AdminPhotoManager />
-    </div>
-  );
+  redirect("/admin/media");
 }

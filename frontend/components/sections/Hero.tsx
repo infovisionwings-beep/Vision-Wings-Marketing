@@ -5,126 +5,84 @@
 // MOTION_INTENSITY: 6
 // VISUAL_DENSITY: 3
 
-import { useState, useEffect } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "framer-motion";
 import AnimatedLogo from "@/components/motion/AnimatedLogo";
 import Button from "@/components/ui/Button";
 import { Link } from "@/components/ui/Link";
+import { content } from "@/lib/content";
 
 interface HeroProps {
   campaign?: any;
+  settings?: Record<string, string>;
 }
 
-export default function Hero({ campaign }: HeroProps) {
+export default function Hero({ campaign, settings }: HeroProps) {
   const prefersReducedMotion = useReducedMotion();
-  const [isLogoRevealed, setIsLogoRevealed] = useState(false);
-  const [skipAnimation, setSkipAnimation] = useState(false);
 
-  useEffect(() => {
-    const handleSkip = () => setSkipAnimation(true);
-    
-    // Allow users to skip the initial animation by interacting
-    window.addEventListener("scroll", handleSkip, { once: true });
-    window.addEventListener("click", handleSkip, { once: true });
-    window.addEventListener("touchstart", handleSkip, { once: true });
-
-    return () => {
-      window.removeEventListener("scroll", handleSkip);
-      window.removeEventListener("click", handleSkip);
-      window.removeEventListener("touchstart", handleSkip);
-    };
-  }, []);
-
-  const handleLogoComplete = () => {
-    setIsLogoRevealed(true);
-  };
-
-  const showContent = prefersReducedMotion || skipAnimation || isLogoRevealed;
-
-  const title = campaign?.title || "WE GIVE WINGS TO YOUR VISION";
-  const description =
-    campaign?.description ||
-    "For ambitious businesses ready to transcend the competition, Vision Wings delivers high-velocity marketing strategies, creative content funnels, and brand acceleration that propel your growth to new heights.";
-  const primaryCtaText = campaign?.primaryCtaText || "Launch Your Campaign";
-  const primaryCtaLink = campaign?.primaryCtaLink || "/contact";
-  const secondaryCtaText = campaign?.secondaryCtaText || "Explore Marketing Services";
-  const secondaryCtaLink = campaign?.secondaryCtaLink || "#strategy";
+  // A campaign assigned to the hero slot still wins, so scheduled campaigns keep
+  // working; Site Content supplies everything else.
+  const title = campaign?.title || content(settings, "hero.title");
+  const description = campaign?.description || content(settings, "hero.description");
+  const primaryCtaText = campaign?.primaryCtaText || content(settings, "hero.cta_primary_text");
+  const primaryCtaLink = campaign?.primaryCtaLink || content(settings, "hero.cta_primary_link");
+  const secondaryCtaText = campaign?.secondaryCtaText || content(settings, "hero.cta_secondary_text");
+  const secondaryCtaLink = campaign?.secondaryCtaLink || content(settings, "hero.cta_secondary_link");
+  const heroImage = content(settings, "hero.image");
+  const heroImageAlt = content(settings, "hero.image_alt");
 
   return (
-    <section className="relative min-h-[100dvh] pt-20 pb-16 md:pt-24 lg:pt-24 flex flex-col justify-center bg-warm-50 overflow-hidden">
-      {/* ── Layered background for depth ── */}
-      {/* Radial copper glow behind the logo area */}
-      <div 
-        className="absolute top-1/2 right-[10%] -translate-y-1/2 w-[700px] h-[700px] rounded-full opacity-[0.08] pointer-events-none"
-        style={{
-          background: "radial-gradient(circle, #B87333 0%, transparent 70%)",
-        }}
-      />
+    <section className="relative min-h-[100dvh] pt-24 pb-16 md:pt-28 flex flex-col justify-center bg-warm-50">
+      {/* ── Layered background for depth ──
+          Clipping lives on this layer, not the section: the section used to be
+          overflow-hidden, which silently cut off hero content on short viewports. */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        {/* Radial copper glow behind the logo area */}
+        <div
+          className="absolute top-1/2 right-[10%] -translate-y-1/2 w-[700px] h-[700px] rounded-full opacity-[0.08]"
+          style={{ background: "radial-gradient(circle, #B87333 0%, transparent 70%)" }}
+        />
 
-      {/* Top-left subtle navy radial for contrast */}
-      <div 
-        className="absolute -top-32 -left-32 w-[600px] h-[600px] rounded-full opacity-[0.04] pointer-events-none"
-        style={{
-          background: "radial-gradient(circle, #0F172A 0%, transparent 70%)",
-        }}
-      />
+        {/* Top-left subtle navy radial for contrast */}
+        <div
+          className="absolute -top-32 -left-32 w-[600px] h-[600px] rounded-full opacity-[0.04]"
+          style={{ background: "radial-gradient(circle, #0F172A 0%, transparent 70%)" }}
+        />
 
-      {/* Bottom gradient vignette – fades into the next section */}
-      <div 
-        className="absolute bottom-0 left-0 right-0 h-48 pointer-events-none"
-        style={{
-          background: "linear-gradient(to bottom, transparent, rgba(15,23,42,0.04))",
-        }}
-      />
+        {/* Bottom gradient vignette – fades into the next section */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-48"
+          style={{ background: "linear-gradient(to bottom, transparent, rgba(15,23,42,0.04))" }}
+        />
 
-      {/* Film-grain texture overlay */}
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-[0.035] mix-blend-multiply"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-          backgroundSize: "128px 128px",
-        }}
-      />
+        {/* Film-grain texture overlay */}
+        <div
+          className="absolute inset-0 opacity-[0.035] mix-blend-multiply"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+            backgroundSize: "128px 128px",
+          }}
+        />
+      </div>
 
       <div className="w-full mx-auto px-5 md:px-10 xl:px-20 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center max-w-[1280px] mx-auto">
-          
-          <div className="order-last lg:order-first lg:col-span-7 flex flex-col text-center lg:text-left">
-            {campaign?.subtitle && (
-              <motion.span
-                className="text-xs font-mono font-bold tracking-widest text-bronze-600 uppercase mb-3 block"
-                initial={{ opacity: 0, y: 15 }}
-                animate={showContent ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
-                transition={{ duration: 0.6 }}
-              >
-                {campaign.subtitle}
-              </motion.span>
-            )}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center max-w-[1280px] mx-auto">
 
-            <motion.h1
-              className="text-display sm:text-h1 font-bold text-navy-950 mb-6 tracking-tight leading-[1.05]"
-              initial={{ opacity: 0, y: 20 }}
-              animate={showContent ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            >
+          {/* The proposition leads on every breakpoint. It used to sit below the
+              logo on mobile, and every element was held at opacity:0 until the
+              logo animation reported completion — so the headline, the copy and
+              both CTAs were invisible for 1.6s, and permanently invisible if that
+              callback never fired. The copy now paints with the document; the
+              logo is the one authored moment. */}
+          <div className="lg:col-span-7 flex flex-col text-center lg:text-left">
+            <h1 className="text-display font-bold text-navy-950 mb-6 text-balance">
               {title}
-            </motion.h1>
+            </h1>
 
-            <motion.p
-              className="text-body-lg text-navy-700 mb-10 max-w-[45ch] md:max-w-2xl mx-auto lg:mx-0 leading-relaxed"
-              initial={{ opacity: 0, y: 20 }}
-              animate={showContent ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            >
+            <p className="text-body-lg text-navy-700 mb-10 max-w-[52ch] mx-auto lg:mx-0">
               {description}
-            </motion.p>
+            </p>
 
-            <motion.div
-              className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start w-full sm:w-auto"
-              initial={{ opacity: 0, y: 20 }}
-              animate={showContent ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            >
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start w-full sm:w-auto">
               <Link href={primaryCtaLink} className="w-full sm:w-auto">
                 <Button variant="primary" className="w-full sm:w-auto min-h-[48px] justify-center whitespace-nowrap shadow-xl" data-interactive>
                   {primaryCtaText}
@@ -135,14 +93,20 @@ export default function Hero({ campaign }: HeroProps) {
                   {secondaryCtaText}
                 </Button>
               </Link>
-            </motion.div>
+            </div>
           </div>
 
-          <div className="order-first lg:order-last lg:col-span-5 flex justify-center items-center min-h-[300px] sm:min-h-[360px] lg:min-h-[420px] w-full">
-            <AnimatedLogo
-              onComplete={handleLogoComplete}
-              isReducedMotion={!!(prefersReducedMotion || skipAnimation)}
-            />
+          <div className="lg:col-span-5 flex justify-center items-center w-full">
+            {heroImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={heroImage}
+                alt={heroImageAlt}
+                className="w-full max-w-[380px] rounded-2xl object-cover shadow-xl"
+              />
+            ) : (
+              <AnimatedLogo isReducedMotion={!!prefersReducedMotion} />
+            )}
           </div>
 
         </div>
