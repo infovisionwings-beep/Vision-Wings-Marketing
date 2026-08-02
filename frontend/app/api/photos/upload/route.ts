@@ -10,6 +10,11 @@ export async function POST(request: Request): Promise<NextResponse> {
       request,
       token: process.env.BLOB_READ_WRITE_TOKEN,
       onBeforeGenerateToken: async (pathname) => {
+        // The client picks the pathname but we sign it — reject anything outside
+        // photos/<userId>/<uuid>/, or originals land loose in the blob store root.
+        if (!/^photos\/[\w-]+\/[0-9a-f-]{36}\/original\.[a-z0-9]+$/i.test(pathname)) {
+          throw new Error(`Rejected upload path "${pathname}" — must be photos/<userId>/<uuid>/original.<ext>`);
+        }
         return {
           allowedContentTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
           tokenPayload: JSON.stringify({

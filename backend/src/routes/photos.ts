@@ -13,6 +13,8 @@ import * as FileType from 'file-type';
 
 const router = Router();
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 // Multer memory storage configuration
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -46,7 +48,9 @@ router.post('/', (req: Request, res: Response, next: any) => {
     let originalSize = req.body?.originalSize || 0;
     let originalMimeType = req.body?.originalMimeType || 'image/jpeg';
     const userId = (req.body?.userId as string) || 'admin';
-    const photoId = uuidv4();
+    // Direct-to-blob clients mint the id first so the original already sits in
+    // photos/<userId>/<id>/; reuse it so the renditions land in the same folder.
+    const photoId = UUID_RE.test(req.body?.id) ? (req.body.id as string) : uuidv4();
     const category = req.body?.category || 'General';
     const heading = req.body?.heading || null;
     const subHeading = req.body?.subHeading || null;
