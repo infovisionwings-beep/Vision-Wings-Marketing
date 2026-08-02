@@ -21,8 +21,42 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 8000;
 
+// `FRONTEND_URL` as a literal string means `cors` echoes that exact value for
+// every request, so a single typo (http instead of https, missing www) silently
+// breaks every browser call to the API — with no error until a real browser hits
+// it, since curl and health checks don't send an Origin header at all. Building
+// an allowlist from it instead survives that class of typo: both the www and
+// bare-domain variants of whatever is configured are accepted, and additional
+// origins can be added as a comma-separated list without a code change.
+function parseAllowedOrigins(raw: string | undefined): Set<string> {
+  const origins = new Set<string>();
+  for (const part of (raw || '').split(',').map((s) => s.trim()).filter(Boolean)) {
+    const normalized = part.replace(/\/+$/, '');
+    origins.add(normalized);
+    try {
+      const url = new URL(normalized);
+      const swapped = url.hostname.startsWith('www.') ? url.hostname.slice(4) : `www.${url.hostname}`;
+      origins.add(`${url.protocol}//${swapped}${url.port ? `:${url.port}` : ''}`);
+    } catch {
+      // Not a parseable absolute URL (e.g. a bare '*') — kept as-is above, no host variant to add.
+    }
+  }
+  return origins;
+}
+
+const allowedOrigins = parseAllowedOrigins(process.env.FRONTEND_URL);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
+  origin(requestOrigin, callback) {
+    // No Origin header: server-to-server calls, curl, health checks. These are
+    // not subject to same-origin policy, so there is nothing to check here.
+    if (!requestOrigin) return callback(null, true);
+    // Unset FRONTEND_URL keeps the previous fallback's intent (allow anything),
+    // but as a reflected origin rather than a literal '*' — which browsers
+    // reject outright once `credentials: true` is also set.
+    if (allowedOrigins.size === 0) return callback(null, true);
+    callback(null, allowedOrigins.has(requestOrigin));
+  },
   credentials: true,
 }));
 

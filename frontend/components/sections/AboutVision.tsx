@@ -8,22 +8,26 @@
 import RevealOnScroll from "@/components/motion/RevealOnScroll";
 import Image from "next/image";
 import { content } from "@/lib/content";
+import LogoMarquee from "./LogoMarquee";
+
+interface Logo {
+  id: string;
+  name: string;
+  logoUrl: string;
+  linkUrl?: string | null;
+}
 
 interface AboutVisionProps {
   settings?: Record<string, string>;
+  logos?: Logo[];
 }
 
-export default function AboutVision({ settings }: AboutVisionProps) {
+export default function AboutVision({ settings, logos = [] }: AboutVisionProps) {
   // Every string here is editable under Site Content → About / Vision.
   const pillars = [1, 2, 3].map((n) => ({
     label: content(settings, `about.pillar${n}_label`),
     title: content(settings, `about.pillar${n}_title`),
     body: content(settings, `about.pillar${n}_body`),
-  }));
-
-  const metrics = [1, 2, 3, 4].map((n) => ({
-    value: content(settings, `about.metric${n}_value`),
-    label: content(settings, `about.metric${n}_label`),
   }));
 
   const photo = content(settings, "about.photo");
@@ -82,17 +86,10 @@ export default function AboutVision({ settings }: AboutVisionProps) {
           </div>
         </div>
 
-        {/* Bottom: Plain-Layout Impact Metrics (Rule 4.4: For high density/impact, generic card containers are banned. Data metrics breathe in plain layout) */}
-        {/* text-h1 rather than text-display: at 96px a five-character figure like
-            "$45M+" is wider than its ~268px column at max width, which is why the
-            last one had picked up a whitespace-nowrap band-aid. */}
-        <RevealOnScroll className="pt-12 border-t border-navy-200 grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
-          {metrics.map((metric, idx) => (
-            <div key={metric.label || idx}>
-              <span className="text-h1 font-bold text-navy-950 block mb-1">{metric.value}</span>
-              <p className="text-body-sm text-navy-600 font-medium">{metric.label}</p>
-            </div>
-          ))}
+        {/* Bottom: client logo marquee, replacing the metric row. Manage the
+            list at Admin → Client Logos. */}
+        <RevealOnScroll className="pt-12 border-t border-navy-200">
+          <LogoMarquee logos={logos} />
         </RevealOnScroll>
 
       </div>
