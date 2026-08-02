@@ -12,6 +12,7 @@ import { ArrowUpRight } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { getInsights } from "@/app/actions/insights";
 import { format } from "date-fns";
+import { content } from "@/lib/content";
 
 const fallbackInsights = [
   {
@@ -43,7 +44,11 @@ const fallbackInsights = [
   }
 ];
 
-export default function Insights() {
+interface InsightsProps {
+  settings?: Record<string, string>;
+}
+
+export default function Insights({ settings }: InsightsProps) {
   const [insights, setInsights] = useState<any[]>(fallbackInsights);
 
   useEffect(() => {
@@ -76,14 +81,17 @@ export default function Insights() {
         {/* Section Header (No eyebrow per Rule 4.7 max 1 eyebrow per 3 sections) */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 border-b border-navy-200 pb-10">
           <RevealOnScroll className="max-w-2xl">
-            <h2 className="text-display sm:text-h1 font-bold text-navy-950 tracking-tight leading-[1.05]">
-              Marketing &amp; Growth Insights.
+            <h2 className="text-h1 font-bold text-navy-950 text-balance">
+              {content(settings, "insights.heading")}
             </h2>
+            <p className="text-body text-navy-700 mt-4 max-w-xl leading-relaxed">
+              {content(settings, "insights.intro")}
+            </p>
           </RevealOnScroll>
           <RevealOnScroll delay={0.1}>
-            <Link href="/insights" className="inline-block min-h-[44px] rounded-full focus-visible:ring-2 focus-visible:ring-bronze-600 outline-none">
+            <Link href={content(settings, "insights.cta_link")} className="inline-block min-h-[44px] rounded-full focus-visible:ring-2 focus-visible:ring-bronze-600 outline-none">
               <Button variant="secondary" className="whitespace-nowrap group min-h-[44px]" data-interactive>
-                <span>Read All Insights</span>
+                <span>{content(settings, "insights.cta_text")}</span>
                 <ArrowUpRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </Button>
             </Link>

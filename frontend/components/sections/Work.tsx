@@ -10,6 +10,7 @@ import RevealOnScroll from "@/components/motion/RevealOnScroll";
 import Button from "@/components/ui/Button";
 import { Link } from "@/components/ui/Link";
 import { ArrowUpRight } from "lucide-react";
+import { content } from "@/lib/content";
 import { getProjects } from "@/app/actions/projects";
 
 interface GalleryBrick {
@@ -103,9 +104,10 @@ const curatedSupplementalPhotos = [
 
 interface WorkProps {
   dbCampaigns?: any[];
+  settings?: Record<string, string>;
 }
 
-export default function Work({ dbCampaigns = [] }: WorkProps) {
+export default function Work({ dbCampaigns = [], settings }: WorkProps) {
   const [bricks, setBricks] = useState<GalleryBrick[]>(fallbackBricks);
 
   useEffect(() => {
@@ -195,8 +197,8 @@ export default function Work({ dbCampaigns = [] }: WorkProps) {
           </RevealOnScroll>
           
           <RevealOnScroll delay={0.1} className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 w-full md:w-auto">
-            <h2 className="text-display sm:text-h1 font-bold text-navy-950 tracking-tight leading-[1.02]">
-              Campaigns that soar.
+            <h2 className="text-h1 font-bold text-navy-950 text-balance">
+              {content(settings, "work.heading")}
             </h2>
             <Link href="/work" className="inline-block min-h-[44px] rounded-full focus-visible:ring-2 focus-visible:ring-bronze-500 outline-none mb-1">
               <Button variant="secondary" className="whitespace-nowrap group min-h-[44px] shadow-sm" data-interactive>
