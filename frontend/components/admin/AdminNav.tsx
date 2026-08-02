@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { useTransition } from "react";
 import {
   LayoutDashboard, Layers, Briefcase, FileText, PenSquare,
-  Video, Image as ImageIcon, Users, LogOut, Loader2,
+  Video, Image as ImageIcon, Users, LogOut, Loader2, Building2,
 } from "lucide-react";
 import { Link } from "@/components/ui/Link";
 import { logoutAdmin } from "@/app/actions/adminAuth";
@@ -29,6 +29,7 @@ export const ADMIN_NAV: { heading: string; items: AdminNavItem[] }[] = [
       { href: "/admin/campaigns", label: "Campaigns", icon: Layers },
       { href: "/admin/projects", label: "Projects", icon: Briefcase },
       { href: "/admin/insights", label: "Insights", icon: PenSquare },
+      { href: "/admin/logos", label: "Client Logos", icon: Building2 },
       { href: "/admin/content", label: "Site Content", icon: FileText },
     ],
   },

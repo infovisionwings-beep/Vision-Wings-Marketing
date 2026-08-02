@@ -9,7 +9,14 @@ const src = readFileSync(new URL("./sections.ts", import.meta.url), "utf8");
 
 // Every key declared in the schema, in order.
 const keys = [...src.matchAll(/^\s*(?:text|area|image|video|list)\(\s*"([^"]+)"/gm)].map((m) => m[1]);
-assert.ok(keys.length > 60, `expected the full homepage schema, found ${keys.length} keys`);
+assert.ok(keys.length > 55, `expected the full homepage schema, found ${keys.length} keys`);
+
+// The 4 metrics ($45M+ etc.) were replaced by the client logo marquee, which is
+// its own CRUD (Admin -> Client Logos), not a Site Content field. They must not
+// come back as orphaned, unrendered form fields.
+for (const removed of ["about.metric1_value", "about.metric2_value", "about.metric3_value", "about.metric4_label"]) {
+  assert.ok(!keys.includes(removed), `metric field should have been removed, not reintroduced: ${removed}`);
+}
 
 // Duplicates would make one field silently overwrite another on save.
 const dupes = keys.filter((k, i) => keys.indexOf(k) !== i);
@@ -24,7 +31,7 @@ for (const k of keys) {
 // the failure this catches.
 for (const required of [
   "hero.title", "hero.cta_primary_link", "hero.image",
-  "about.heading", "about.photo", "about.pillar3_body", "about.metric4_label",
+  "about.heading", "about.photo", "about.pillar3_body",
   "services.heading", "services.card1_title", "services.card4_image",
   "services.card5_tools", "services.strength3_desc", "services.industries",
   "work.heading",

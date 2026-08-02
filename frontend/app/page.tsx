@@ -9,6 +9,7 @@ import Contact from "@/components/sections/Contact";
 import { getCompletedVideos } from "@/app/actions/videos";
 import { getSettings } from "@/app/actions/settings";
 import { getCampaigns } from "@/app/actions/campaigns";
+import { getClientLogos } from "@/app/actions/clientLogos";
 
 export const revalidate = 60; // 1 minute revalidation for CMS freshness
 
@@ -18,14 +19,16 @@ async function DynamicHomepageContent() {
   let heroCampaigns: any[] = [];
   let showcaseCampaigns: any[] = [];
   let archiveCampaigns: any[] = [];
+  let logos: any[] = [];
 
   try {
-    const [vData, sData, heroData, showData, archData] = await Promise.all([
+    const [vData, sData, heroData, showData, archData, logoData] = await Promise.all([
       getCompletedVideos().catch(() => []),
       getSettings().catch(() => ({})),
       getCampaigns("hero").catch(() => []),
       getCampaigns("showcases").catch(() => []),
       getCampaigns("archive").catch(() => []),
+      getClientLogos().catch(() => []),
     ]);
 
     dbVideos = vData || [];
@@ -33,6 +36,7 @@ async function DynamicHomepageContent() {
     heroCampaigns = heroData || [];
     showcaseCampaigns = showData || [];
     archiveCampaigns = archData || [];
+    logos = logoData || [];
   } catch (err) {
     console.error("Failed to fetch CMS data for homepage:", err);
   }
@@ -40,7 +44,7 @@ async function DynamicHomepageContent() {
   return (
     <>
       <Hero campaign={heroCampaigns[0]} settings={settings} />
-      <AboutVision settings={settings} />
+      <AboutVision settings={settings} logos={logos} />
       <Services settings={settings} />
       <Work dbCampaigns={archiveCampaigns} settings={settings} />
       <FeaturedVideosSection dbVideos={dbVideos} settings={settings} dbCampaigns={showcaseCampaigns} />

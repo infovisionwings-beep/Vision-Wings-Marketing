@@ -9,6 +9,24 @@ export const projects = pgTable("projects", {
   coverImage: text("cover_image"),
   content: text("content").notNull(),
   isFeatured: boolean("is_featured").default(false),
+  // 'active' | 'archived'. Defaults to 'active' so every existing project stays
+  // visible exactly as before this column existed. There was previously no way
+  // to archive a project short of a hard delete with no confirmation step.
+  publishStatus: varchar("publish_status", { length: 20 }).notNull().default("active"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Company/client logos for the homepage marquee. Images come from the existing
+// Media Library photo picker, so no separate upload path or conversion pipeline
+// is needed here.
+export const clientLogos = pgTable("client_logos", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  logoUrl: text("logo_url").notNull(),
+  linkUrl: text("link_url"),
+  displayOrder: integer("display_order").notNull().default(0),
+  publishStatus: varchar("publish_status", { length: 20 }).notNull().default("active"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

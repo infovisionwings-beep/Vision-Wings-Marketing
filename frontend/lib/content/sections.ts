@@ -54,7 +54,7 @@ export const CONTENT_SECTIONS: ContentSection[] = [
   {
     id: "vision",
     label: "About / Vision",
-    description: "The manifesto, the photograph, the three pillars and the metric row.",
+    description: "The manifesto, the photograph, and the three pillars. The logo marquee beneath them is managed at Admin → Client Logos, not here.",
     blocks: [
       {
         label: "Manifesto",
@@ -121,19 +121,6 @@ export const CONTENT_SECTIONS: ContentSection[] = [
             "Body",
             "We bridge the gap between captivating creative storytelling and bottom-line performance, turning passive audiences into lifelong brand advocates."
           ),
-        ],
-      },
-      {
-        label: "Metrics",
-        fields: [
-          text("about.metric1_value", "Metric 1 value", "$45M+"),
-          text("about.metric1_label", "Metric 1 label", "Client Value Created"),
-          text("about.metric2_value", "Metric 2 value", "3.8×"),
-          text("about.metric2_label", "Metric 2 label", "Average Conversion Lift"),
-          text("about.metric3_value", "Metric 3 value", "100%"),
-          text("about.metric3_label", "Metric 3 label", "Senior Practitioner Execution"),
-          text("about.metric4_value", "Metric 4 value", "<30d"),
-          text("about.metric4_label", "Metric 4 label", "Avg Sprint to First Impact"),
         ],
       },
     ],
