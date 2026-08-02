@@ -71,6 +71,7 @@ export const LazyVideoPlayer: React.FC<LazyVideoPlayerProps> = ({
           ref={videoRef}
           controls
           autoPlay
+          playsInline
           preload="auto"
           poster={posterUrl || undefined}
           className="w-full aspect-video object-cover"
