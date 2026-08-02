@@ -75,7 +75,7 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
   const [selectedCategory, setSelectedCategory] = useState<string>("Video Production & Motion Graphics");
   
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const consoleEndRef = useRef<HTMLDivElement>(null);
+  const consoleBodyRef = useRef<HTMLDivElement>(null);
 
   const [editVideo, setEditVideo] = useState<VideoRecord | null>(null);
 
@@ -130,9 +130,12 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
     return () => clearInterval(interval);
   }, []); // Empty deps: don't restart interval on selection change
 
-  // Auto-scroll console window to bottom when logs update
+  // Pin the console to its newest line by scrolling the console itself. The old
+  // scrollIntoView pulled the whole window down on every 4s poll, which made the
+  // page unusable while you were reading anything else on it.
   useEffect(() => {
-    consoleEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const body = consoleBodyRef.current;
+    if (body) body.scrollTop = body.scrollHeight;
   }, [videos, selectedVideoId]);
 
   // Handle File Upload
@@ -245,9 +248,9 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
         <div className="bg-gradient-to-r from-emerald-50 via-warm-100 to-white text-navy-950 p-4 sm:p-5 rounded-2xl shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-emerald-300 animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="space-y-0.5">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-600 text-white border border-emerald-400 text-[10px] font-mono font-bold tracking-wider uppercase">
-              ⚡ VIDEO ASSET SELECTOR
+              Pick a video
             </span>
-            <h3 className="text-lg sm:text-xl font-bold tracking-tight text-navy-950 font-display">Select Cloud Video for Dossier</h3>
+            <h3 className="text-lg sm:text-xl font-bold tracking-tight text-navy-950 font-display">Choose a video</h3>
             <p className="text-xs text-navy-600 max-w-xl leading-snug">
               Upload above or click a video below, then click <strong className="text-navy-950 underline">&ldquo;USE THIS VIDEO&rdquo;</strong>.
             </p>
@@ -266,32 +269,27 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
             </button>
           ) : (
             <div className="w-full md:w-auto px-4 py-2 bg-white text-navy-500 font-mono text-xs rounded-lg border border-navy-200 shadow-sm text-center flex-shrink-0 font-semibold">
-              👈 CLICK A VIDEO BELOW
+              Pick a video below
             </div>
           )}
         </div>
       )}
 
       {/* Header section */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-navy-200/80 pb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-navy-200 pb-6">
         <div>
-          <span className="text-xs font-mono font-semibold uppercase tracking-wider text-bronze-600 block mb-1">
-            CLOUD PIPELINE / 03
-          </span>
-          <h1 className="text-display sm:text-h2 font-bold text-navy-950 tracking-tight">
-            Video Transcoding Engine
-          </h1>
+          <h1 className="text-h2 font-bold text-navy-950 tracking-tight">Videos</h1>
           <p className="text-navy-600 text-sm mt-1 max-w-2xl leading-relaxed">
-            Upload source MP4/MOV media. Watch serverless workers transcode and extract thumbnails in real-time via the Live Telemetry Console.
+            Upload MP4, MOV or WebM. Each one is transcoded in the background — watch progress in the log.
           </p>
         </div>
         <button
           onClick={fetchVideos}
-          className="flex items-center gap-2 text-xs font-mono font-bold text-navy-900 hover:text-bronze-600 active:scale-[0.98] active:-translate-y-[1px] transition-all bg-warm-200/80 hover:bg-warm-200 px-4 py-2.5 rounded-lg border border-navy-300/40 shadow-sm"
+          className="flex min-h-[44px] shrink-0 items-center gap-2 rounded-lg border border-navy-300 bg-warm-200 px-4 text-sm font-semibold text-navy-900 transition-colors outline-none hover:bg-warm-300 focus-visible:ring-2 focus-visible:ring-bronze-500"
           data-interactive
         >
           <RefreshCw className="w-3.5 h-3.5" />
-          <span>SYNC TELEMETRY</span>
+          <span>Refresh</span>
         </button>
       </div>
 
@@ -310,7 +308,7 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
                     <Upload className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="text-base font-bold text-navy-950 font-display">Upload New Video Asset</h4>
+                    <h4 className="text-base font-bold text-navy-950 font-display">Upload a video</h4>
                     <p className="text-xs text-navy-500">MP4, MOV, WebM up to 100MB. Transcoded in real-time.</p>
                   </div>
                 </div>
@@ -331,12 +329,12 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
                   }`}
                 >
                   {isUploading ? <Loader2 className="w-4 h-4 animate-spin text-bronze-400" /> : <Film className="w-4 h-4 text-bronze-400" />}
-                  <span>{isUploading ? "TRANSMITTING..." : "⚡ SELECT & UPLOAD"}</span>
+                  <span>{isUploading ? "Uploading…" : "Choose a file"}</span>
                 </label>
               </div>
 
               <div className="flex items-center gap-3 pt-2 border-t border-navy-200/60">
-                <label className="text-xs font-mono font-bold text-navy-600 uppercase flex-shrink-0">UI Category / Genre:</label>
+                <label className="text-xs font-mono font-bold text-navy-600 uppercase flex-shrink-0">Category</label>
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
@@ -357,13 +355,13 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
                   <Upload className="w-7 h-7" />
                 </div>
                 <span className="text-xs font-mono uppercase tracking-widest text-bronze-400 font-bold">VERCEL BLOB CDN + UPSTASH QUEUE</span>
-                <h3 className="text-h3 font-bold text-warm-50">Deploy Media Asset</h3>
+                <h3 className="text-h3 font-bold text-warm-50">Upload a video</h3>
                 <p className="text-sm text-navy-300 leading-relaxed">
                   Select website UI category &amp; upload high-resolution MP4, MOV, or WebM video file (Max 100MB payload).
                 </p>
 
                 <div className="w-full max-w-sm space-y-1 text-left">
-                  <label className="text-[11px] font-mono font-bold text-bronze-400 uppercase">Website Category / Sub-Genre:</label>
+                  <label className="text-[11px] font-mono font-bold text-bronze-400 uppercase">Category</label>
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
@@ -392,13 +390,13 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
                   }`}
                 >
                   {isUploading ? <Loader2 className="w-5 h-5 animate-spin text-bronze-600" /> : <Film className="w-5 h-5 text-bronze-600 group-hover/btn:rotate-12 transition-transform" />}
-                  <span>{isUploading ? "TRANSMITTING TO CLOUD..." : "INITIALIZE UPLOAD"}</span>
+                  <span>{isUploading ? "Uploading…" : "Choose a file"}</span>
                 </label>
 
                 {uploadProgress !== null && (
                   <div className="w-full max-w-md mt-6 space-y-2">
                     <div className="flex justify-between text-xs font-mono font-semibold text-bronze-400">
-                      <span>BUFFERING PAYLOAD TO CDN...</span>
+                      <span>Uploading</span>
                       <span>{uploadProgress}%</span>
                     </div>
                     <div className="w-full h-3 bg-navy-900 rounded-full overflow-hidden border border-navy-800 p-0.5">
@@ -423,14 +421,14 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
           {/* Videos List Grid */}
           <div className="space-y-6 pt-2">
             <div className="flex items-center justify-between">
-              <h3 className="text-h3 font-bold text-navy-950">Indexed Cloud Assets ({videos.length})</h3>
-              <span className="text-xs font-mono text-navy-500">AUTO-REFRESHING EVERY 4S</span>
+              <h3 className="text-h3 font-bold text-navy-950">Videos ({videos.length})</h3>
+              <span className="text-xs font-mono text-navy-500">Refreshes every 4s</span>
             </div>
 
             {isLoading ? (
               <div className="py-20 flex flex-col items-center justify-center text-navy-500 gap-3">
                 <Loader2 className="w-8 h-8 animate-spin text-bronze-600" />
-                <span className="text-xs font-mono">SYNCHRONIZING WITH NEON DATABASE...</span>
+                <span className="text-xs font-mono">Loading…</span>
               </div>
             ) : videos.length === 0 ? (
               <div className="bg-warm-50 p-12 rounded-2xl text-center border border-navy-200/80 text-navy-500 font-mono text-xs">
@@ -457,7 +455,7 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
                             </span>
                             {isSelected && (
                               <span className="text-[10px] font-mono font-bold bg-bronze-500 text-warm-50 px-2 py-0.5 rounded-md uppercase tracking-wider">
-                                MONITORING
+                                SELECTED
                               </span>
                             )}
                           </div>
@@ -465,20 +463,20 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
                           <div className="flex items-center gap-2">
                             {v.status === "completed" && (
                               <span className="px-3 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800 text-[11px] font-mono font-bold flex items-center gap-1.5 shadow-sm">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> CDN READY
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Ready
                               </span>
                             )}
 
                             {(v.status === "processing" || v.status === "queued" || v.status === "uploaded") && (
                               <span className="px-3 py-1 rounded-full bg-amber-950 text-amber-300 border border-amber-800 text-[11px] font-mono font-bold flex items-center gap-1.5 shadow-sm">
                                 <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
-                                {v.status === "processing" ? "TRANSCODING..." : "BULLMQ QUEUED"}
+                                {v.status === "processing" ? "Transcoding…" : "Queued"}
                               </span>
                             )}
 
                             {v.status === "failed" && (
                               <span className="px-3 py-1 rounded-full bg-red-950 text-red-300 border border-red-800 text-[11px] font-mono font-bold flex items-center gap-1.5 shadow-sm">
-                                <AlertCircle className="w-3.5 h-3.5 text-red-400" /> TRANSCODE FAILED
+                                <AlertCircle className="w-3.5 h-3.5 text-red-400" /> Failed
                               </span>
                             )}
                           </div>
@@ -498,8 +496,8 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
                       {/* Footer details & Actions */}
                       <div className="pt-4 mt-4 border-t border-navy-200/80 flex items-center justify-between text-xs font-mono text-navy-500">
                         <div className="flex items-center gap-4">
-                          {v.durationSeconds && <span>DUR: {v.durationSeconds}s</span>}
-                          <span>SIZE: {(v.originalSize / (1024 * 1024)).toFixed(1)} MB</span>
+                          {v.durationSeconds && <span>Length: {v.durationSeconds}s</span>}
+                          <span>Size: {(v.originalSize / (1024 * 1024)).toFixed(1)} MB</span>
                           <span>ID: {v.id.slice(0, 8)}...</span>
                         </div>
 
@@ -521,13 +519,14 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
                               e.stopPropagation();
                               setEditVideo(v);
                             }}
-                            className="p-1.5 text-navy-500 hover:text-navy-900 bg-navy-100 hover:bg-navy-200 rounded-lg transition-all active:scale-95"
-                            title="Edit Details"
+                            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-navy-500 transition-colors outline-none hover:bg-navy-100 hover:text-navy-900 focus-visible:ring-2 focus-visible:ring-bronze-500"
+                            aria-label="Edit details"
+                            title="Edit details"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
                           <span className="text-bronze-600 font-bold group-hover:underline flex items-center gap-1">
-                            <span>Inspect Telemetry</span>
+                            <span>View log</span>
                             <ChevronRight className="w-3.5 h-3.5" />
                           </span>
 
@@ -536,8 +535,9 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
                               e.stopPropagation();
                               handleDelete(v.id);
                             }}
-                            className="p-2 text-navy-400 hover:text-warm-50 hover:bg-red-900/90 rounded-lg transition-all active:scale-95"
-                            title="Delete Video from Cloud CDN and DB"
+                            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-navy-500 transition-colors outline-none hover:bg-red-900 hover:text-warm-50 focus-visible:ring-2 focus-visible:ring-bronze-500"
+                            aria-label="Delete video"
+                            title="Delete video"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -549,9 +549,11 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
               </div>
             )}
           </div>
-               {/* RIGHT COLUMN: Live Side Telemetry Console (Hidden in Modal Mode to keep popup compact and smooth) */}
+        </div>
+
+        {/* Worker console — a grid sibling of the left column, not a child of it */}
         {!isModal && (
-          <div className="lg:col-span-5 xl:col-span-4 sticky top-8 space-y-4">
+          <div className="lg:col-span-5 xl:col-span-4 lg:sticky lg:top-8 space-y-4">
             <div className="bg-navy-950 rounded-2xl border border-navy-800 shadow-2xl overflow-hidden flex flex-col h-[650px]">
               
               {/* Console Header */}
@@ -565,7 +567,7 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
                   <div className="h-4 w-[1px] bg-navy-700 mx-1" />
                   <div className="flex items-center gap-2 text-warm-100 font-mono text-xs font-bold tracking-wider">
                     <Terminal className="w-4 h-4 text-bronze-400" />
-                    <span>LIVE WORKER CONSOLE</span>
+                    <span>Processing log</span>
                   </div>
                 </div>
 
@@ -581,9 +583,9 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
               <div className="bg-navy-900/40 border-b border-navy-800/60 px-5 py-2.5 flex items-center justify-between text-xs font-mono text-navy-400">
                 <div className="flex items-center gap-2 truncate">
                   <Activity className="w-3.5 h-3.5 text-bronze-400 flex-shrink-0" />
-                  <span>TARGET:</span>
+                  <span>File:</span>
                   <span className="text-warm-100 font-semibold truncate max-w-[180px]">
-                    {selectedVideo ? selectedVideo.originalFileName : "NO JOB SELECTED"}
+                    {selectedVideo ? selectedVideo.originalFileName : "Nothing selected"}
                   </span>
                 </div>
                 {selectedVideo && (
@@ -594,7 +596,7 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
               </div>
 
               {/* Terminal Output Body */}
-              <div className="flex-1 overflow-y-auto p-5 font-mono text-xs space-y-3 bg-[#070b14] scrollbar-thin scrollbar-thumb-navy-800 scrollbar-track-transparent">
+              <div ref={consoleBodyRef} className="flex-1 overflow-y-auto p-5 font-mono text-xs space-y-3 bg-[#070b14] scrollbar-thin scrollbar-thumb-navy-800 scrollbar-track-transparent">
                 {!selectedVideo ? (
                   <div className="h-full flex flex-col items-center justify-center text-navy-600 space-y-2 text-center py-12">
                     <Terminal className="w-8 h-8 opacity-40" />
@@ -655,15 +657,14 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
                     <span className="text-navy-600">&gt;</span>
                     <span className="text-xs">
                       {selectedVideo.status === "completed"
-                        ? "JOB FINISHED // MP4 RENDITION ENCODED"
+                        ? "Done — MP4 encoded"
                         : selectedVideo.status === "failed"
-                        ? "JOB TERMINATED // ERROR ENCOUNTERED"
-                        : "PROCESSING ACTIVE // WORKER LISTENING"}
+                        ? "Stopped — see error above"
+                        : "Processing…"}
                     </span>
                     <span className="w-2 h-4 bg-bronze-400 animate-pulse inline-block" />
                   </div>
                 )}
-                <div ref={consoleEndRef} />
               </div>
 
               {/* Console Footer Details */}
@@ -680,17 +681,16 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
                 <div className="flex items-center justify-between text-[11px] text-navy-400">
                   <div className="flex items-center gap-2">
                     <Clock className="w-3.5 h-3.5 text-navy-500" />
-                    <span>POLL INTERVAL: 4000ms</span>
+                    <span>Refreshes every 4s</span>
                   </div>
                   <div className="text-navy-500">
-                    {selectedVideo?.logs?.length || 0} EVENTS LOGGED
+                    {selectedVideo?.logs?.length || 0} events
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        )}   </div>
-
+        )}
       </div>
       {editVideo && (
         <EditMediaModal 
