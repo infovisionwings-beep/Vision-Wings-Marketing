@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Turnstile } from '@marsidev/react-turnstile'
 import { authenticateWithTurnstile, verifySignupOtp } from '@/app/actions/auth'
@@ -16,13 +16,22 @@ export default function LoginPage() {
   const [isOtpPending, startOtpTransition] = useTransition()
   const [showOtp, setShowOtp] = useState(false)
   const [registeredEmail, setRegisteredEmail] = useState("")
-  
+
+  // Where to return after sign-in (e.g. an admin invite link that sent an
+  // unauthenticated visitor here). Read from the URL rather than useSearchParams so
+  // this page needs no Suspense boundary; the server action re-validates it anyway.
+  const [next, setNext] = useState("")
+  useEffect(() => {
+    setNext(new URLSearchParams(window.location.search).get('next') || "")
+  }, [])
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
     const formData = new FormData(e.currentTarget)
     formData.append('isSignUp', isSignUp.toString())
-    
+    if (next) formData.append('next', next)
+
     startTransition(async () => {
       const result = await authenticateWithTurnstile(formData)
       if (result?.error) {
