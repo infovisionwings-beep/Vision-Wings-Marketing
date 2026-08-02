@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { insights } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { requireAdmin } from "@/lib/auth/rbac";
+import { requireAdminApi } from "@/lib/auth/rbac";
 import { logAdminAction } from "@/lib/auth/audit-log";
 
 export const dynamic = "force-dynamic";
@@ -16,11 +16,10 @@ export async function PUT(
     const { id } = await context.params;
     const insightId = Number(id);
 
-    let user: any = { id: "admin", email: "admin@agency.com" };
-    try {
-      user = await requireAdmin();
-    } catch (authErr) {
-      console.warn("requireAdmin warning in PUT /api/insights/[id]:", authErr);
+    // Blogs are the SEO designation's surface; Developer passes any role list.
+    const user = await requireAdminApi(["Admin", "SEO"]);
+    if (!user) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const data = await req.json();
@@ -73,11 +72,10 @@ export async function DELETE(
     const { id } = await context.params;
     const insightId = Number(id);
 
-    let user: any = { id: "admin", email: "admin@agency.com" };
-    try {
-      user = await requireAdmin();
-    } catch (authErr) {
-      console.warn("requireAdmin warning in DELETE /api/insights/[id]:", authErr);
+    // Blogs are the SEO designation's surface; Developer passes any role list.
+    const user = await requireAdminApi(["Admin", "SEO"]);
+    if (!user) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     await db
