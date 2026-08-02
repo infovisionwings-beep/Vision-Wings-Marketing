@@ -13,6 +13,8 @@ import * as FileType from 'file-type';
 
 const router = Router();
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 // Multer memory storage configuration (holds file in buffer for streaming upload to Vercel Blob)
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -44,7 +46,9 @@ router.post('/', (req: Request, res: Response, next: any) => {
     let originalFileName = req.body?.originalFileName;
     let originalSize = req.body?.originalSize || 0;
     const userId = (req.body?.userId as string) || 'admin';
-    const videoId = uuidv4();
+    // Direct-to-blob clients mint the id first so the original already sits in
+    // videos/<userId>/<id>/; reuse it so the renditions land in the same folder.
+    const videoId = UUID_RE.test(req.body?.id) ? (req.body.id as string) : uuidv4();
     const category = req.body?.category || 'General';
     const heading = req.body?.heading || null;
     const subHeading = req.body?.subHeading || null;

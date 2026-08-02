@@ -148,7 +148,7 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
 
   const uploadFile = async (file: File) => {
     const allowedTypes = ["video/mp4", "video/quicktime", "video/webm"];
-    const ext = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
+    const ext = (file.name.match(/\.[a-z0-9]+$/i)?.[0] || ".mp4").toLowerCase();
     const allowedExts = [".mp4", ".mov", ".webm"];
 
     if (!allowedTypes.includes(file.type) && !allowedExts.includes(ext)) {
@@ -166,7 +166,12 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
     setUploadProgress(0);
 
     try {
-      const newBlob = await upload(file.name, file, {
+      // Mint the record id here so the original, the transcoded renditions and the
+      // DB row all share one folder: videos/<userId>/<videoId>/. Uploading under
+      // `file.name` dumped every original in the blob store root.
+      const videoId = crypto.randomUUID();
+
+      const newBlob = await upload(`videos/admin/${videoId}/original${ext}`, file, {
         access: "public",
         handleUploadUrl: "/api/videos/upload",
         onUploadProgress: (progress) => {
@@ -178,6 +183,7 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          id: videoId,
           inputUrl: newBlob.url,
           originalFileName: file.name,
           originalSize: file.size,
@@ -186,11 +192,16 @@ export const AdminVideoManager: React.FC<AdminVideoManagerProps> = ({ isModal = 
         }),
       });
 
-      if (res.ok) {
-        const result = await res.json();
-        if (result.video?.id) {
-          setSelectedVideoId(result.video.id);
-        }
+      // Without this the blob upload "succeeds" while the transcode job is never
+      // queued — the file just sits in the store unconverted with no error shown.
+      if (!res.ok) {
+        const detail = await res.json().catch(() => null);
+        throw new Error(detail?.error || `Backend rejected the upload (HTTP ${res.status}). The video was not queued for transcoding.`);
+      }
+
+      const result = await res.json();
+      if (result.video?.id) {
+        setSelectedVideoId(result.video.id);
       }
 
       setIsUploading(false);

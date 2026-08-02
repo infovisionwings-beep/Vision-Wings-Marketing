@@ -148,7 +148,7 @@ export const AdminPhotoManager: React.FC<AdminPhotoManagerProps> = ({ isModal = 
 
   const uploadFile = async (file: File) => {
     const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-    const ext = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
+    const ext = (file.name.match(/\.[a-z0-9]+$/i)?.[0] || ".jpg").toLowerCase();
     const allowedExts = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
 
     if (!allowedTypes.includes(file.type) && !allowedExts.includes(ext)) {
@@ -166,7 +166,12 @@ export const AdminPhotoManager: React.FC<AdminPhotoManagerProps> = ({ isModal = 
     setUploadProgress(0);
 
     try {
-      const newBlob = await upload(file.name, file, {
+      // Mint the record id here so the original, the WebP renditions and the DB row
+      // all share one folder: photos/<userId>/<photoId>/. Uploading under `file.name`
+      // dumped every original in the blob store root.
+      const photoId = crypto.randomUUID();
+
+      const newBlob = await upload(`photos/admin/${photoId}/original${ext}`, file, {
         access: "public",
         handleUploadUrl: "/api/photos/upload",
         onUploadProgress: (progress) => {
@@ -178,6 +183,7 @@ export const AdminPhotoManager: React.FC<AdminPhotoManagerProps> = ({ isModal = 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          id: photoId,
           inputUrl: newBlob.url,
           originalFileName: file.name,
           originalSize: file.size,
@@ -187,11 +193,16 @@ export const AdminPhotoManager: React.FC<AdminPhotoManagerProps> = ({ isModal = 
         }),
       });
 
-      if (res.ok) {
-        const result = await res.json();
-        if (result.photo?.id) {
-          setSelectedPhotoId(result.photo.id);
-        }
+      // Without this the blob upload "succeeds" while the transcode job is never
+      // queued — the file just sits in the store unconverted with no error shown.
+      if (!res.ok) {
+        const detail = await res.json().catch(() => null);
+        throw new Error(detail?.error || `Backend rejected the upload (HTTP ${res.status}). The image was not queued for conversion.`);
+      }
+
+      const result = await res.json();
+      if (result.photo?.id) {
+        setSelectedPhotoId(result.photo.id);
       }
 
       setIsUploading(false);
