@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import { Image as ImageIcon, Film } from "lucide-react";
-import { AdminPhotoManager } from "./AdminPhotoManager";
-import { AdminVideoManager } from "./AdminVideoManager";
+import MediaAssetGrid from "./MediaAssetGrid";
 
 type Tab = "photos" | "videos";
 
 /**
  * Photos and videos under one roof. They were two separate nav entries, each
  * showing the full transcoding pipeline console — which read as two systems to
- * learn rather than one place where the site's media lives.
+ * learn rather than one place where the site's media lives. The pipeline is a
+ * tool, so it is now a status chip on each asset rather than the screen itself.
  */
 export default function MediaLibrary() {
   const [tab, setTab] = useState<Tab>("photos");
@@ -47,23 +47,10 @@ export default function MediaLibrary() {
         })}
       </div>
 
-      {/* Both stay mounted: each manager polls its own list, and remounting on
-          every tab switch threw away that state and re-fetched from cold. */}
-      <div
-        role="tabpanel"
-        id="media-panel-photos"
-        aria-labelledby="media-tab-photos"
-        hidden={tab !== "photos"}
-      >
-        <AdminPhotoManager />
-      </div>
-      <div
-        role="tabpanel"
-        id="media-panel-videos"
-        aria-labelledby="media-tab-videos"
-        hidden={tab !== "videos"}
-      >
-        <AdminVideoManager />
+      {/* Only the active grid is mounted: each one polls while its assets are
+          converting, and keeping both alive doubled that for no benefit. */}
+      <div role="tabpanel" id={`media-panel-${tab}`} aria-labelledby={`media-tab-${tab}`}>
+        <MediaAssetGrid kind={tab} />
       </div>
     </div>
   );

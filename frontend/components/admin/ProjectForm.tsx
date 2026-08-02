@@ -11,8 +11,7 @@ import { uploadImage } from "@/app/actions/upload";
 import Button from "@/components/ui/Button";
 import { useRouter } from "next/navigation";
 import { Briefcase, Image as ImageIcon, Sparkles, Loader2, ArrowLeft, Zap, Film } from "lucide-react";
-import { AdminPhotoManager } from "./AdminPhotoManager";
-import { AdminVideoManager } from "./AdminVideoManager";
+import MediaPickerModal from "./MediaPickerModal";
 
 export default function ProjectForm({ project }: { project?: any }) {
   const router = useRouter();
@@ -273,78 +272,38 @@ export default function ProjectForm({ project }: { project?: any }) {
           </button>
         </div>
       </form>
-      {/* 🖼️ PHOTO PIPELINE POPUP MODAL OVERLAY (LIGHT COLOR SCHEME WRAPPER) */}
-      {showPhotoModal && (
-        <div className="fixed inset-0 z-[70] bg-navy-950/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8 overflow-y-auto animate-in fade-in duration-200">
-          <div className="bg-white border-2 border-navy-300 rounded-3xl p-6 sm:p-10 max-w-7xl w-full max-h-[92vh] overflow-y-auto shadow-2xl relative my-8 text-navy-950">
-            <div className="flex items-center justify-between pb-6 mb-6 border-b border-navy-200">
-              <div>
-                <span className="text-xs font-mono uppercase tracking-widest text-bronze-600 font-black block mb-1">
-                  ⚡ POPUP MODAL PIPELINE / ASSET SELECTION (LIGHT SCHEME)
-                </span>
-                <h2 className="text-2xl font-bold text-navy-950 tracking-tight font-display">Select Cloud Image Asset</h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowPhotoModal(false)}
-                className="px-5 py-2.5 rounded-xl bg-warm-100 hover:bg-red-50 text-navy-800 hover:text-red-700 border border-navy-300 hover:border-red-300 font-mono text-xs font-bold transition-all shadow-sm"
-              >
-                ✕ CLOSE POPUP MODAL
-              </button>
-            </div>
-            <AdminPhotoManager
-              isModal={true}
-              onSelectPhoto={(url: string) => {
-                if (photoTarget === "cover") {
-                  setCoverImageUrl(url);
-                } else {
-                  const imgTag = `\n\n<p><img src="${url}" alt="Exhibition Asset" style="max-width: 100%; border-radius: 12px; margin: 24px 0;" /></p>\n\n`;
-                  setContent((prev: string) => prev + imgTag);
-                }
-                setShowPhotoModal(false);
-              }}
-            />
-          </div>
-        </div>
-      )}
+      {/* One shared picker instead of a private copy of the overlay per form. */}
+      <MediaPickerModal
+        kind="photo"
+        open={showPhotoModal}
+        onClose={() => setShowPhotoModal(false)}
+        onSelect={(url) => {
+          if (photoTarget === "cover") {
+            setCoverImageUrl(url);
+          } else {
+            const imgTag = `\n\n<p><img src="${url}" alt="Exhibition Asset" style="max-width: 100%; border-radius: 12px; margin: 24px 0;" /></p>\n\n`;
+            setContent((prev: string) => prev + imgTag);
+          }
+        }}
+      />
 
-      {/* 🎬 VIDEO PIPELINE POPUP MODAL OVERLAY (LIGHT COLOR SCHEME WRAPPER) */}
-      {showVideoModal && (
-        <div className="fixed inset-0 z-[70] bg-navy-950/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8 overflow-y-auto animate-in fade-in duration-200">
-          <div className="bg-white border-2 border-navy-300 rounded-3xl p-6 sm:p-10 max-w-7xl w-full max-h-[92vh] overflow-y-auto shadow-2xl relative my-8 text-navy-950">
-            <div className="flex items-center justify-between pb-6 mb-6 border-b border-navy-200">
-              <div>
-                <span className="text-xs font-mono uppercase tracking-widest text-emerald-600 font-black block mb-1">
-                  ⚡ POPUP MODAL PIPELINE / VIDEO SELECTION (LIGHT SCHEME)
-                </span>
-                <h2 className="text-2xl font-bold text-navy-950 tracking-tight font-display">Select Cloud Video Asset</h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowVideoModal(false)}
-                className="px-5 py-2.5 rounded-xl bg-warm-100 hover:bg-red-50 text-navy-800 hover:text-red-700 border border-navy-300 hover:border-red-300 font-mono text-xs font-bold transition-all shadow-sm"
-              >
-                ✕ CLOSE POPUP MODAL
-              </button>
-            </div>
-            <AdminVideoManager
-              isModal={true}
-              onSelectVideo={(url: string, videoObj?: any) => {
-                let videoTag = "";
-                if (videoObj && videoObj.webmPath && videoObj.mp4Path) {
-                  videoTag = `\n\n<p><video controls style="max-width: 100%; border-radius: 12px; margin: 24px 0;"><source src="${videoObj.webmPath}" type="video/webm" /><source src="${videoObj.mp4Path}" type="video/mp4" /></video></p>\n\n`;
-                } else if (videoObj && videoObj.webmPath) {
-                  videoTag = `\n\n<p><video controls style="max-width: 100%; border-radius: 12px; margin: 24px 0;"><source src="${videoObj.webmPath}" type="video/webm" /></video></p>\n\n`;
-                } else {
-                  videoTag = `\n\n<p><video src="${url}" controls style="max-width: 100%; border-radius: 12px; margin: 24px 0;"></video></p>\n\n`;
-                }
-                setContent((prev: string) => prev + videoTag);
-                setShowVideoModal(false);
-              }}
-            />
-          </div>
-        </div>
-      )}
+      <MediaPickerModal
+        kind="video"
+        open={showVideoModal}
+        onClose={() => setShowVideoModal(false)}
+        onSelect={(url, asset) => {
+          // Both renditions when we have them: WebM first for size, MP4 as the
+          // universal fallback. A single src would drop that compatibility.
+          const sources = [
+            asset?.webmPath ? `<source src="${asset.webmPath}" type="video/webm" />` : "",
+            asset?.mp4Path ? `<source src="${asset.mp4Path}" type="video/mp4" />` : "",
+          ].filter(Boolean).join("");
+          const videoTag = sources
+            ? `\n\n<p><video controls style="max-width: 100%; border-radius: 12px; margin: 24px 0;">${sources}</video></p>\n\n`
+            : `\n\n<p><video src="${url}" controls style="max-width: 100%; border-radius: 12px; margin: 24px 0;"></video></p>\n\n`;
+          setContent((prev: string) => prev + videoTag);
+        }}
+      />
     </div>
   );
 }

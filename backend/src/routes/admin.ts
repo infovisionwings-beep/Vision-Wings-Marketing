@@ -7,6 +7,7 @@ import { adminRoles, adminAuditLogs, adminInvites, photos, videos, campaigns } f
 import { eq, desc, asc, and } from 'drizzle-orm';
 import { Resend } from 'resend';
 import { adminAuthMiddleware } from '../middleware/rbac';
+import { StorageService } from '../storage';
 
 const router = Router();
 
@@ -460,7 +461,7 @@ router.get('/media/photos', adminAuthMiddleware(), async (req, res, next) => {
 router.put('/media/photos/:id', adminAuthMiddleware(MEDIA_ROLES), async (req, res, next) => {
   try {
     const id = String(req.params.id);
-    const adminEmail = (req as any).adminEmail;
+    const adminEmail = req.admin!.email;
     const body = req.body;
     
     // fetch prev
@@ -497,7 +498,7 @@ router.put('/media/photos/:id', adminAuthMiddleware(MEDIA_ROLES), async (req, re
 router.delete('/media/photos/:id', adminAuthMiddleware(MEDIA_ROLES), async (req, res, next) => {
   try {
     const id = String(req.params.id);
-    const adminEmail = (req as any).adminEmail;
+    const adminEmail = req.admin!.email;
 
     const prev = await db.select().from(photos).where(eq(photos.id, id));
     if (prev.length === 0) return res.status(404).json({ error: 'Photo not found' });
@@ -537,7 +538,7 @@ router.get('/media/videos', adminAuthMiddleware(), async (req, res, next) => {
 router.put('/media/videos/:id', adminAuthMiddleware(MEDIA_ROLES), async (req, res, next) => {
   try {
     const id = String(req.params.id);
-    const adminEmail = (req as any).adminEmail;
+    const adminEmail = req.admin!.email;
     const body = req.body;
     
     const prev = await db.select().from(videos).where(eq(videos.id, id));
@@ -573,7 +574,7 @@ router.put('/media/videos/:id', adminAuthMiddleware(MEDIA_ROLES), async (req, re
 router.delete('/media/videos/:id', adminAuthMiddleware(MEDIA_ROLES), async (req, res, next) => {
   try {
     const id = String(req.params.id);
-    const adminEmail = (req as any).adminEmail;
+    const adminEmail = req.admin!.email;
 
     const prev = await db.select().from(videos).where(eq(videos.id, id));
     if (prev.length === 0) return res.status(404).json({ error: 'Video not found' });
@@ -592,6 +593,77 @@ router.delete('/media/videos/:id', adminAuthMiddleware(MEDIA_ROLES), async (req,
       status: 'success'
     });
     res.json({ success: true, message: 'Video archived (soft deleted)' });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ==========================================
+// PERMANENT DELETE
+// The existing DELETE routes archive (publishStatus = 'archived'), which is the
+// safe default. These are the second, explicit step: drop the row and release the
+// blobs, so an archived asset can actually be got rid of rather than accumulating
+// forever in the library and in blob storage.
+// ==========================================
+
+/** Shared by both media types: archived-only, blobs released, fully audited. */
+async function permanentlyDelete(
+  req: any,
+  res: any,
+  kind: 'photo' | 'video'
+) {
+  const id = String(req.params.id);
+  const table = kind === 'photo' ? photos : videos;
+
+  const [existing] = await db.select().from(table).where(eq(table.id, id));
+  if (!existing) return res.status(404).json({ error: `${kind} not found` });
+
+  // Archive first, delete second. Without this an accidental call on a live asset
+  // would silently break whichever site section still references it.
+  if (existing.publishStatus !== 'archived') {
+    return res.status(409).json({
+      error: `Archive this ${kind} before deleting it permanently.`,
+    });
+  }
+
+  const blobUrls = kind === 'photo'
+    ? [(existing as any).inputPath, (existing as any).webpPath, (existing as any).thumbnailPath]
+    : [(existing as any).inputPath, (existing as any).webmPath, (existing as any).mp4Path, (existing as any).thumbnailPath];
+
+  // Blob cleanup is best-effort and must not block the row delete: a blob that
+  // was already removed would otherwise make the asset undeletable forever.
+  await Promise.allSettled(
+    [...new Set(blobUrls.filter(Boolean))].map((url) => StorageService.deleteBlob(url as string))
+  );
+
+  await db.delete(table).where(eq(table.id, id));
+
+  await logAdminAction({
+    adminEmail: req.admin!.email,
+    role: req.admin!.role,
+    ipAddress: req.ip,
+    userAgent: req.headers['user-agent'],
+    action: `PERMANENT_DELETE_${kind.toUpperCase()}`,
+    resourceType: kind,
+    resourceId: id,
+    previousValue: existing,
+    status: 'success',
+  });
+
+  res.json({ success: true, message: `${kind} deleted permanently` });
+}
+
+router.delete('/media/photos/:id/permanent', adminAuthMiddleware(MEDIA_ROLES), async (req, res, next) => {
+  try {
+    await permanentlyDelete(req, res, 'photo');
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/media/videos/:id/permanent', adminAuthMiddleware(MEDIA_ROLES), async (req, res, next) => {
+  try {
+    await permanentlyDelete(req, res, 'video');
   } catch (error) {
     next(error);
   }
