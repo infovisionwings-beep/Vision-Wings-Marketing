@@ -5,8 +5,8 @@
 // MOTION_INTENSITY: 6
 // VISUAL_DENSITY: 4
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useRef, useCallback } from "react";
+import { motion } from "framer-motion";
 import { Play, X, ArrowRight, Film, Sparkles, Eye, CheckCircle2, ShieldCheck, Maximize2, Clock, Calendar } from "lucide-react";
 import Button from "@/components/ui/Button";
 
@@ -90,6 +90,202 @@ interface VideoShowcaseGridProps {
   dbCampaigns?: any[];
 }
 
+/* ── Inline Video Card ──
+   Replaces thumbnail with <video> on click. No modal, no page navigation. */
+function InlineVideoCard({
+  video,
+  className = "",
+  aspectClass = "aspect-video",
+  playBtnSize = "w-20 h-20 md:w-24 md:h-24",
+  playIconSize = "w-8 h-8 md:w-10 md:h-10",
+  showCaption = true,
+  showTopBadges = false,
+}: {
+  video: VideoAsset;
+  className?: string;
+  aspectClass?: string;
+  playBtnSize?: string;
+  playIconSize?: string;
+  showCaption?: boolean;
+  showTopBadges?: boolean;
+}) {
+  const [playing, setPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const handlePlay = useCallback(() => {
+    setPlaying(true);
+  }, []);
+
+  const handleStop = useCallback(() => {
+    setPlaying(false);
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  }, []);
+
+  return (
+    <div className={`relative rounded-2xl overflow-hidden ${aspectClass} bg-navy-950 shadow-2xl group border border-navy-800 ${className}`}>
+      {playing ? (
+        /* ── Active Video Player ── */
+        <>
+          <video
+            ref={videoRef}
+            src={video.videoUrl}
+            poster={video.coverImage}
+            controls
+            autoPlay
+            playsInline
+            preload="metadata"
+            className="w-full h-full object-contain bg-black"
+            onEnded={handleStop}
+          >
+            Your browser does not support the video tag.
+          </video>
+          {/* Close / stop button */}
+          <button
+            onClick={handleStop}
+            className="absolute top-3 right-3 z-20 p-2 rounded-full bg-navy-950/80 backdrop-blur-md text-warm-50 hover:bg-red-600 transition-colors"
+            aria-label="Close video"
+            data-interactive
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </>
+      ) : (
+        /* ── Poster / Thumbnail ── */
+        <div className="cursor-pointer w-full h-full" onClick={handlePlay} data-interactive>
+          <img
+            src={video.coverImage}
+            alt={video.title}
+            loading="lazy"
+            decoding="async"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out-expo opacity-90"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-navy-950/80 via-navy-950/20 to-transparent group-hover:from-navy-950/60 transition-colors" />
+
+          {/* Optional top metadata badges */}
+          {showTopBadges && (
+            <div className="absolute top-5 left-5 right-5 flex justify-between items-center z-10 pointer-events-none">
+              <span className="px-3 py-1 rounded-full bg-navy-950/80 backdrop-blur-md border border-navy-700 text-warm-50 text-xs font-mono font-semibold flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-bronze-500 animate-pulse" />
+                FEATURED FILM · {video.category}
+              </span>
+              <span className="px-3 py-1 rounded-full bg-navy-900/80 backdrop-blur-md text-bronze-300 text-xs font-mono font-bold">
+                {video.duration}
+              </span>
+            </div>
+          )}
+
+          {/* Center Play Button */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className={`${playBtnSize} rounded-full bg-warm-50/90 backdrop-blur-md text-navy-950 flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:bg-bronze-500 group-hover:text-warm-50 transition-all duration-300`}>
+              <Play className={`${playIconSize} fill-current ml-1`} />
+            </div>
+          </div>
+
+          {/* Bottom caption */}
+          {showCaption && (
+            <div className="absolute bottom-5 left-5 right-5 z-10 flex flex-col sm:flex-row sm:items-end justify-between gap-2 pointer-events-none">
+              <div>
+                <h3 className="text-xl md:text-2xl font-bold font-display text-warm-50 tracking-tight">
+                  {video.title}
+                </h3>
+                <p className="text-xs text-navy-200 line-clamp-1 max-w-lg mt-1 font-normal">
+                  {video.description}
+                </p>
+              </div>
+              <span className="text-xs font-mono text-bronze-400 font-semibold tracking-wider">
+                CLICK TO PLAY
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Smaller inline card for grid / reels ── */
+function InlineVideoCardSmall({
+  video,
+  aspectClass = "aspect-[16/10]",
+}: {
+  video: VideoAsset;
+  aspectClass?: string;
+}) {
+  const [playing, setPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const handlePlay = useCallback(() => {
+    setPlaying(true);
+  }, []);
+
+  const handleStop = useCallback(() => {
+    setPlaying(false);
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  }, []);
+
+  return (
+    <div className={`relative rounded-xl overflow-hidden ${aspectClass} bg-navy-900 border border-navy-200/80 shadow-md group-hover:shadow-xl transition-all duration-300`}>
+      {playing ? (
+        <>
+          <video
+            ref={videoRef}
+            src={video.videoUrl}
+            poster={video.coverImage}
+            controls
+            autoPlay
+            playsInline
+            preload="metadata"
+            className="w-full h-full object-contain bg-black"
+            onEnded={handleStop}
+          >
+            Your browser does not support the video tag.
+          </video>
+          <button
+            onClick={(e) => { e.stopPropagation(); handleStop(); }}
+            className="absolute top-2 right-2 z-20 p-1.5 rounded-full bg-navy-950/80 backdrop-blur-md text-warm-50 hover:bg-red-600 transition-colors"
+            aria-label="Close video"
+            data-interactive
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </>
+      ) : (
+        <div className="cursor-pointer w-full h-full" onClick={handlePlay} data-interactive>
+          <img
+            src={video.coverImage}
+            alt={video.title}
+            loading="lazy"
+            decoding="async"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+
+          {/* Subtle vignette */}
+          <div className="absolute inset-0 bg-navy-950/20 group-hover:bg-navy-950/40 transition-colors" />
+
+          {/* Top Duration Badge */}
+          <div className="absolute top-3 right-3 px-2 py-0.5 rounded bg-navy-950/80 backdrop-blur-sm text-warm-50 font-mono text-[11px] font-semibold">
+            {video.duration}
+          </div>
+
+          {/* Vibrant Orange / Bronze Banner Overlay on Hover */}
+          <div className="absolute inset-x-0 inset-y-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-navy-950/40 backdrop-blur-[2px]">
+            <div className="w-11/12 py-3 px-4 rounded-lg bg-gradient-to-r from-bronze-600 to-amber-600 text-warm-50 font-display font-bold text-sm tracking-widest uppercase text-center shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300 flex items-center justify-center gap-2.5">
+              <Play className="w-4 h-4 fill-current" />
+              <span>PLAY VIDEO</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function VideoShowcaseGrid({ dbVideos = [], dbCampaigns = [] }: VideoShowcaseGridProps) {
   // Map CMS Sample campaigns
   const cmsAssets: VideoAsset[] = dbCampaigns.map((c) => ({
@@ -122,8 +318,6 @@ export default function VideoShowcaseGrid({ dbVideos = [], dbCampaigns = [] }: V
   const editorialSeries = allVideos.slice(4, 6); // Exactly 2 items for Zigzag Alternation Cap (max 2 rows)
   const archiveReels = allVideos.slice(0, 6); // For horizontal scroll-snap
 
-  const [activeModalVideo, setActiveModalVideo] = useState<VideoAsset | null>(null);
-
   return (
     <section className="bg-warm-50 text-navy-950 py-20 md:py-28 px-5 md:px-10 xl:px-20 overflow-hidden font-sans">
       <div className="max-w-[1280px] mx-auto space-y-24 md:space-y-32">
@@ -131,57 +325,13 @@ export default function VideoShowcaseGrid({ dbVideos = [], dbCampaigns = [] }: V
         {/* ── SECTION 1: ASYMMETRIC HERO SHOWCASE (50/50 SPLIT) ── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
           
-          {/* Left Column: Featured Video Player Thumbnail */}
+          {/* Left Column: Featured Video — plays inline */}
           <div className="lg:col-span-7">
-            <motion.div 
-              className="relative rounded-2xl overflow-hidden aspect-video bg-navy-950 shadow-2xl group cursor-pointer border border-navy-800"
-              onClick={() => setActiveModalVideo(featuredVideo)}
-              whileHover={{ scale: 0.995 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              data-interactive
-            >
-              <img 
-                src={featuredVideo.coverImage} 
-                alt={featuredVideo.title} 
-                loading="lazy"
-                decoding="async"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out-expo opacity-90"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-navy-950/80 via-navy-950/20 to-transparent group-hover:from-navy-950/60 transition-colors" />
-
-              {/* Top Metadata Badges */}
-              <div className="absolute top-5 left-5 right-5 flex justify-between items-center z-10 pointer-events-none">
-                <span className="px-3 py-1 rounded-full bg-navy-950/80 backdrop-blur-md border border-navy-700 text-warm-50 text-xs font-mono font-semibold flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-bronze-500 animate-pulse" />
-                  FEATURED FILM · {featuredVideo.category}
-                </span>
-                <span className="px-3 py-1 rounded-full bg-navy-900/80 backdrop-blur-md text-bronze-300 text-xs font-mono font-bold">
-                  {featuredVideo.duration}
-                </span>
-              </div>
-
-              {/* Center Play Button Badge */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-warm-50/90 backdrop-blur-md text-navy-950 flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:bg-bronze-500 group-hover:text-warm-50 transition-all duration-300">
-                  <Play className="w-8 h-8 md:w-10 md:h-10 fill-current ml-1" />
-                </div>
-              </div>
-
-              {/* Bottom Caption Strip */}
-              <div className="absolute bottom-5 left-5 right-5 z-10 flex flex-col sm:flex-row sm:items-end justify-between gap-2 pointer-events-none">
-                <div>
-                  <h3 className="text-xl md:text-2xl font-bold font-display text-warm-50 tracking-tight">
-                    {featuredVideo.title}
-                  </h3>
-                  <p className="text-xs text-navy-200 line-clamp-1 max-w-lg mt-1 font-normal">
-                    {featuredVideo.description}
-                  </p>
-                </div>
-                <span className="text-xs font-mono text-bronze-400 font-semibold tracking-wider">
-                  CLICK TO LAUNCH CINEMA
-                </span>
-              </div>
-            </motion.div>
+            <InlineVideoCard
+              video={featuredVideo}
+              showTopBadges
+              showCaption
+            />
           </div>
 
           {/* Right Column: Editorial Typography & Value Prop */}
@@ -205,16 +355,6 @@ export default function VideoShowcaseGrid({ dbVideos = [], dbCampaigns = [] }: V
             </p>
 
             <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-              <Button 
-                variant="primary" 
-                onClick={() => setActiveModalVideo(featuredVideo)}
-                className="justify-center shadow-lg hover:shadow-xl transition-all"
-                data-interactive
-              >
-                <span>Watch Featured Campaign</span>
-                <Play className="w-4 h-4 ml-2 fill-current" />
-              </Button>
-              
               <a 
                 href="#samples-grid" 
                 className="inline-flex items-center justify-center px-6 py-3.5 rounded-xl border border-navy-200 hover:border-navy-400 text-navy-950 font-semibold text-sm transition-colors"
@@ -250,47 +390,21 @@ export default function VideoShowcaseGrid({ dbVideos = [], dbCampaigns = [] }: V
               </h3>
             </div>
             <p className="text-sm text-navy-600 max-w-md">
-              Hover over any campaign exhibit to reveal interactive playback controls and high-definition streaming options.
+              Click any campaign exhibit to play inline with high-definition streaming.
             </p>
           </div>
 
           {/* 3-Column Bento Grid adhering to Bento Cell Count Rule */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {samplesGrid.map((video, idx) => (
+            {samplesGrid.map((video) => (
               <motion.div 
                 key={video.id}
-                className="group flex flex-col space-y-3 cursor-pointer"
-                onClick={() => setActiveModalVideo(video)}
+                className="group flex flex-col space-y-3"
                 whileHover={{ y: -4 }}
                 transition={{ duration: 0.25 }}
-                data-interactive
               >
-                {/* Thumbnail Card with Vibrant Hover Overlay */}
-                <div className="relative rounded-xl overflow-hidden aspect-[16/10] bg-navy-900 border border-navy-200/80 shadow-md group-hover:shadow-xl transition-all duration-300">
-                  <img 
-                    src={video.coverImage} 
-                    alt={video.title} 
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  
-                  {/* Subtle vignette */}
-                  <div className="absolute inset-0 bg-navy-950/20 group-hover:bg-navy-950/40 transition-colors" />
-
-                  {/* Top Duration Badge */}
-                  <div className="absolute top-3 right-3 px-2 py-0.5 rounded bg-navy-950/80 backdrop-blur-sm text-warm-50 font-mono text-[11px] font-semibold">
-                    {video.duration}
-                  </div>
-
-                  {/* Vibrant Orange / Bronze Banner Overlay on Hover (Inspired by Sample) */}
-                  <div className="absolute inset-x-0 inset-y-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-navy-950/40 backdrop-blur-[2px]">
-                    <div className="w-11/12 py-3 px-4 rounded-lg bg-gradient-to-r from-bronze-600 to-amber-600 text-warm-50 font-display font-bold text-sm tracking-widest uppercase text-center shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300 flex items-center justify-center gap-2.5">
-                      <Play className="w-4 h-4 fill-current" />
-                      <span>VIEW VIDEO</span>
-                    </div>
-                  </div>
-                </div>
+                {/* Thumbnail Card — plays inline */}
+                <InlineVideoCardSmall video={video} />
 
                 {/* Card Footer Strip */}
                 <div className="flex items-center justify-between px-1 text-xs font-medium">
@@ -330,33 +444,14 @@ export default function VideoShowcaseGrid({ dbVideos = [], dbCampaigns = [] }: V
                     !isEven ? "lg:flex-row-reverse" : ""
                   }`}
                 >
-                  {/* Video Player Column */}
+                  {/* Video Player Column — inline */}
                   <div className={`lg:col-span-7 ${!isEven ? "lg:order-last" : ""}`}>
-                    <div 
-                      className="relative rounded-2xl overflow-hidden aspect-video bg-navy-950 shadow-xl group cursor-pointer border border-navy-200/80"
-                      onClick={() => setActiveModalVideo(video)}
-                      data-interactive
-                    >
-                      <img 
-                        src={video.coverImage} 
-                        alt={video.title} 
-                        loading="lazy"
-                        decoding="async"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90"
-                      />
-                      <div className="absolute inset-0 bg-navy-950/25 group-hover:bg-navy-950/40 transition-colors" />
-                      
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-16 h-16 rounded-full bg-warm-50/90 text-navy-950 flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:bg-bronze-500 group-hover:text-warm-50 transition-all duration-300">
-                          <Play className="w-7 h-7 fill-current ml-0.5" />
-                        </div>
-                      </div>
-
-                      <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center text-warm-50 font-mono text-xs opacity-90 pointer-events-none">
-                        <span>{video.category}</span>
-                        <span>{video.duration}</span>
-                      </div>
-                    </div>
+                    <InlineVideoCard
+                      video={video}
+                      playBtnSize="w-16 h-16"
+                      playIconSize="w-7 h-7"
+                      showCaption={false}
+                    />
                   </div>
 
                   {/* Editorial Text Column with << and >> directional indicators */}
@@ -372,14 +467,10 @@ export default function VideoShowcaseGrid({ dbVideos = [], dbCampaigns = [] }: V
 
                     <div className="pt-2 flex items-center justify-between text-xs font-mono text-navy-500 border-t border-navy-200/60 pt-4">
                       <span>RELEASED: {video.date}</span>
-                      <button 
-                        onClick={() => setActiveModalVideo(video)}
-                        className="text-bronze-600 hover:text-bronze-700 font-bold flex items-center gap-1.5 group"
-                        data-interactive
-                      >
-                        <span>LAUNCH SCREENING</span>
-                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                      </button>
+                      <span className="flex items-center gap-1.5 text-bronze-600">
+                        <Clock className="w-3 h-3" />
+                        <span>{video.duration}</span>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -402,137 +493,97 @@ export default function VideoShowcaseGrid({ dbVideos = [], dbCampaigns = [] }: V
               </h3>
             </div>
             <span className="text-xs font-mono text-navy-300">
-              SCROLL HORIZONTALLY OR CLICK TO PLAY
+              SCROLL HORIZONTALLY · CLICK TO PLAY INLINE
             </span>
           </div>
 
           {/* Horizontal Scroll-Snap Reel */}
           <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none relative z-10 -mx-2 px-2">
             {archiveReels.map((video) => (
-              <div 
-                key={`reel-${video.id}`}
-                onClick={() => setActiveModalVideo(video)}
-                className="min-w-[280px] md:min-w-[340px] flex-shrink-0 snap-start group cursor-pointer space-y-3"
-                data-interactive
-              >
-                <div className="relative rounded-xl overflow-hidden aspect-video bg-navy-900 border border-navy-800 group-hover:border-bronze-500/60 transition-all">
-                  <img 
-                    src={video.coverImage} 
-                    alt={video.title} 
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full bg-navy-950/80 text-warm-50 flex items-center justify-center group-hover:bg-bronze-500 transition-colors">
-                      <Play className="w-5 h-5 fill-current ml-0.5" />
-                    </div>
-                  </div>
-                  <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-navy-950/90 text-[10px] font-mono text-bronze-300 font-bold">
-                    {video.duration}
-                  </span>
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-warm-50 group-hover:text-bronze-400 transition-colors truncate">
-                    {video.title}
-                  </h4>
-                  <span className="text-[11px] font-mono text-navy-400 block mt-0.5">
-                    {video.category} · {video.date}
-                  </span>
-                </div>
-              </div>
+              <ReelInlineCard key={`reel-${video.id}`} video={video} />
             ))}
           </div>
         </div>
 
       </div>
-
-      {/* ── IMMERSIVE VIDEO LIGHTBOX / MODAL ── */}
-      <AnimatePresence>
-        {activeModalVideo && (
-          <motion.div 
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-10 bg-navy-950/95 backdrop-blur-xl"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setActiveModalVideo(null)}
-          >
-            <motion.div 
-              className="relative w-full max-w-5xl bg-navy-900 border border-navy-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Modal Header Bar */}
-              <div className="px-6 py-4 bg-navy-950 border-b border-navy-800 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="px-2.5 py-1 rounded bg-bronze-500/20 border border-bronze-500/40 text-bronze-300 font-mono text-xs font-bold">
-                    HD CINEMA PLAYER
-                  </span>
-                  <h3 className="text-base font-bold text-warm-50 font-display truncate max-w-md">
-                    {activeModalVideo.title}
-                  </h3>
-                </div>
-
-                <button 
-                  onClick={() => setActiveModalVideo(null)}
-                  className="p-2 rounded-lg bg-navy-900 hover:bg-navy-800 text-navy-300 hover:text-warm-50 transition-colors"
-                  aria-label="Close modal"
-                  data-interactive
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Video Player Surface */}
-              <div className="relative aspect-video w-full bg-black flex items-center justify-center">
-                <video 
-                  src={activeModalVideo.videoUrl} 
-                  poster={activeModalVideo.coverImage}
-                  controls 
-                  autoPlay
-                  playsInline
-                  preload="metadata"
-                  className="w-full h-full object-contain"
-                >
-                  Your browser does not support the video tag.
-                </video>
-              </div>
-
-              {/* Modal Footer Metadata Strip */}
-              <div className="p-6 bg-navy-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-navy-800">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-3 text-xs font-mono text-navy-400">
-                    <span className="text-bronze-400 font-semibold">{activeModalVideo.category}</span>
-                    <span>·</span>
-                    <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {activeModalVideo.date}</span>
-                    <span>·</span>
-                    <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {activeModalVideo.duration}</span>
-                  </div>
-                  <p className="text-sm text-navy-200 max-w-2xl font-normal">
-                    {activeModalVideo.description}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-3 self-end sm:self-center">
-                  <a 
-                    href={activeModalVideo.videoUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="px-4 py-2.5 rounded-lg bg-navy-900 hover:bg-navy-800 border border-navy-700 text-warm-50 text-xs font-mono font-semibold flex items-center gap-2 transition-colors whitespace-nowrap"
-                    data-interactive
-                  >
-                    <Maximize2 className="w-3.5 h-3.5 text-bronze-400" />
-                    <span>OPEN LOSSLESS SOURCE</span>
-                  </a>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
+  );
+}
+
+/* ── Reel card with inline playback ── */
+function ReelInlineCard({ video }: { video: VideoAsset }) {
+  const [playing, setPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const handlePlay = useCallback(() => {
+    setPlaying(true);
+  }, []);
+
+  const handleStop = useCallback(() => {
+    setPlaying(false);
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  }, []);
+
+  return (
+    <div
+      className="min-w-[280px] md:min-w-[340px] flex-shrink-0 snap-start group space-y-3"
+    >
+      <div className="relative rounded-xl overflow-hidden aspect-video bg-navy-900 border border-navy-800 group-hover:border-bronze-500/60 transition-all">
+        {playing ? (
+          <>
+            <video
+              ref={videoRef}
+              src={video.videoUrl}
+              poster={video.coverImage}
+              controls
+              autoPlay
+              playsInline
+              preload="metadata"
+              className="w-full h-full object-contain bg-black"
+              onEnded={handleStop}
+            >
+              Your browser does not support the video tag.
+            </video>
+            <button
+              onClick={handleStop}
+              className="absolute top-2 right-2 z-20 p-1.5 rounded-full bg-navy-950/80 backdrop-blur-md text-warm-50 hover:bg-red-600 transition-colors"
+              aria-label="Close video"
+              data-interactive
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </>
+        ) : (
+          <div className="cursor-pointer w-full h-full" onClick={handlePlay} data-interactive>
+            <img
+              src={video.coverImage}
+              alt={video.title}
+              loading="lazy"
+              decoding="async"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100"
+            />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full bg-navy-950/80 text-warm-50 flex items-center justify-center group-hover:bg-bronze-500 transition-colors">
+                <Play className="w-5 h-5 fill-current ml-0.5" />
+              </div>
+            </div>
+            <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-navy-950/90 text-[10px] font-mono text-bronze-300 font-bold">
+              {video.duration}
+            </span>
+          </div>
+        )}
+      </div>
+      <div>
+        <h4 className="text-sm font-bold text-warm-50 group-hover:text-bronze-400 transition-colors truncate">
+          {video.title}
+        </h4>
+        <span className="text-[11px] font-mono text-navy-400 block mt-0.5">
+          {video.category} · {video.date}
+        </span>
+      </div>
+    </div>
   );
 }
