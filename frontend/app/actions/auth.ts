@@ -9,6 +9,21 @@ import { logAdminAction } from '@/lib/auth/audit-log'
 const LOGIN_RATE_LIMIT_MAX = 5;
 const LOGIN_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 
+/**
+ * Where to land after sign-in. Without this, flows that send an unauthenticated
+ * visitor to /login (admin invites) dropped them on the homepage instead of the page
+ * they were trying to reach, so the invite was never completed.
+ *
+ * Only same-origin absolute paths are honoured: "//evil.com" and "https://evil.com"
+ * are valid values for the browser to follow, so an unchecked `next` is an open
+ * redirect, and a login page is exactly where phishing wants one.
+ */
+function safeRedirectPath(next: unknown): string | null {
+  if (typeof next !== 'string' || !next.startsWith('/')) return null;
+  if (next.startsWith('//') || next.startsWith('/\\')) return null;
+  return next;
+}
+
 export async function authenticateWithTurnstile(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
@@ -82,8 +97,8 @@ export async function authenticateWithTurnstile(formData: FormData) {
     redirect('/onboarding')
   }
 
-  // 3. Redirect on sign-in success
-  redirect('/')
+  // 3. Redirect on sign-in success — back where they came from, else home
+  redirect(safeRedirectPath(formData.get('next')) || '/')
 }
 
 export async function verifySignupOtp(formData: FormData) {

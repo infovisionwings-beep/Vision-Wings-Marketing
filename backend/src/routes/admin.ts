@@ -24,11 +24,39 @@ const INVITE_TTL_MS = 24 * 60 * 60 * 1000;
 const MIN_PASSWORD_LENGTH = 12;
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder_missing_key');
-// Resend's shared `admin@resend.dev` sandbox only delivers to the account owner, so
-// invites to anyone else silently vanish. Verify a domain and set RESEND_FROM.
-const MAIL_FROM = process.env.RESEND_FROM || 'admin@resend.dev';
+// `onboarding@resend.dev` is Resend's only sandbox sender — the previous
+// `admin@resend.dev` is not a valid one, so every send was rejected before it
+// reached the dashboard. Even the real sandbox address delivers ONLY to the Resend
+// account owner, so set RESEND_FROM to an address on a domain you have verified
+// before inviting anyone else.
+const MAIL_FROM = process.env.RESEND_FROM || 'onboarding@resend.dev';
+// RESEND_FROM only has to be on the verified domain — it needs no real mailbox, so
+// replies to it bounce. Point them at an inbox someone actually reads.
+const MAIL_REPLY_TO = process.env.RESEND_REPLY_TO || undefined;
 
 const hashToken = (token: string) => crypto.createHash('sha256').update(token).digest('hex');
+
+/**
+ * Send one email, returning null on success or a human-readable reason on failure.
+ *
+ * The Resend SDK RESOLVES with `{ data: null, error }` for API-level rejections —
+ * unverified domain, sandbox recipient restrictions, bad key — and only throws on
+ * transport errors. A bare try/catch therefore reports success on a rejected send,
+ * which is how invites appeared to send while never reaching Resend at all.
+ */
+async function sendEmail(payload: Parameters<typeof resend.emails.send>[0]): Promise<string | null> {
+  try {
+    const { error } = await resend.emails.send({ replyTo: MAIL_REPLY_TO, ...payload });
+    if (error) {
+      console.error('Resend rejected the send:', error);
+      return `${error.name}: ${error.message}`;
+    }
+    return null;
+  } catch (err: any) {
+    console.error('Email transport failed:', err);
+    return err?.message || 'Email transport failed';
+  }
+}
 const JWT_SECRET = process.env.ADMIN_JWT_SECRET || 'fallback-secret-for-admin-session-please-change';
 const secretKey = new TextEncoder().encode(JWT_SECRET);
 
@@ -174,6 +202,13 @@ router.post('/invites', adminAuthMiddleware(['Developer']), async (req, res, nex
       return res.status(409).json({ error: `${normalizedEmail} is already an admin (${existing[0].role})` });
     }
 
+    // Re-inviting supersedes any earlier pending invite, so one address never has
+    // two live tokens at once (and stale rows do not linger in the UI).
+    await db
+      .update(adminInvites)
+      .set({ status: 'revoked' })
+      .where(and(eq(adminInvites.email, normalizedEmail), eq(adminInvites.status, 'pending')));
+
     const token = crypto.randomBytes(32).toString('base64url');
     const expiresAt = new Date(Date.now() + INVITE_TTL_MS);
 
@@ -196,22 +231,22 @@ router.post('/invites', adminAuthMiddleware(['Developer']), async (req, res, nex
     }
     const inviteUrl = `${siteUrl}/admin-invite?token=${token}`;
 
-    // Delivery failure must fail the request. The old flow swallowed it and reported
-    // success, which is how invites could appear to send while never arriving.
-    try {
-      await resend.emails.send({
-        from: MAIL_FROM,
-        to: normalizedEmail,
-        subject: `You have been invited as ${role} — Vision Wings`,
-        html: `
-          <p>Hi ${name},</p>
-          <p>${req.admin!.email} has invited you to the Vision Wings admin as <strong>${role}</strong>.</p>
-          <p>Sign in with <strong>${normalizedEmail}</strong>, then open this single-use link to set your own password:</p>
-          <p><a href="${inviteUrl}">${inviteUrl}</a></p>
-          <p>The link expires in 24 hours. If you were not expecting this, ignore it.</p>
-        `,
-      });
-    } catch (emailError: any) {
+    // Delivery failure must fail the request, so the invite never reports success
+    // while sitting undelivered.
+    const deliveryError = await sendEmail({
+      from: MAIL_FROM,
+      to: normalizedEmail,
+      subject: `You have been invited as ${role} — Vision Wings`,
+      html: `
+        <p>Hi ${name},</p>
+        <p>${req.admin!.email} has invited you to the Vision Wings admin as <strong>${role}</strong>.</p>
+        <p>Sign in with <strong>${normalizedEmail}</strong>, then open this single-use link to set your own password:</p>
+        <p><a href="${inviteUrl}">${inviteUrl}</a></p>
+        <p>The link expires in 24 hours. If you were not expecting this, ignore it.</p>
+      `,
+    });
+
+    if (deliveryError) {
       await db.update(adminInvites).set({ status: 'revoked' }).where(eq(adminInvites.id, invite.id));
       await logAdminAction({
         adminEmail: req.admin!.email,
@@ -220,23 +255,22 @@ router.post('/invites', adminAuthMiddleware(['Developer']), async (req, res, nex
         resourceType: 'admin_invites',
         resourceId: normalizedEmail,
         status: 'failure',
-        failureReason: `Email delivery failed: ${emailError?.message}`,
+        failureReason: `Email delivery failed: ${deliveryError}`,
       });
       return res.status(502).json({
-        error: `Could not deliver the invite to ${normalizedEmail}. Verify a sending domain in Resend and set RESEND_FROM (the shared admin@resend.dev sandbox only delivers to the Resend account owner).`,
+        error: `Could not deliver the invite to ${normalizedEmail} — ${deliveryError}. If this mentions testing addresses, verify a domain in Resend and set RESEND_FROM: the shared ${MAIL_FROM} sandbox only delivers to the Resend account owner.`,
       });
     }
 
     // Notify the super admin that an invite went out — visibility, not a second factor.
-    try {
-      await resend.emails.send({
-        from: MAIL_FROM,
-        to: req.admin!.email,
-        subject: `Admin invite sent to ${normalizedEmail}`,
-        html: `<p>You invited <strong>${normalizedEmail}</strong> as <strong>${role}</strong>. It expires in 24 hours. If this was not you, revoke it in /admin/new.</p>`,
-      });
-    } catch {
-      console.warn('Invite sent, but the super admin notification failed to deliver.');
+    const notifyError = await sendEmail({
+      from: MAIL_FROM,
+      to: req.admin!.email,
+      subject: `Admin invite sent to ${normalizedEmail}`,
+      html: `<p>You invited <strong>${normalizedEmail}</strong> as <strong>${role}</strong>. It expires in 24 hours. If this was not you, revoke it in /admin/new.</p>`,
+    });
+    if (notifyError) {
+      console.warn('Invite delivered, but the super admin notification failed:', notifyError);
     }
 
     await logAdminAction({
