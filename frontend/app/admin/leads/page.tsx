@@ -25,41 +25,101 @@ export default async function AdminLeadsPage() {
   return (
     <div className="space-y-8">
       
-      {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-navy-200/80 pb-6">
-        <div>
-          <span className="text-xs font-mono font-semibold uppercase tracking-wider text-bronze-600 block mb-1">
-            PROSPECT INTEL / 04
-          </span>
-          <h1 className="text-display sm:text-h2 font-bold text-navy-950 tracking-tight">
-            Onboarding Dossiers
-          </h1>
-        </div>
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-warm-200/80 border border-navy-300/40 text-navy-900 font-mono text-xs font-bold">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-navy-200 pb-6">
+        <h1 className="text-h2 font-bold text-navy-950 tracking-tight">Leads</h1>
+        <span className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-warm-200 text-navy-900 text-sm font-medium">
           <Users className="w-4 h-4 text-bronze-700" />
-          <span>{leads.length} LEADS INDEXED</span>
-        </div>
+          {leads.length} {leads.length === 1 ? "lead" : "leads"}
+        </span>
       </div>
 
-      {/* High-Contrast Editorial Table */}
-      <div className="bg-warm-50 rounded-2xl shadow-xl border border-navy-200/80 overflow-hidden">
+      {/* Cards below md — a 6-column table in a horizontal scroller is unusable on a phone */}
+      <div className="md:hidden space-y-3">
+        {leads.length === 0 ? (
+          <p className="rounded-xl border border-navy-200 bg-warm-50 p-8 text-center text-sm text-navy-500">
+            No leads yet. Signups from <span className="font-medium text-navy-700">/onboarding</span> appear here automatically.
+          </p>
+        ) : (
+          leads.map((lead: any, idx: number) => {
+            const address = (lead.address as any) || {};
+            const isCompany = lead.type === "company";
+            return (
+              <article key={lead.id || idx} className="rounded-xl border border-navy-200 bg-warm-50 p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <h2 className="font-bold text-navy-950">{lead.name}</h2>
+                  <span className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
+                    isCompany ? "bg-navy-950 text-warm-50" : "bg-warm-200 text-navy-800"
+                  }`}>
+                    {isCompany ? <Building2 className="w-3 h-3 text-bronze-400" /> : <User className="w-3 h-3" />}
+                    {isCompany ? "Company" : "Individual"}
+                  </span>
+                </div>
+
+                {isCompany && (
+                  <p className="text-sm text-navy-700">
+                    <span className="font-semibold">{lead.companyName}</span>
+                    {lead.employeesCount ? <span className="text-navy-500"> · {lead.employeesCount} employees</span> : null}
+                  </p>
+                )}
+
+                <dl className="space-y-1.5 text-sm">
+                  <div className="flex items-center gap-2">
+                    <dt className="sr-only">Phone</dt>
+                    <Phone className="w-3.5 h-3.5 shrink-0 text-bronze-600" />
+                    <dd>{lead.phone
+                      ? <a href={`tel:${lead.phone}`} className="text-navy-900 underline underline-offset-2">{lead.phone}</a>
+                      : <span className="text-navy-500">No phone</span>}</dd>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <dt className="sr-only">Location</dt>
+                    <MapPin className="w-3.5 h-3.5 shrink-0 text-navy-400 mt-0.5" />
+                    <dd className="text-navy-600">
+                      {isCompany
+                        ? address.fullAddress || "Remote / Global"
+                        : [address.city, address.country].filter(Boolean).join(", ") || "Remote / Global"}
+                    </dd>
+                  </div>
+                </dl>
+
+                {(lead.interests as string[])?.length > 0 && (
+                  <ul className="flex flex-wrap gap-1.5">
+                    {(lead.interests as string[]).map((interest: string, iIdx: number) => (
+                      <li key={iIdx} className="rounded bg-navy-900 px-2 py-0.5 text-[11px] text-warm-100">
+                        {interest}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                <p className="border-t border-navy-200 pt-2.5 text-xs text-navy-500">
+                  {lead.source || "Direct"} · {lead.createdAt ? format(new Date(lead.createdAt), "MMM d, yyyy") : "Today"}
+                </p>
+              </article>
+            );
+          })
+        )}
+      </div>
+
+      {/* Table from md up */}
+      <div className="hidden md:block bg-warm-50 rounded-2xl border border-navy-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-navy-950 text-warm-50 text-[11px] font-mono font-semibold uppercase tracking-wider border-b border-navy-800">
-                <th className="py-4 px-6 w-12">#</th>
-                <th className="py-4 px-6">Prospect Entity</th>
-                <th className="py-4 px-6">Organization Profile</th>
-                <th className="py-4 px-6">Direct Credentials</th>
-                <th className="py-4 px-6">Strategic Vectors</th>
-                <th className="py-4 px-6 text-right">Acquisition</th>
+              <tr className="bg-navy-950 text-warm-50 text-[11px] font-semibold uppercase tracking-wider">
+                <th scope="col" className="py-4 px-6 w-12">#</th>
+                <th scope="col" className="py-4 px-6">Name</th>
+                <th scope="col" className="py-4 px-6">Company</th>
+                <th scope="col" className="py-4 px-6">Contact</th>
+                <th scope="col" className="py-4 px-6">Interests</th>
+                <th scope="col" className="py-4 px-6 text-right">Source</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-navy-200/60 text-sm">
               {leads.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-12 text-center text-navy-400 font-mono text-xs">
-                    No client dossiers recorded in database yet. New signups from `/onboarding` will populate here automatically.
+                  <td colSpan={6} className="p-12 text-center text-sm text-navy-500">
+                    No leads yet. Signups from <span className="font-medium text-navy-700">/onboarding</span> appear here automatically.
                   </td>
                 </tr>
               ) : (

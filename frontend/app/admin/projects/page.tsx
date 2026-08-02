@@ -25,18 +25,11 @@ export default async function ProjectsPage() {
       
       {/* Header Banner */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-navy-200/80 pb-6">
-        <div>
-          <span className="text-xs font-mono font-semibold uppercase tracking-wider text-bronze-600 block mb-1">
-            ARCHIVE MANAGEMENT / 01
-          </span>
-          <h1 className="text-display sm:text-h2 font-bold text-navy-950 tracking-tight">
-            Commissions Archive
-          </h1>
-        </div>
+        <h1 className="text-h2 font-bold text-navy-950 tracking-tight">Projects</h1>
         <Link href="/admin/projects/new">
-          <button className="px-5 py-2.5 rounded-lg bg-navy-950 text-warm-50 hover:bg-navy-900 active:scale-[0.98] active:-translate-y-[1px] transition-all text-xs font-bold font-mono flex items-center gap-2 shadow-lg">
+          <button className="flex min-h-[44px] items-center gap-2 rounded-lg bg-navy-950 px-4 text-sm font-semibold text-warm-50 transition-colors outline-none hover:bg-navy-900 focus-visible:ring-2 focus-visible:ring-bronze-500">
             <Plus className="w-4 h-4 text-bronze-400" />
-            <span>NEW COMMISSION</span>
+            <span>New project</span>
           </button>
         </Link>
       </div>

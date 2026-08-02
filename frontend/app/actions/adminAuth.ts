@@ -1,6 +1,7 @@
 'use server'
 
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth/server';
 import * as jose from 'jose';
 import { getBackendUrl } from '@/lib/utils/backendUrl';
@@ -58,4 +59,10 @@ export async function loginAdmin(password: string) {
     console.error('Admin login error:', error);
     return { error: 'An unexpected error occurred while communicating with the server.' };
   }
+}
+
+export async function logoutAdmin() {
+  const cookieStore = await cookies();
+  cookieStore.delete('admin_session');
+  redirect('/admin-login');
 }

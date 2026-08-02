@@ -111,12 +111,7 @@ export default function AdminCampaignManager({ initialCampaigns }: AdminCampaign
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 border-b border-navy-200/80 pb-8">
         <div>
-          <span className="text-xs font-mono font-semibold uppercase tracking-wider text-bronze-600 block mb-2">
-            CMS CONTROLS / MARKETING
-          </span>
-          <h1 className="text-display sm:text-h1 font-bold text-navy-950 tracking-tight">
-            Campaign Manager
-          </h1>
+          <h1 className="text-h2 font-bold text-navy-950 tracking-tight">Campaigns</h1>
           <p className="text-body-sm text-navy-600 mt-1">
             Create, edit, reorder, and publish marketing campaigns across all homepage sections.
           </p>

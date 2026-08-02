@@ -1,88 +1,108 @@
 "use client";
 
-import { useState } from "react";
-import { Menu, X, Briefcase, FileText, Video, Image as ImageIcon, User, LogOut, Layers } from "lucide-react";
-import { Link } from "@/components/ui/Link";
+import { useEffect, useRef, useState } from "react";
+import { Menu, X } from "lucide-react";
+import { AdminNavList, AdminLogoutButton } from "./AdminNav";
 
 export function AdminMobileNav() {
   const [isOpen, setIsOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // Escape to close, focus moved into the panel and returned to the trigger on
+  // close, and the page behind held still while the drawer is up.
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    panelRef.current?.focus();
+
+    const { overflow } = document.body.style;
+    document.body.style.overflow = "hidden";
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsOpen(false);
+        return;
+      }
+      if (e.key !== "Tab" || !panelRef.current) return;
+
+      const focusable = panelRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = overflow;
+      (previouslyFocused ?? triggerRef.current)?.focus();
+    };
+  }, [isOpen]);
 
   return (
     <div className="md:hidden">
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="p-2 -ml-2 text-navy-950 rounded-lg hover:bg-navy-100 transition-colors"
+      <button
+        ref={triggerRef}
+        type="button"
+        onClick={() => setIsOpen(true)}
+        aria-label="Open menu"
+        aria-expanded={isOpen}
+        className="-ml-2 flex h-11 w-11 items-center justify-center rounded-lg text-navy-950 transition-colors outline-none hover:bg-navy-100 focus-visible:ring-2 focus-visible:ring-bronze-500"
       >
-        <Menu className="w-6 h-6" />
+        <Menu className="h-6 w-6" />
       </button>
 
-      {/* Mobile Drawer */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex">
-          {/* Overlay */}
-          <div 
-            className="fixed inset-0 bg-navy-950/60 backdrop-blur-sm transition-opacity"
+          <div
+            className="fixed inset-0 bg-navy-950/60 backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
+            aria-hidden
           />
-          
-          {/* Drawer content */}
-          <div className="relative flex w-full max-w-xs flex-col overflow-y-auto bg-navy-950 text-warm-50 pb-12 shadow-xl animate-in slide-in-from-left duration-200">
-            <div className="flex items-center justify-between p-4 border-b border-navy-800/80">
+
+          <div
+            ref={panelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Admin navigation"
+            tabIndex={-1}
+            className="relative flex w-full max-w-xs flex-col overflow-y-auto bg-navy-950 text-warm-50 shadow-xl outline-none animate-in slide-in-from-left duration-200"
+          >
+            <div className="flex items-center justify-between border-b border-navy-800 p-4">
               <div className="flex items-center gap-3">
-                <img src="/logo-svg/Dark%20BG%20ICON.svg" alt="VW Icon" className="h-6 w-auto" />
-                <span className="font-display font-bold text-lg leading-none tracking-tight">Vision Wings</span>
+                <img src="/logo-svg/Dark%20BG%20ICON.svg" alt="" className="h-6 w-auto" />
+                <span className="font-display text-lg font-bold leading-none tracking-tight">
+                  Vision Wings
+                </span>
               </div>
-              <button 
+              <button
+                type="button"
                 onClick={() => setIsOpen(false)}
-                className="p-2 text-navy-400 hover:text-white"
+                aria-label="Close menu"
+                className="flex h-11 w-11 items-center justify-center rounded-lg text-navy-300 transition-colors outline-none hover:bg-navy-900 hover:text-warm-50 focus-visible:ring-2 focus-visible:ring-bronze-500"
               >
-                <X className="w-5 h-5" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            <nav className="flex-1 px-4 py-6 space-y-6">
-              <div className="space-y-2">
-                <div className="px-3 text-[10px] font-mono font-semibold uppercase tracking-wider text-navy-500">
-                  Marketing &amp; CMS
-                </div>
-                <Link href="/admin/campaigns" onClick={() => setIsOpen(false)} className="flex items-center gap-3 p-3 rounded-lg hover:bg-navy-900 text-navy-200 hover:text-warm-50 transition-colors">
-                  <Layers className="w-4 h-4 text-bronze-400" />
-                  <span className="text-sm font-medium">Campaign Manager</span>
-                </Link>
-                <Link href="/admin/projects" onClick={() => setIsOpen(false)} className="flex items-center gap-3 p-3 rounded-lg hover:bg-navy-900 text-navy-200 hover:text-warm-50 transition-colors">
-                  <Briefcase className="w-4 h-4 text-bronze-400" />
-                  <span className="text-sm font-medium">Projects Archive</span>
-                </Link>
-                <Link href="/admin/insights" onClick={() => setIsOpen(false)} className="flex items-center gap-3 p-3 rounded-lg hover:bg-navy-900 text-navy-200 hover:text-warm-50 transition-colors">
-                  <FileText className="w-4 h-4 text-bronze-400" />
-                  <span className="text-sm font-medium">Editorial Insights</span>
-                </Link>
-              </div>
+            <div className="flex-1 px-4 py-6">
+              <AdminNavList onNavigate={() => setIsOpen(false)} />
+            </div>
 
-              <div className="space-y-2">
-                <div className="px-3 text-[10px] font-mono font-semibold uppercase tracking-wider text-navy-500">
-                  Cloud & Telemetry
-                </div>
-                <Link href="/admin/videos" onClick={() => setIsOpen(false)} className="flex items-center gap-3 p-3 rounded-lg hover:bg-navy-900 text-navy-200 hover:text-warm-50 transition-colors">
-                  <Video className="w-4 h-4 text-bronze-400" />
-                  <span className="text-sm font-medium">Video Pipeline</span>
-                </Link>
-                <Link href="/admin/photos" onClick={() => setIsOpen(false)} className="flex items-center gap-3 p-3 rounded-lg hover:bg-navy-900 text-navy-200 hover:text-warm-50 transition-colors">
-                  <ImageIcon className="w-4 h-4 text-bronze-400" />
-                  <span className="text-sm font-medium">Image Pipeline</span>
-                </Link>
-                <Link href="/admin/leads" onClick={() => setIsOpen(false)} className="flex items-center gap-3 p-3 rounded-lg hover:bg-navy-900 text-navy-200 hover:text-warm-50 transition-colors">
-                  <User className="w-4 h-4 text-bronze-400" />
-                  <span className="text-sm font-medium">Client Leads</span>
-                </Link>
-              </div>
-            </nav>
-
-            <div className="p-4 border-t border-navy-800/80">
-              <button className="flex items-center gap-3 p-3 rounded-lg hover:bg-navy-900 transition-colors w-full text-left text-navy-400 hover:text-warm-50 text-sm font-medium">
-                <LogOut className="w-4 h-4 text-red-400" />
-                <span>Terminate Session</span>
-              </button>
+            <div className="border-t border-navy-800 p-4">
+              <AdminLogoutButton />
             </div>
           </div>
         </div>

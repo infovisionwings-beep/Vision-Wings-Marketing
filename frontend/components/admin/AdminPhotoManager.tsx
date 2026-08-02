@@ -77,7 +77,7 @@ export const AdminPhotoManager: React.FC<AdminPhotoManagerProps> = ({ isModal = 
   const [filterCategory, setFilterCategory] = useState<string>("ALL");
   
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const consoleEndRef = useRef<HTMLDivElement>(null);
+  const consoleBodyRef = useRef<HTMLDivElement>(null);
 
   const [editPhoto, setEditPhoto] = useState<PhotoRecord | null>(null);
 
@@ -134,7 +134,8 @@ export const AdminPhotoManager: React.FC<AdminPhotoManagerProps> = ({ isModal = 
 
   // Auto-scroll console window to bottom when logs update
   useEffect(() => {
-    consoleEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const body = consoleBodyRef.current;
+    if (body) body.scrollTop = body.scrollHeight;
   }, [photos, selectedPhotoId]);
 
   // Handle File Upload
@@ -276,25 +277,20 @@ export const AdminPhotoManager: React.FC<AdminPhotoManagerProps> = ({ isModal = 
       )}
 
       {/* Header section */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-navy-200/80 pb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-navy-200 pb-6">
         <div>
-          <span className="text-xs font-mono font-semibold uppercase tracking-wider text-bronze-600 block mb-1">
-            CLOUD PIPELINE / 04
-          </span>
-          <h1 className="text-display sm:text-h2 font-bold text-navy-950 tracking-tight">
-            Image &amp; GIF Transcoding Engine
-          </h1>
+          <h1 className="text-h2 font-bold text-navy-950 tracking-tight">Photos</h1>
           <p className="text-navy-600 text-sm mt-1 max-w-2xl leading-relaxed">
-            Upload JPEG, PNG, or animated GIF media. Watch serverless Sharp &amp; FFmpeg workers transcode into optimized high-speed WebP renditions in real-time.
+            Upload JPEG, PNG, GIF or WebP. Each one is converted to WebP in the background — watch progress in the log.
           </p>
         </div>
         <button
           onClick={fetchPhotos}
-          className="flex items-center gap-2 text-xs font-mono font-bold text-navy-900 hover:text-bronze-600 active:scale-[0.98] active:-translate-y-[1px] transition-all bg-warm-200/80 hover:bg-warm-200 px-4 py-2.5 rounded-lg border border-navy-300/40 shadow-sm"
+          className="flex min-h-[44px] shrink-0 items-center gap-2 rounded-lg border border-navy-300 bg-warm-200 px-4 text-sm font-semibold text-navy-900 transition-colors outline-none hover:bg-warm-300 focus-visible:ring-2 focus-visible:ring-bronze-500"
           data-interactive
         >
           <RefreshCw className="w-3.5 h-3.5" />
-          <span>SYNC TELEMETRY</span>
+          <span>Refresh</span>
         </button>
       </div>
 
@@ -334,12 +330,12 @@ export const AdminPhotoManager: React.FC<AdminPhotoManagerProps> = ({ isModal = 
                   }`}
                 >
                   {isUploading ? <Loader2 className="w-4 h-4 animate-spin text-bronze-400" /> : <ImageIcon className="w-4 h-4 text-bronze-400" />}
-                  <span>{isUploading ? "TRANSMITTING..." : "⚡ SELECT & UPLOAD"}</span>
+                  <span>{isUploading ? "Uploading…" : "Choose a file"}</span>
                 </label>
               </div>
 
               <div className="flex items-center gap-3 pt-2 border-t border-navy-200/60">
-                <label className="text-xs font-mono font-bold text-navy-600 uppercase flex-shrink-0">UI Category / Genre:</label>
+                <label className="text-xs font-mono font-bold text-navy-600 uppercase flex-shrink-0">Category</label>
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
@@ -366,7 +362,7 @@ export const AdminPhotoManager: React.FC<AdminPhotoManagerProps> = ({ isModal = 
                 </p>
 
                 <div className="w-full max-w-sm space-y-1 text-left">
-                  <label className="text-[11px] font-mono font-bold text-bronze-400 uppercase">Website Category / Sub-Genre:</label>
+                  <label className="text-[11px] font-mono font-bold text-bronze-400 uppercase">Category</label>
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
@@ -395,13 +391,13 @@ export const AdminPhotoManager: React.FC<AdminPhotoManagerProps> = ({ isModal = 
                   }`}
                 >
                   {isUploading ? <Loader2 className="w-5 h-5 animate-spin text-bronze-600" /> : <ImageIcon className="w-5 h-5 text-bronze-600 group-hover/btn:rotate-12 transition-transform" />}
-                  <span>{isUploading ? "TRANSMITTING TO CLOUD..." : "INITIALIZE UPLOAD"}</span>
+                  <span>{isUploading ? "Uploading…" : "Choose a file"}</span>
                 </label>
 
                 {uploadProgress !== null && (
                   <div className="w-full max-w-md mt-6 space-y-2">
                     <div className="flex justify-between text-xs font-mono font-semibold text-bronze-400">
-                      <span>BUFFERING PAYLOAD TO CDN...</span>
+                      <span>Uploading</span>
                       <span>{uploadProgress}%</span>
                     </div>
                     <div className="w-full h-3 bg-navy-900 rounded-full overflow-hidden border border-navy-800 p-0.5">
@@ -427,13 +423,13 @@ export const AdminPhotoManager: React.FC<AdminPhotoManagerProps> = ({ isModal = 
           <div className="space-y-6 pt-2">
             <div className="flex items-center justify-between">
               <h3 className="text-h3 font-bold text-navy-950">Indexed Image Assets ({photos.length})</h3>
-              <span className="text-xs font-mono text-navy-500">AUTO-REFRESHING EVERY 4S</span>
+              <span className="text-xs font-mono text-navy-500">Refreshes every 4s</span>
             </div>
 
             {isLoading ? (
               <div className="py-20 flex flex-col items-center justify-center text-navy-500 gap-3">
                 <Loader2 className="w-8 h-8 animate-spin text-bronze-600" />
-                <span className="text-xs font-mono">SYNCHRONIZING WITH NEON DATABASE...</span>
+                <span className="text-xs font-mono">Loading…</span>
               </div>
             ) : photos.length === 0 ? (
               <div className="bg-warm-50 p-12 rounded-2xl text-center border border-navy-200/80 text-navy-500 font-mono text-xs">
@@ -534,8 +530,9 @@ export const AdminPhotoManager: React.FC<AdminPhotoManagerProps> = ({ isModal = 
                               e.stopPropagation();
                               setEditPhoto(p);
                             }}
-                            className="p-1.5 text-navy-500 hover:text-navy-900 bg-navy-100 hover:bg-navy-200 rounded-lg transition-all active:scale-95"
-                            title="Edit Details"
+                            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-navy-500 transition-colors outline-none hover:bg-navy-100 hover:text-navy-900 focus-visible:ring-2 focus-visible:ring-bronze-500"
+                            aria-label="Edit details"
+                            title="Edit details"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
@@ -549,10 +546,11 @@ export const AdminPhotoManager: React.FC<AdminPhotoManagerProps> = ({ isModal = 
                               e.stopPropagation();
                               handleDelete(p.id);
                             }}
-                            className="p-1.5 text-navy-400 hover:text-warm-50 hover:bg-red-900/90 rounded-lg transition-all active:scale-95"
-                            title="Delete Photo from Cloud CDN and DB"
+                            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-navy-500 transition-colors outline-none hover:bg-red-900 hover:text-warm-50 focus-visible:ring-2 focus-visible:ring-bronze-500"
+                            aria-label="Delete photo"
+                            title="Delete photo"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
@@ -566,7 +564,7 @@ export const AdminPhotoManager: React.FC<AdminPhotoManagerProps> = ({ isModal = 
 
         {/* RIGHT COLUMN: Live Side Telemetry Console (Hidden in Modal Mode to keep popup compact and smooth) */}
         {!isModal && (
-          <div className="lg:col-span-5 xl:col-span-4 sticky top-8 space-y-4">
+          <div className="lg:col-span-5 xl:col-span-4 lg:sticky lg:top-8 space-y-4">
             <div className="bg-navy-950 rounded-2xl border border-navy-800 shadow-2xl overflow-hidden flex flex-col h-[650px]">
               
               {/* Console Header */}
@@ -596,9 +594,9 @@ export const AdminPhotoManager: React.FC<AdminPhotoManagerProps> = ({ isModal = 
               <div className="bg-navy-900/40 border-b border-navy-800/60 px-5 py-2.5 flex items-center justify-between text-xs font-mono text-navy-400">
                 <div className="flex items-center gap-2 truncate">
                   <Activity className="w-3.5 h-3.5 text-bronze-400 flex-shrink-0" />
-                  <span>TARGET:</span>
+                  <span>File:</span>
                   <span className="text-warm-100 font-semibold truncate max-w-[180px]">
-                    {selectedPhoto ? selectedPhoto.originalFileName : "NO JOB SELECTED"}
+                    {selectedPhoto ? selectedPhoto.originalFileName : "Nothing selected"}
                   </span>
                 </div>
                 {selectedPhoto && (
@@ -609,7 +607,7 @@ export const AdminPhotoManager: React.FC<AdminPhotoManagerProps> = ({ isModal = 
               </div>
 
               {/* Terminal Output Body */}
-              <div className="flex-1 overflow-y-auto p-5 font-mono text-xs space-y-3 bg-[#070b14] scrollbar-thin scrollbar-thumb-navy-800 scrollbar-track-transparent">
+              <div ref={consoleBodyRef} className="flex-1 overflow-y-auto p-5 font-mono text-xs space-y-3 bg-[#070b14] scrollbar-thin scrollbar-thumb-navy-800 scrollbar-track-transparent">
                 {!selectedPhoto ? (
                   <div className="h-full flex flex-col items-center justify-center text-navy-600 space-y-2 text-center py-12">
                     <Terminal className="w-8 h-8 opacity-40" />
@@ -672,13 +670,12 @@ export const AdminPhotoManager: React.FC<AdminPhotoManagerProps> = ({ isModal = 
                       {selectedPhoto.status === "completed"
                         ? "JOB FINISHED // WEBP RENDITION ENCODED"
                         : selectedPhoto.status === "failed"
-                        ? "JOB TERMINATED // ERROR ENCOUNTERED"
+                        ? "Stopped — see error above"
                         : "PROCESSING ACTIVE // SHARP WORKER LISTENING"}
                     </span>
                     <span className="w-2 h-4 bg-bronze-400 animate-pulse inline-block" />
                   </div>
                 )}
-                <div ref={consoleEndRef} />
               </div>
 
               {/* Console Footer Details */}
@@ -695,10 +692,10 @@ export const AdminPhotoManager: React.FC<AdminPhotoManagerProps> = ({ isModal = 
                 <div className="flex items-center justify-between text-[11px] text-navy-400">
                   <div className="flex items-center gap-2">
                     <Clock className="w-3.5 h-3.5 text-navy-500" />
-                    <span>POLL INTERVAL: 4000ms</span>
+                    <span>Refreshes every 4s</span>
                   </div>
                   <div className="text-navy-500">
-                    {selectedPhoto?.logs?.length || 0} EVENTS LOGGED
+                    {selectedPhoto?.logs?.length || 0} events
                   </div>
                 </div>
               </div>
