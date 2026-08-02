@@ -62,8 +62,11 @@ export const publicRateLimitMiddleware = async (req: Request, res: Response, nex
 };
 
 export const userActionRateLimitMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-  // Use user ID if authenticated, fallback to IP
-  const identifier = req.body.userId || req.query.userId || req.ip || req.socket.remoteAddress || '127.0.0.1';
+  // Use user ID if authenticated, fallback to IP. `req.body` is undefined in
+  // Express 5 whenever no body parser ran (any GET/DELETE), so this must be
+  // optional — reading `.userId` off undefined threw a TypeError that surfaced
+  // as a blanket 500 on every GET under /api/videos and /api/photos.
+  const identifier = req.body?.userId || req.query?.userId || req.ip || req.socket.remoteAddress || '127.0.0.1';
   const { success, limit, remaining, reset } = await authUserRateLimiter.limit(identifier);
   
   res.set('X-RateLimit-Limit', limit.toString());
