@@ -2,8 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { Image as ImageIcon, Film, X } from "lucide-react";
-import { AdminPhotoManager } from "./AdminPhotoManager";
-import { AdminVideoManager } from "./AdminVideoManager";
+import MediaAssetGrid, { type Asset } from "./MediaAssetGrid";
 
 /**
  * The one media picker. CampaignForm and InsightForm each carried their own copy
@@ -26,7 +25,7 @@ export default function MediaPickerModal({
   kind: "photo" | "video";
   open: boolean;
   onClose: () => void;
-  onSelect: (url: string) => void;
+  onSelect: (url: string, asset: Asset) => void;
   title?: string;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
@@ -111,11 +110,10 @@ export default function MediaPickerModal({
         </div>
 
         <div className="flex-1 overflow-auto p-4">
-          {isPhoto ? (
-            <AdminPhotoManager isModal onSelectPhoto={(url: string) => { onSelect(url); onClose(); }} />
-          ) : (
-            <AdminVideoManager isModal onSelectVideo={(url: string) => { onSelect(url); onClose(); }} />
-          )}
+          <MediaAssetGrid
+            kind={isPhoto ? "photos" : "videos"}
+            onSelect={(url, asset) => { onSelect(url, asset); onClose(); }}
+          />
         </div>
       </div>
     </div>

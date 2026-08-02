@@ -130,3 +130,46 @@ export async function softDeleteMedia(type: 'photos' | 'videos', id: string) {
     return { error: `An unexpected error occurred: ${error?.message || 'Unknown'}` };
   }
 }
+
+/**
+ * Second, irreversible step after archiving: drops the row and releases the blobs.
+ * The backend refuses this unless the asset is already archived, so a live asset
+ * still referenced by a site section cannot be destroyed in one click.
+ */
+export async function permanentlyDeleteMedia(type: 'photos' | 'videos', id: string) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('admin_session')?.value;
+
+    if (!token) return { error: 'Unauthorized' };
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+    let response: Response;
+    try {
+      response = await fetch(`${getBackendUrl()}/api/admin/media/${type}/${id}/permanent`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
+        signal: controller.signal,
+      });
+    } catch (fetchErr: any) {
+      clearTimeout(timeoutId);
+      return { error: fetchErr?.name === 'AbortError' ? 'Request timed out' : 'Backend unreachable' };
+    }
+    clearTimeout(timeoutId);
+
+    const rawText = await response.text();
+    let resData: any = {};
+    try {
+      resData = JSON.parse(rawText);
+    } catch {
+      return { error: 'Backend returned invalid response' };
+    }
+
+    if (!response.ok) return { error: resData.error || 'Failed to delete media permanently' };
+    return { success: true };
+  } catch (error: any) {
+    return { error: `An unexpected error occurred: ${error?.message || 'Unknown'}` };
+  }
+}

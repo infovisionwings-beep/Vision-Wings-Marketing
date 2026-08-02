@@ -5,8 +5,7 @@ import { useRouter } from "next/navigation";
 import { createCampaign, updateCampaign } from "@/app/actions/campaigns";
 import Button from "@/components/ui/Button";
 import { ArrowLeft, Image as ImageIcon, Film, Sparkles, Loader2, Plus, X, Globe, Eye, Layers } from "lucide-react";
-import { AdminPhotoManager } from "./AdminPhotoManager";
-import { AdminVideoManager } from "./AdminVideoManager";
+import MediaPickerModal from "./MediaPickerModal";
 
 interface CampaignFormProps {
   campaign?: any;
@@ -519,66 +518,23 @@ export default function CampaignForm({ campaign, defaultSection = "showcases" }:
         </div>
       </form>
 
-      {/* Photo Picker Modal */}
-      {showPhotoModal && (
-        <div className="fixed inset-0 z-50 bg-navy-950/80 backdrop-blur-md flex items-center justify-center p-4 md:p-8">
-          <div className="bg-warm-50 w-full max-w-5xl h-[85vh] rounded-2xl border border-navy-800 shadow-2xl flex flex-col overflow-hidden">
-            <div className="p-4 bg-navy-950 text-warm-50 flex items-center justify-between border-b border-navy-800">
-              <div className="flex items-center gap-2">
-                <ImageIcon className="w-4 h-4 text-bronze-400" />
-                <span className="text-xs font-mono font-bold uppercase">SELECT IMAGE FROM MEDIA LIBRARY</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowPhotoModal(false)}
-                className="p-1 rounded hover:bg-navy-800 text-navy-400 hover:text-warm-50"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-auto p-4">
-              <AdminPhotoManager
-                isModal={true}
-                onSelectPhoto={(photoUrl: string) => {
-                  if (photoTarget === "cover") setCoverImageUrl(photoUrl);
-                  else setPosterImageUrl(photoUrl);
-                  setShowPhotoModal(false);
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* One shared picker instead of a private copy of the overlay per form. */}
+      <MediaPickerModal
+        kind="photo"
+        open={showPhotoModal}
+        onClose={() => setShowPhotoModal(false)}
+        onSelect={(photoUrl) => {
+          if (photoTarget === "cover") setCoverImageUrl(photoUrl);
+          else setPosterImageUrl(photoUrl);
+        }}
+      />
 
-      {/* Video Picker Modal */}
-      {showVideoModal && (
-        <div className="fixed inset-0 z-50 bg-navy-950/80 backdrop-blur-md flex items-center justify-center p-4 md:p-8">
-          <div className="bg-warm-50 w-full max-w-5xl h-[85vh] rounded-2xl border border-navy-800 shadow-2xl flex flex-col overflow-hidden">
-            <div className="p-4 bg-navy-950 text-warm-50 flex items-center justify-between border-b border-navy-800">
-              <div className="flex items-center gap-2">
-                <Film className="w-4 h-4 text-bronze-400" />
-                <span className="text-xs font-mono font-bold uppercase">SELECT VIDEO FROM MEDIA LIBRARY</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowVideoModal(false)}
-                className="p-1 rounded hover:bg-navy-800 text-navy-400 hover:text-warm-50"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-auto p-4">
-              <AdminVideoManager
-                isModal={true}
-                onSelectVideo={(vUrl: string) => {
-                  setVideoUrl(vUrl);
-                  setShowVideoModal(false);
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      <MediaPickerModal
+        kind="video"
+        open={showVideoModal}
+        onClose={() => setShowVideoModal(false)}
+        onSelect={(vUrl) => setVideoUrl(vUrl)}
+      />
     </div>
   );
 }
