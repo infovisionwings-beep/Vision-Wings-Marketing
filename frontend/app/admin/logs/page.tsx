@@ -1,4 +1,4 @@
-import { requireAdmin } from '@/lib/auth/rbac';
+import { requireAdmin, requireAdminToken } from '@/lib/auth/rbac';
 import { ShieldCheck, Calendar, User, Activity, Monitor, Search, Filter } from 'lucide-react';
 import { format } from 'date-fns';
 import { cookies } from 'next/headers';
@@ -25,10 +25,11 @@ async function getLogs(token: string) {
 
 export default async function AuditLogsPage() {
   const admin = await requireAdmin(['Developer']);
-  
-  const cookieStore = await cookies();
-  const token = cookieStore.get('admin_session')?.value;
-  const logs = await getLogs(token!);
+
+  // Without the bearer token the backend 401s and the table renders empty, which
+  // reads as "logs are broken" rather than "you need to re-authenticate".
+  const token = await requireAdminToken();
+  const logs = await getLogs(token);
 
   return (
     <div className="space-y-8">

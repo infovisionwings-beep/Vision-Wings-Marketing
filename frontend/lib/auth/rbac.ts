@@ -20,6 +20,63 @@ export interface AdminUser {
 }
 
 /**
+ * Developer-only pages call the backend with the admin_session cookie as a bearer
+ * token, so holding the Developer role is not sufficient on its own — without the
+ * cookie those calls 401 and the page silently renders empty. Send the user through
+ * the secondary login to mint one instead.
+ */
+export async function requireAdminToken(): Promise<string> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('admin_session')?.value;
+  if (!token) {
+    redirect('/admin-login');
+  }
+  return token;
+}
+
+/**
+ * Route-handler variant of `requireAdmin`. `requireAdmin` signals denial by throwing
+ * NEXT_REDIRECT, which is meaningless in a JSON API — callers used to swallow that and
+ * continue as a hardcoded `admin@agency.com`, leaving those writes unauthenticated.
+ * Returns null on denial so the caller can respond 403.
+ */
+export async function requireAdminApi(requiredRoles?: string[]): Promise<AdminUser | null> {
+  try {
+    return await requireAdmin(requiredRoles);
+  } catch (err: any) {
+    if (err?.digest?.startsWith('NEXT_REDIRECT') || err?.message === 'NEXT_REDIRECT') {
+      return null;
+    }
+    throw err;
+  }
+}
+
+/**
+ * Resolve an email's role from the backend admin_roles table.
+ * Returns null on any failure so callers fail closed.
+ */
+async function lookupRole(email: string): Promise<string | null> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15_000);
+  try {
+    const res = await fetch(
+      `${getBackendUrl()}/api/admin/is-admin/${encodeURIComponent(email)}`,
+      { cache: 'no-store', signal: controller.signal }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.isAdmin) return null;
+    // `role` is absent on backends older than this change; treat as the previous default.
+    return (data.role as string) || 'Admin';
+  } catch (e) {
+    console.error('Failed to resolve admin role from backend:', e);
+    return null;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+/**
  * Require that the current request is made by an authenticated admin user.
  * It checks the secondary admin session (JWT cookie) AND/OR the primary web session.
  * 
@@ -59,32 +116,37 @@ export async function requireAdmin(requiredRoles?: string[]): Promise<AdminUser>
     }
 
     const superAdminEmail = (process.env.SUPER_ADMIN_EMAIL || '').toLowerCase();
-    const adminEmails = (process.env.ADMIN_EMAILS || '').toLowerCase().split(',').map(e => e.trim());
+    const adminEmails = (process.env.ADMIN_EMAILS || '')
+      .toLowerCase()
+      .split(',')
+      .map(e => e.trim())
+      .filter(Boolean);
 
     const activeEmail = (adminPayload?.email as string || primaryUser?.email || '').toLowerCase();
-    const activeRole = (adminPayload?.role as string || 'Admin');
     const activeName = (adminPayload?.name as string || primaryUser?.name || 'Super Admin');
 
-    let isAuthorized =
-      activeEmail === superAdminEmail ||
-      adminEmails.includes(activeEmail) ||
-      activeRole === 'Developer' ||
-      activeRole === 'Admin';
+    // The role is derived from identity and is never defaulted. It used to fall back
+    // to 'Admin' whenever the 12h admin_session cookie was absent, which meant
+    //   a) the `activeRole === 'Admin'` authorization clause was always true, so any
+    //      signed-in site user reached the whole dashboard, and
+    //   b) the super admin lost the Developer role the moment the cookie lapsed and
+    //      got bounced from /admin/new and /admin/logs back to /admin.
+    // Authorization is now simply "did we resolve a role", so both fail closed.
+    let activeRole: string | null = null;
 
-    if (!isAuthorized && activeEmail) {
-      const backendUrl = getBackendUrl();
-      try {
-        const res = await fetch(`${backendUrl}/api/admin/is-admin/${encodeURIComponent(activeEmail)}`, { cache: 'no-store' });
-        if (res.ok) {
-          const data = await res.json();
-          isAuthorized = data.isAdmin === true;
-        }
-      } catch (e) {
-        console.error('Failed to check admin status with backend', e);
+    if (activeEmail && activeEmail === superAdminEmail) {
+      // Super admin identity comes from the env, so it survives cookie expiry.
+      activeRole = 'Developer';
+    } else if (adminPayload?.role) {
+      activeRole = adminPayload.role as string;
+    } else if (activeEmail) {
+      activeRole = await lookupRole(activeEmail);
+      if (!activeRole && adminEmails.includes(activeEmail)) {
+        activeRole = 'Admin'; // static ADMIN_EMAILS allowlist
       }
     }
 
-    if (!isAuthorized) {
+    if (!activeRole) {
       redirect('/');
     }
 

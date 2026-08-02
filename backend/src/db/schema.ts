@@ -144,6 +144,22 @@ export const adminOtps = pgTable("admin_otps", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Admin Invites — single-use signed links that replace the dual-OTP promotion flow.
+// Only the SHA-256 hash of the token is stored, so a database leak yields no usable
+// invite. Delivery to the invitee's inbox is what proves control of the address.
+export const adminInvites = pgTable("admin_invites", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  email: varchar("email", { length: 255 }).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  role: varchar("role", { length: 50 }).notNull(),
+  tokenHash: varchar("token_hash", { length: 64 }).notNull().unique(),
+  invitedBy: varchar("invited_by", { length: 255 }).notNull(),
+  status: varchar("status", { length: 20 }).notNull().default("pending"), // pending, accepted, revoked
+  expiresAt: timestamp("expires_at").notNull(),
+  acceptedAt: timestamp("accepted_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Site Settings
 export const siteSettings = pgTable("site_settings", {
   id: serial("id").primaryKey(),
