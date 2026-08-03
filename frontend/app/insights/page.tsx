@@ -5,7 +5,7 @@ import { ArrowUpRight, Plus, ArrowRight, Sparkles, BookOpen } from "lucide-react
 import { format } from "date-fns";
 
 export const metadata = {
-  title: "Marketing Insights & Perspectives - Vision Wings",
+  title: "Marketing Insights & Perspectives",
   description: "Senior strategic viewpoints on brand acceleration, growth marketing, performance advertising, and digital conversion.",
 };
 

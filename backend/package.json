@@ -8,7 +8,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "migrate:invites": "node scripts/apply-sql.js drizzle/manual/001_admin_invites.sql",
-    "migrate:projects-logos": "node scripts/apply-sql.js drizzle/manual/002_projects_status_and_client_logos.sql"
+    "migrate:projects-logos": "node scripts/apply-sql.js drizzle/manual/002_projects_status_and_client_logos.sql",
+    "migrate:contact": "node scripts/apply-sql.js drizzle/manual/003_contact_submissions.sql"
   },
   "keywords": [],
   "author": "",

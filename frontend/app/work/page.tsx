@@ -4,7 +4,7 @@ import { Link } from "@/components/ui/Link";
 import { ArrowRight } from "lucide-react";
 
 export const metadata = {
-  title: "Marketing Campaigns & Work - Vision Wings",
+  title: "Marketing Campaigns & Work",
   description: "A curation of high-velocity marketing campaigns, conversion funnels, and brand acceleration that drive outsized growth.",
 };
 

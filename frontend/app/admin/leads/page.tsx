@@ -5,14 +5,15 @@
 
 import { format } from "date-fns";
 import { db } from "@/lib/db";
-import { userProfiles } from "@/lib/db/schema";
+import { userProfiles, contactSubmissions } from "@/lib/db/schema";
 import { desc } from "drizzle-orm";
-import { Users, Building2, User, Phone, MapPin, Sparkles } from "lucide-react";
+import { Users, Building2, User, Phone, MapPin, Sparkles, Mail, MessageSquare } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminLeadsPage() {
   let leads: any[] = [];
+  let inquiries: any[] = [];
   try {
     leads = await db
       .select()
@@ -21,18 +22,67 @@ export default async function AdminLeadsPage() {
   } catch (error) {
     console.error("Failed to fetch leads from Neon DB:", error);
   }
+  try {
+    inquiries = await db
+      .select()
+      .from(contactSubmissions)
+      .orderBy(desc(contactSubmissions.createdAt));
+  } catch (error) {
+    console.error("Failed to fetch contact submissions from Neon DB:", error);
+  }
 
   return (
-    <div className="space-y-8">
-      
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-navy-200 pb-6">
-        <h1 className="text-h2 font-bold text-navy-950 tracking-tight">Leads</h1>
-        <span className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-warm-200 text-navy-900 text-sm font-medium">
-          <Users className="w-4 h-4 text-bronze-700" />
-          {leads.length} {leads.length === 1 ? "lead" : "leads"}
-        </span>
-      </div>
+    <div className="space-y-14">
+
+      {/* Contact Inquiries — submissions from the public /contact form */}
+      <section className="space-y-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-navy-200 pb-6">
+          <h1 className="text-h2 font-bold text-navy-950 tracking-tight">Contact Inquiries</h1>
+          <span className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-warm-200 text-navy-900 text-sm font-medium">
+            <Mail className="w-4 h-4 text-bronze-700" />
+            {inquiries.length} {inquiries.length === 1 ? "inquiry" : "inquiries"}
+          </span>
+        </div>
+
+        {inquiries.length === 0 ? (
+          <p className="rounded-xl border border-navy-200 bg-warm-50 p-8 text-center text-sm text-navy-500">
+            No inquiries yet. Submissions from <span className="font-medium text-navy-700">/contact</span> appear here automatically.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {inquiries.map((item: any, idx: number) => (
+              <article key={item.id || idx} className="rounded-xl border border-navy-200 bg-warm-50 p-4 sm:p-5 space-y-2.5">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <h2 className="font-bold text-navy-950">{item.firstName} {item.lastName}</h2>
+                    <a href={`mailto:${item.email}`} className="text-sm text-bronze-700 hover:text-bronze-800 underline underline-offset-2">
+                      {item.email}
+                    </a>
+                    {item.company && <span className="text-sm text-navy-500"> · {item.company}</span>}
+                  </div>
+                  <span className="shrink-0 font-mono text-[11px] text-navy-500">
+                    {item.createdAt ? format(new Date(item.createdAt), "MMM d, yyyy") : "Today"}
+                  </span>
+                </div>
+                <p className="flex gap-2 text-sm text-navy-700 leading-relaxed border-t border-navy-200 pt-2.5">
+                  <MessageSquare className="w-3.5 h-3.5 shrink-0 text-navy-400 mt-0.5" />
+                  <span>{item.message}</span>
+                </p>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Leads — signups from the authenticated /onboarding flow */}
+      <section className="space-y-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-navy-200 pb-6">
+          <h1 className="text-h2 font-bold text-navy-950 tracking-tight">Leads</h1>
+          <span className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-warm-200 text-navy-900 text-sm font-medium">
+            <Users className="w-4 h-4 text-bronze-700" />
+            {leads.length} {leads.length === 1 ? "lead" : "leads"}
+          </span>
+        </div>
 
       {/* Cards below md — a 6-column table in a horizontal scroller is unusable on a phone */}
       <div className="md:hidden space-y-3">
@@ -198,6 +248,8 @@ export default async function AdminLeadsPage() {
           </table>
         </div>
       </div>
+      </section>
     </div>
   );
 }
+

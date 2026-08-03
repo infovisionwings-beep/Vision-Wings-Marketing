@@ -1,9 +1,15 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { ShieldCheck, AlertCircle, LogIn } from 'lucide-react';
 import { lookupInvite } from '@/app/actions/adminInvites';
 import AcceptInviteClient from './client';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: "Accept Admin Invite",
+  robots: { index: false, follow: false },
+};
 
 // Deliberately outside /admin: the invitee is not an admin yet, so the admin layout
 // and the Neon proxy matcher (/admin/:path*) must not apply. This page enforces its

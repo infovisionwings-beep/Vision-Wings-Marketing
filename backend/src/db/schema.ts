@@ -46,6 +46,17 @@ export const userProfiles = pgTable("user_profiles", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const contactSubmissions = pgTable("contact_submissions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  firstName: varchar("first_name", { length: 255 }).notNull(),
+  lastName: varchar("last_name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  company: varchar("company", { length: 255 }),
+  message: text("message").notNull(),
+  status: varchar("status", { length: 20 }).notNull().default("new"), // new, contacted, archived
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const videos = pgTable("videos", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: varchar("user_id", { length: 255 }).notNull(),

@@ -15,6 +15,15 @@ export const InsightSchema = z.object({
   projectId: z.number().int().positive().optional(),
 }).strict();
 
+// Strict schema for public contact form submissions
+export const ContactSubmissionSchema = z.object({
+  firstName: z.string().min(1).max(255),
+  lastName: z.string().min(1).max(255),
+  email: z.string().email().max(255),
+  company: z.string().max(255).optional().nullable(),
+  message: z.string().min(1).max(5000),
+}).strict();
+
 // Strict schema for User Profile creation/update
 export const UserProfileSchema = z.object({
   userId: z.string().min(1).max(255),

@@ -4,6 +4,8 @@ import { Link } from "@/components/ui/Link";
 import Button from "@/components/ui/Button";
 import { ArrowLeft, Calendar, BookOpen, Share2, Bookmark, CheckCircle2, User, Users } from "lucide-react";
 import { format } from "date-fns";
+import { cache } from "react";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
@@ -113,18 +115,17 @@ function extractHeadingsAndInjectIds(html: string): { htmlWithIds: string; toc: 
   return { htmlWithIds, toc };
 }
 
-export default async function InsightDetailPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
-  let article: Article | null = null;
-
+// Wrapped in React's cache() so generateMetadata and the page component
+// share one resolution per request instead of fetching the insight twice.
+const resolveArticle = cache(async (slug: string): Promise<Article | null> => {
   try {
     const dbInsight = await getInsightBySlug(slug);
     if (dbInsight) {
-      article = {
+      return {
         title: dbInsight.title,
         category: dbInsight.category || "Strategic Perspective",
-        date: dbInsight.publishedAt 
-          ? format(new Date(dbInsight.publishedAt), "MMM d, yyyy") 
+        date: dbInsight.publishedAt
+          ? format(new Date(dbInsight.publishedAt), "MMM d, yyyy")
           : (dbInsight.createdAt ? format(new Date(dbInsight.createdAt), "MMM d, yyyy") : format(new Date(), "MMM d, yyyy")),
         content: dbInsight.content || "",
         coverImage: dbInsight.coverImage || "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1600&q=80",
@@ -134,17 +135,46 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
         contributors: (dbInsight as any).contributors || null,
         readTime: `${Math.max(3, Math.ceil((dbInsight.content?.length || 1500) / 500))} min read`
       };
-    } else if (fallbackContentMap[slug]) {
-      article = fallbackContentMap[slug];
-    } else {
-      article = {
-        ...fallbackContentMap["brand-architecture"],
-        title: slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase())
-      };
     }
+    if (fallbackContentMap[slug]) {
+      return fallbackContentMap[slug];
+    }
+    return {
+      ...fallbackContentMap["brand-architecture"],
+      title: slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase())
+    };
   } catch (err) {
     console.error("Failed to load insight details:", err);
+    return null;
   }
+});
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const article = await resolveArticle(slug);
+  if (!article) return {};
+
+  const plainExcerpt = article.content
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 160);
+
+  return {
+    title: article.title,
+    description: plainExcerpt,
+    openGraph: {
+      title: article.title,
+      description: plainExcerpt,
+      images: article.coverImage ? [article.coverImage] : undefined,
+      type: "article",
+    },
+  };
+}
+
+export default async function InsightDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const article = await resolveArticle(slug);
 
   if (!article) {
     return notFound();

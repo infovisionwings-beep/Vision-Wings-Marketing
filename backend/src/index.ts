@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { db } from './db';
-import { projects, insights, userProfiles } from './db/schema';
+import { projects, insights, userProfiles, contactSubmissions } from './db/schema';
 import { eq } from 'drizzle-orm';
 import videoRoutes from './routes/videos';
 import photoRoutes from './routes/photos';
@@ -13,7 +13,8 @@ import './worker';
 import './photoWorker';
 import { authRateLimitMiddleware, publicRateLimitMiddleware, userActionRateLimitMiddleware } from './middleware/rateLimiter';
 import { errorHandler } from './middleware/errorHandler';
-import { validateBody, ProjectSchema, InsightSchema, UserProfileSchema } from './validators';
+import { validateBody, ProjectSchema, InsightSchema, UserProfileSchema, ContactSubmissionSchema } from './validators';
+import { sendEmail, MAIL_FROM } from './email';
 
 
 dotenv.config();
@@ -169,6 +170,44 @@ app.post('/api/user-profiles', authRateLimitMiddleware, validateBody(UserProfile
   try {
     const profile = await db.insert(userProfiles).values(req.body).returning();
     res.json(profile[0]);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Contact API. Public write, no public read — submissions carry a name, email
+// and message, so listing them is an admin-only concern (the admin dashboard
+// reads this table directly over its own DB connection, the same way it reads
+// leads from user_profiles).
+app.post('/api/contact', authRateLimitMiddleware, validateBody(ContactSubmissionSchema), async (req, res, next) => {
+  try {
+    const [submission] = await db.insert(contactSubmissions).values(req.body).returning();
+
+    // Notification failure must not fail the request: the inquiry is already
+    // saved, so a flaky send here should not tell the visitor their message
+    // was lost. It is logged instead, the same tradeoff FAILED sends make in
+    // the invite flow — visible to us, invisible to the person who just asked
+    // for help.
+    const notifyEmail = process.env.CONTACT_NOTIFY_EMAIL || process.env.SUPER_ADMIN_EMAIL;
+    if (notifyEmail) {
+      const { firstName, lastName, email, company, message } = submission;
+      const notifyError = await sendEmail({
+        from: MAIL_FROM,
+        to: notifyEmail,
+        replyTo: email,
+        subject: `New contact inquiry — ${firstName} ${lastName}${company ? ` (${company})` : ''}`,
+        html: `
+          <p><strong>${firstName} ${lastName}</strong> (${email}) sent a new inquiry via the Vision Wings contact form.</p>
+          ${company ? `<p>Company: ${company}</p>` : ''}
+          <p>${message.replace(/\n/g, '<br/>')}</p>
+        `,
+      });
+      if (notifyError) {
+        console.warn('Contact submission saved, but the notification email failed:', notifyError);
+      }
+    }
+
+    res.json(submission);
   } catch (error) {
     next(error);
   }

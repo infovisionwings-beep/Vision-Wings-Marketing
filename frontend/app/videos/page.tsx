@@ -2,7 +2,7 @@ import { getCompletedVideos } from "@/app/actions/videos";
 import VideoShowcaseGrid from "@/components/sections/VideoShowcaseGrid";
 
 export const metadata = {
-  title: "HD Video Campaigns & Ads - Vision Wings",
+  title: "HD Video Campaigns & Ads",
   description: "Cinematic video production, high-conversion commercial campaigns, and viral social ads engineered for brand dominance and market acceleration.",
 };
 

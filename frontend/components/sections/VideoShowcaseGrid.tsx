@@ -7,7 +7,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Play, X, ArrowRight, Film, Sparkles, Eye, CheckCircle2, ShieldCheck, Maximize2, Clock, Calendar } from "lucide-react";
+import { Play, X, CheckCircle2, ShieldCheck, Clock } from "lucide-react";
 import Button from "@/components/ui/Button";
 
 export interface VideoAsset {
@@ -308,7 +308,7 @@ export default function VideoShowcaseGrid({ dbVideos = [], dbCampaigns = [] }: V
     duration: v.durationSeconds ? `${Math.floor(Number(v.durationSeconds) / 60)}:${String(Math.floor(Number(v.durationSeconds) % 60)).padStart(2, "0")}` : "HD 4K",
     coverImage: v.thumbnailPath || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80",
     videoUrl: v.webmPath || v.mp4Path || v.inputPath,
-    description: `High-definition media pipeline rendition processed via Upstash BullMQ and Vercel Blob CDN. Original size: ${(Number(v.originalSize) / (1024 * 1024)).toFixed(1)} MB.`,
+    description: `High-definition rendition from our cloud media pipeline. Original size: ${(Number(v.originalSize) / (1024 * 1024)).toFixed(1)} MB.`,
     isLiveDb: true
   }));
 
@@ -336,28 +336,21 @@ export default function VideoShowcaseGrid({ dbVideos = [], dbCampaigns = [] }: V
 
           {/* Right Column: Editorial Typography & Value Prop */}
           <div className="lg:col-span-5 flex flex-col justify-center space-y-6">
-            <div className="flex items-center gap-2 text-bronze-600 font-mono text-xs font-bold tracking-widest uppercase">
-              <Film className="w-4 h-4" />
-              <span>High-Conversion Video Marketing</span>
-            </div>
-
-            <h2 className="text-4xl md:text-5xl font-extrabold font-display text-navy-950 tracking-tight leading-[1.08]">
-              HIGH DEFINITION <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-bronze-600 via-bronze-500 to-amber-600">
-                VIDEO CAMPAIGNS
-              </span> <br />
-              &amp; COMMERCIAL ADS
+            <h2 className="text-h1 font-bold text-navy-950 text-balance leading-[1.08]">
+              High Definition <br />
+              <span className="text-bronze-600">Video Campaigns</span> <br />
+              &amp; Commercial Ads
             </h2>
 
             {/* Subtext strictly under 20 words per taste.md Section 4.7 */}
-            <p className="text-lg text-navy-700 font-normal leading-relaxed">
+            <p className="text-body-lg text-navy-700 leading-relaxed">
               Cinematic video production, high-conversion commercial campaigns, and viral social ads engineered for brand dominance and market acceleration.
             </p>
 
             <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-              <a 
-                href="#samples-grid" 
-                className="inline-flex items-center justify-center px-6 py-3.5 rounded-xl border border-navy-200 hover:border-navy-400 text-navy-950 font-semibold text-sm transition-colors"
+              <a
+                href="#samples-grid"
+                className="inline-flex items-center justify-center min-h-[44px] px-6 py-3.5 rounded-xl border border-navy-200 hover:border-navy-400 text-navy-950 font-semibold text-sm transition-colors focus-visible:ring-2 focus-visible:ring-bronze-500 outline-none"
                 data-interactive
               >
                 <span>Browse All Samples</span>
@@ -371,7 +364,7 @@ export default function VideoShowcaseGrid({ dbVideos = [], dbCampaigns = [] }: V
               </div>
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                <span>UPSTASH CDN ACCELERATED</span>
+                <span>ACCELERATED CLOUD DELIVERY</span>
               </div>
             </div>
           </div>
@@ -381,15 +374,10 @@ export default function VideoShowcaseGrid({ dbVideos = [], dbCampaigns = [] }: V
         {/* ── SECTION 2: SAMPLES BENTO GRID (EXACTLY 3 CARDS) ── */}
         <div id="samples-grid" className="space-y-8 scroll-mt-28">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-navy-200 pb-5">
-            <div>
-              <span className="text-xs font-mono uppercase tracking-widest text-bronze-600 font-bold block mb-1">
-                EXHIBITION CURATION
-              </span>
-              <h3 className="text-2xl md:text-3xl font-bold font-display text-navy-950 tracking-tight">
-                SAMPLES
-              </h3>
-            </div>
-            <p className="text-sm text-navy-600 max-w-md">
+            <h3 className="text-h2 font-bold text-navy-950 tracking-tight">
+              Samples
+            </h3>
+            <p className="text-body-sm text-navy-600 max-w-md">
               Click any campaign exhibit to play inline with high-definition streaming.
             </p>
           </div>
@@ -423,13 +411,10 @@ export default function VideoShowcaseGrid({ dbVideos = [], dbCampaigns = [] }: V
         {/* ── SECTION 3: CHECKERBOARD EDITORIAL SERIES (MAX 2 ROWS) ── */}
         <div className="space-y-16 pt-8">
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="text-xs font-mono uppercase tracking-widest text-bronze-600 font-bold">
-              EDITORIAL FOCUS
-            </span>
-            <h3 className="text-3xl md:text-4xl font-extrabold font-display text-navy-950 tracking-tight">
+            <h3 className="text-h2 font-bold text-navy-950 tracking-tight">
               Brand Growth Narratives
             </h3>
-            <p className="text-sm text-navy-600">
+            <p className="text-body-sm text-navy-600">
               Deep-dive video campaigns exploring value proposition, market positioning, and brand authority across high-growth commercial projects.
             </p>
           </div>
@@ -484,14 +469,9 @@ export default function VideoShowcaseGrid({ dbVideos = [], dbCampaigns = [] }: V
           <div className="absolute top-0 right-0 w-96 h-96 bg-radial-gradient from-bronze-500/10 to-transparent rounded-full pointer-events-none" />
 
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 relative z-10">
-            <div>
-              <span className="text-xs font-mono uppercase tracking-widest text-bronze-400 font-bold block mb-1">
-                CONTINUOUS STREAM
-              </span>
-              <h3 className="text-2xl md:text-3xl font-bold font-display text-warm-50 tracking-tight">
-                Campaign Reels &amp; Social Shorts
-              </h3>
-            </div>
+            <h3 className="text-h2 font-bold text-warm-50 tracking-tight">
+              Campaign Reels &amp; Social Shorts
+            </h3>
             <span className="text-xs font-mono text-navy-300">
               SCROLL HORIZONTALLY · CLICK TO PLAY INLINE
             </span>

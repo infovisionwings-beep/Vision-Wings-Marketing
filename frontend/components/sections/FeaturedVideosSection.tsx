@@ -10,7 +10,7 @@
 import RevealOnScroll from "@/components/motion/RevealOnScroll";
 import Button from "@/components/ui/Button";
 import { Link } from "@/components/ui/Link";
-import { ArrowUpRight, Play, Film, Sparkles, Video, ShieldCheck, Activity } from "lucide-react";
+import { ArrowUpRight, Play, Sparkles, Video, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 
 interface FeaturedVideosProps {
@@ -114,14 +114,9 @@ export default function FeaturedVideosSection({
         {/* Editorial Section Header */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 border-b border-navy-800 pb-10">
           <RevealOnScroll className="max-w-2xl space-y-4">
-            <div className="flex items-center gap-2.5 px-3 py-1 rounded-full bg-navy-900 border border-navy-800 w-fit text-xs font-mono text-bronze-400 font-bold tracking-wider uppercase">
-              <Film className="w-3.5 h-3.5 text-bronze-400" />
-              <span>01 // VIDEO CAMPAIGNS &amp; COMMERCIALS</span>
-            </div>
-            
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-display text-warm-50 tracking-tight leading-[1.05]">
+            <h2 className="text-h1 font-bold text-warm-50 text-balance leading-[1.05]">
               {settings.featured_videos_title_line1 || "Brand Stories in"} <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-bronze-400 via-amber-200 to-warm-50">
+              <span className="text-bronze-400">
                 {settings.featured_videos_title_line2 || "High-Definition Motion."}
               </span>
             </h2>
@@ -276,7 +271,7 @@ export default function FeaturedVideosSection({
               <span>LOSSLESS 4K / H.264 PIPELINE</span>
             </span>
             <span>·</span>
-            <span>UPSTASH CONCURRENCY ENGINE</span>
+            <span>RAPID CLOUD DELIVERY</span>
             <span>·</span>
             <span>CINEMATIC COLOR GRADIENT</span>
           </div>
