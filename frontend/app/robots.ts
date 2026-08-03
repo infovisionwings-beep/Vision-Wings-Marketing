@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/admin", "/api"],
     },
-    sitemap: "https://visionwing.com/sitemap.xml",
+    sitemap: "https://www.visionwingsmarketing.com/sitemap.xml",
   };
 }
