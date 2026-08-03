@@ -185,18 +185,11 @@ export default function Work({ dbCampaigns = [], settings }: WorkProps) {
     <section id="work" className="py-20 md:py-32 lg:py-40 px-5 md:px-10 xl:px-20 bg-warm-50 text-navy-950 overflow-hidden">
       <div className="max-w-[1440px] mx-auto space-y-12 md:space-y-16">
         
-        {/* Exhibition Gallery Header (004 + Discover our world) */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-navy-200/80 pb-8">
-          <RevealOnScroll className="flex items-baseline gap-4">
-            <span className="text-xl md:text-2xl font-mono font-bold text-navy-950 tracking-tight select-none">
-              004
-            </span>
-            <span className="text-xs font-mono font-semibold text-bronze-600 tracking-widest uppercase ml-2">
-              Marketing Campaigns &amp; Brand Archive
-            </span>
-          </RevealOnScroll>
-          
-          <RevealOnScroll delay={0.1} className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 w-full md:w-auto">
+        {/* Exhibition Gallery Header. No eyebrow / section number per the
+            house rule established in Services and Insights: the heading
+            carries itself. */}
+        <div className="border-b border-navy-200/80 pb-8">
+          <RevealOnScroll className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6">
             <h2 className="text-h1 font-bold text-navy-950 text-balance">
               {content(settings, "work.heading")}
             </h2>

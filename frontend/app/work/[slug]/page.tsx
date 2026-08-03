@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { Link } from "@/components/ui/Link";
 import { ArrowLeft, Calendar, Tag, Layers } from "lucide-react";
 import Button from "@/components/ui/Button";
+import { cache } from "react";
+import type { Metadata } from "next";
 
 interface CaseStudy {
   title: string;
@@ -36,26 +38,47 @@ const fallbackContentMap: Record<string, CaseStudy> = {
   }
 };
 
-export default async function ProjectDetailPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
-  let project: CaseStudy | null = null;
-
+// Wrapped in React's cache() so generateMetadata and the page component
+// share one resolution per request instead of fetching the project twice.
+const resolveProject = cache(async (slug: string): Promise<CaseStudy | null> => {
   try {
     const dbProject = await getProjectBySlug(slug);
     if (dbProject) {
-      project = {
+      return {
         title: dbProject.title,
         category: dbProject.category,
         year: dbProject.year,
         coverImage: dbProject.coverImage || "",
         content: dbProject.content || ""
       };
-    } else if (fallbackContentMap[slug]) {
-      project = fallbackContentMap[slug];
     }
+    return fallbackContentMap[slug] || null;
   } catch (err) {
     console.error("Failed to load project details:", err);
+    return null;
   }
+});
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const project = await resolveProject(slug);
+  if (!project) return {};
+
+  return {
+    title: project.title,
+    description: project.content.slice(0, 160),
+    openGraph: {
+      title: project.title,
+      description: project.content.slice(0, 160),
+      images: project.coverImage ? [project.coverImage] : undefined,
+      type: "article",
+    },
+  };
+}
+
+export default async function ProjectDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const project = await resolveProject(slug);
 
   if (!project) {
     return notFound();
@@ -64,11 +87,11 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   return (
     <main className="min-h-screen bg-warm-50 pt-32 pb-24 px-5 md:px-10 xl:px-20">
       <div className="max-w-4xl mx-auto space-y-12">
-        
+
         {/* Back Link */}
-        <Link href="/#work" className="inline-flex items-center gap-2 text-sm font-semibold text-navy-700 hover:text-bronze-500 transition-colors min-h-[44px]" data-interactive>
+        <Link href="/work" className="inline-flex items-center gap-2 text-sm font-semibold text-navy-700 hover:text-bronze-500 transition-colors min-h-[44px]" data-interactive>
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Home</span>
+          <span>Back to Work</span>
         </Link>
 
         {/* Header */}

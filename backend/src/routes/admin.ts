@@ -5,9 +5,9 @@ import * as jose from 'jose';
 import { db } from '../db';
 import { adminRoles, adminAuditLogs, adminInvites, photos, videos, campaigns } from '../db/schema';
 import { eq, desc, asc, and } from 'drizzle-orm';
-import { Resend } from 'resend';
 import { adminAuthMiddleware } from '../middleware/rbac';
 import { StorageService } from '../storage';
+import { sendEmail, MAIL_FROM } from '../email';
 
 const router = Router();
 
@@ -24,40 +24,7 @@ const ASSIGNABLE_ROLES = ['Admin', 'SEO', 'Content Manager'];
 const INVITE_TTL_MS = 24 * 60 * 60 * 1000;
 const MIN_PASSWORD_LENGTH = 12;
 
-const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder_missing_key');
-// `onboarding@resend.dev` is Resend's only sandbox sender — the previous
-// `admin@resend.dev` is not a valid one, so every send was rejected before it
-// reached the dashboard. Even the real sandbox address delivers ONLY to the Resend
-// account owner, so set RESEND_FROM to an address on a domain you have verified
-// before inviting anyone else.
-const MAIL_FROM = process.env.RESEND_FROM || 'onboarding@resend.dev';
-// RESEND_FROM only has to be on the verified domain — it needs no real mailbox, so
-// replies to it bounce. Point them at an inbox someone actually reads.
-const MAIL_REPLY_TO = process.env.RESEND_REPLY_TO || undefined;
-
 const hashToken = (token: string) => crypto.createHash('sha256').update(token).digest('hex');
-
-/**
- * Send one email, returning null on success or a human-readable reason on failure.
- *
- * The Resend SDK RESOLVES with `{ data: null, error }` for API-level rejections —
- * unverified domain, sandbox recipient restrictions, bad key — and only throws on
- * transport errors. A bare try/catch therefore reports success on a rejected send,
- * which is how invites appeared to send while never reaching Resend at all.
- */
-async function sendEmail(payload: Parameters<typeof resend.emails.send>[0]): Promise<string | null> {
-  try {
-    const { error } = await resend.emails.send({ replyTo: MAIL_REPLY_TO, ...payload });
-    if (error) {
-      console.error('Resend rejected the send:', error);
-      return `${error.name}: ${error.message}`;
-    }
-    return null;
-  } catch (err: any) {
-    console.error('Email transport failed:', err);
-    return err?.message || 'Email transport failed';
-  }
-}
 const JWT_SECRET = process.env.ADMIN_JWT_SECRET || 'fallback-secret-for-admin-session-please-change';
 const secretKey = new TextEncoder().encode(JWT_SECRET);
 

@@ -1,15 +1,30 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState, useTransition } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
-import { Sparkles, ArrowRight, Mail, MapPin, ShieldCheck } from "lucide-react";
+import { Sparkles, ArrowRight, Mail, MapPin, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { submitContactInquiry } from "@/app/actions/contact";
 
 export default function ContactPage() {
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    alert("Inquiry successfully transmitted! A senior brand strategist will review your dossier within 24 hours.");
+    const formData = new FormData(e.currentTarget);
+    setError(null);
+    startTransition(async () => {
+      const result = await submitContactInquiry(formData);
+      if (result?.error) {
+        setError(result.error);
+      } else {
+        setSubmitted(true);
+      }
+    });
   };
 
   return (
@@ -92,53 +107,83 @@ export default function ContactPage() {
             </span>
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <Input 
-                id="firstName"
-                label="First Name" 
-                placeholder="e.g. Jane" 
-                required 
-              />
-              <Input 
-                id="lastName"
-                label="Last Name" 
-                placeholder="e.g. Doe" 
-                required 
-              />
+          {submitted ? (
+            <div className="flex flex-col items-center justify-center text-center gap-4 py-16">
+              <div className="w-14 h-14 rounded-full bg-bronze-500 text-white flex items-center justify-center shadow-lg">
+                <CheckCircle2 className="w-7 h-7" />
+              </div>
+              <h3 className="text-h3 font-bold text-navy-950">Inquiry received.</h3>
+              <p className="text-body text-navy-600 max-w-sm">
+                A senior brand strategist will review your dossier and respond within 24 hours.
+              </p>
             </div>
-            
-            <Input 
-              id="email"
-              type="email"
-              label="Work Email Address" 
-              placeholder="e.g. jane@company.com" 
-              required 
-              helperText="We will never share or syndicate your corporate contact intel"
-            />
+          ) : (
+            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <Input
+                  id="firstName"
+                  name="firstName"
+                  label="First Name"
+                  placeholder="e.g. Jane"
+                  required
+                />
+                <Input
+                  id="lastName"
+                  name="lastName"
+                  label="Last Name"
+                  placeholder="e.g. Doe"
+                  required
+                />
+              </div>
 
-            <Input 
-              id="company"
-              label="Enterprise / Organization Name" 
-              placeholder="e.g. Acme Health Systems Inc." 
-              required 
-            />
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                label="Work Email Address"
+                placeholder="e.g. jane@company.com"
+                required
+                helperText="We will never share or syndicate your corporate contact intel"
+              />
 
-            <Textarea 
-              id="message"
-              label="Strategic Growth Mandate & Objectives" 
-              placeholder="Detail your current market positioning bottlenecks, upcoming product launches, or target conversion metrics..." 
-              required 
-              rows={4}
-            />
+              <Input
+                id="company"
+                name="company"
+                label="Enterprise / Organization Name"
+                placeholder="e.g. Acme Health Systems Inc."
+                required
+              />
 
-            <div className="pt-2">
-              <Button variant="primary" type="submit" className="w-full justify-center gap-2 shadow-md hover:shadow-lg min-h-[44px]" data-interactive>
-                <span>Transmit Strategic Inquiry</span>
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </div>
-          </form>
+              <Textarea
+                id="message"
+                name="message"
+                label="Strategic Growth Mandate & Objectives"
+                placeholder="Detail your current market positioning bottlenecks, upcoming product launches, or target conversion metrics..."
+                required
+                rows={4}
+              />
+
+              <AnimatePresence mode="wait">
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="text-red-600 text-caption font-mono uppercase tracking-wider text-center bg-red-50/80 py-3 px-4 rounded-lg border border-red-200/80 flex items-center justify-center gap-1.5"
+                  >
+                    <span>⚠</span> {error}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <div className="pt-2">
+                <Button variant="primary" type="submit" isLoading={isPending} className="w-full justify-center gap-2 shadow-md hover:shadow-lg min-h-[44px]" data-interactive>
+                  <span>{isPending ? "Transmitting..." : "Transmit Strategic Inquiry"}</span>
+                  {!isPending && <ArrowRight className="w-4 h-4" />}
+                </Button>
+              </div>
+            </form>
+          )}
         </motion.div>
 
       </div>
