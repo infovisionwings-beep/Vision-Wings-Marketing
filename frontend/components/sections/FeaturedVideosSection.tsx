@@ -12,6 +12,7 @@ import Button from "@/components/ui/Button";
 import { Link } from "@/components/ui/Link";
 import { ArrowUpRight, Play, Sparkles, Video, ShieldCheck } from "lucide-react";
 import Image from "next/image";
+import { videoTitle, videoDuration, videoPoster, videoYear } from "@/lib/media/present";
 
 interface FeaturedVideosProps {
   dbVideos?: any[];
@@ -76,28 +77,28 @@ export default function FeaturedVideosSection({
       isHero: idx === 0,
     }));
   } else if (dbVideos && dbVideos.length > 0) {
-    // 2. Second priority: Transcoded videos pipeline
+    // 2. Second priority: published uploads from the media library. These read
+    // through lib/media/present because the row has `heading` / `thumbnailPath`,
+    // not `title` / `thumbnailUrl` — the mismatch is what used to push every
+    // real upload onto placeholder copy and stock photography.
     displayVideos = dbVideos.slice(0, 3).map((v, idx) => ({
       id: v.id || `db-${idx}`,
-      title: v.title || `Campaign Showcase 0${idx + 1}`,
-      client: v.client || "Vision Wings Exclusive",
-      category: idx === 0 ? "Brand Campaign & Commercial" : "Performance Ad Campaign",
-      duration: v.duration ? `${Math.floor(v.duration / 60)}:${(v.duration % 60).toString().padStart(2, "0")}` : "02:45",
-      year: new Date(v.createdAt || Date.now()).getFullYear().toString(),
-      thumbnail: v.thumbnailUrl || fallbackFeaturedVideos[idx]?.thumbnail || fallbackFeaturedVideos[0].thumbnail,
-      desc: v.description || fallbackFeaturedVideos[idx]?.desc || "High-conversion video marketing pipeline.",
+      title: videoTitle(v),
+      client: v.subHeading || "Vision Wings",
+      category: v.category || "Video Campaign",
+      duration: videoDuration(v),
+      year: videoYear(v),
+      thumbnail: videoPoster(v) || fallbackFeaturedVideos[idx]?.thumbnail || fallbackFeaturedVideos[0].thumbnail,
+      desc: v.description || v.subHeading || "",
       isHero: idx === 0,
     }));
   } else {
-    // 3. Third priority: Curated fallback videos
+    // 3. Nothing published yet: curated placeholders stand in for the section.
     displayVideos = fallbackFeaturedVideos;
   }
 
-  // Ensure we always have 3 items for our exact 1 + 2 Asymmetric Bento Grid
-  while (displayVideos.length < 3) {
-    displayVideos.push(fallbackFeaturedVideos[displayVideos.length]);
-  }
-
+  // Real content is never padded out with placeholders — one published video
+  // renders as one full-width card rather than sitting beside two stock ones.
   const [heroVideo, ...subVideos] = displayVideos.slice(0, 3);
 
   return (
@@ -141,8 +142,9 @@ export default function FeaturedVideosSection({
         {/* Asymmetric Exhibition Bento Grid (1 Large Widescreen Hero + 2 Stacked Cards) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
           
-          {/* Card 1: Widescreen Featured Hero (Spans 7 Columns on Large Screens) */}
-          <RevealOnScroll className="lg:col-span-7 group block">
+          {/* Card 1: Widescreen Featured Hero. Takes the full row when it is the
+              only published film, rather than leaving a 5-column gap. */}
+          <RevealOnScroll className={`${subVideos.length > 0 ? "lg:col-span-7" : "lg:col-span-12"} group block`}>
             <Link href="/videos" className="block space-y-5 focus-visible:ring-2 focus-visible:ring-bronze-400 rounded-2xl outline-none" data-interactive>
               
               {/* Image Container with Cinematic Hover Physics */}
@@ -208,6 +210,7 @@ export default function FeaturedVideosSection({
           </RevealOnScroll>
 
           {/* Cards 2 & 3: Vertical Bento Stack (Spans 5 Columns on Large Screens) */}
+          {subVideos.length > 0 && (
           <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-8">
             {subVideos.map((vid, idx) => (
               <RevealOnScroll key={vid.id || idx} delay={(idx + 1) * 0.15} className="group block">
@@ -260,6 +263,7 @@ export default function FeaturedVideosSection({
               </RevealOnScroll>
             ))}
           </div>
+          )}
 
         </div>
 

@@ -9,6 +9,7 @@ import { useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Play, X, CheckCircle2, ShieldCheck, Clock } from "lucide-react";
 import Button from "@/components/ui/Button";
+import { videoTitle, videoDuration, videoPoster, videoSource, videoDate } from "@/lib/media/present";
 
 export interface VideoAsset {
   id: string;
@@ -299,23 +300,31 @@ export default function VideoShowcaseGrid({ dbVideos = [], dbCampaigns = [] }: V
     description: c.description || "CMS driven sample video asset.",
   }));
 
-  // Merge live database transcoded videos with high-definition fallback curation
+  // Published uploads. The heading, category and description an admin typed in
+  // the media library lead here; the filename and pipeline stats are only the
+  // last resort for an asset nobody has captioned yet.
   const liveAssets: VideoAsset[] = dbVideos.map((v) => ({
     id: v.id,
-    title: v.originalFileName.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " "),
-    category: "Transcoded Cloud Asset",
-    date: v.processedAt ? new Date(v.processedAt).toLocaleDateString("en-US", { month: "short", year: "numeric" }).toUpperCase() : "LIVE",
-    duration: v.durationSeconds ? `${Math.floor(Number(v.durationSeconds) / 60)}:${String(Math.floor(Number(v.durationSeconds) % 60)).padStart(2, "0")}` : "HD 4K",
-    coverImage: v.thumbnailPath || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80",
-    videoUrl: v.webmPath || v.mp4Path || v.inputPath,
-    description: `High-definition rendition from our cloud media pipeline. Original size: ${(Number(v.originalSize) / (1024 * 1024)).toFixed(1)} MB.`,
+    title: videoTitle(v),
+    category: v.category || "Video Campaign",
+    date: videoDate(v),
+    duration: videoDuration(v),
+    coverImage: videoPoster(v) || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80",
+    videoUrl: videoSource(v),
+    description:
+      v.description ||
+      v.subHeading ||
+      `High-definition rendition from our cloud media pipeline. Original size: ${(Number(v.originalSize) / (1024 * 1024)).toFixed(1)} MB.`,
     isLiveDb: true
   }));
 
-  const allVideos = [...cmsAssets, ...liveAssets, ...fallbackShowcaseVideos];
+  // Demo reels are a placeholder for an empty library, not a permanent filler
+  // strip — once anything real is published they stop being mixed in.
+  const realVideos = [...cmsAssets, ...liveAssets];
+  const allVideos = realVideos.length > 0 ? realVideos : fallbackShowcaseVideos;
   const featuredVideo = allVideos[0];
-  const samplesGrid = allVideos.slice(1, 4); // Exactly 3 items for Bento Cell Count Rule
-  const editorialSeries = allVideos.slice(4, 6); // Exactly 2 items for Zigzag Alternation Cap (max 2 rows)
+  const samplesGrid = allVideos.slice(1, 4); // Up to 3 items for Bento Cell Count Rule
+  const editorialSeries = allVideos.slice(4, 6); // Up to 2 items for Zigzag Alternation Cap
   const archiveReels = allVideos.slice(0, 6); // For horizontal scroll-snap
 
   return (
@@ -371,7 +380,10 @@ export default function VideoShowcaseGrid({ dbVideos = [], dbCampaigns = [] }: V
 
         </div>
 
-        {/* ── SECTION 2: SAMPLES BENTO GRID (EXACTLY 3 CARDS) ── */}
+        {/* ── SECTION 2: SAMPLES BENTO GRID (UP TO 3 CARDS) ──
+            Hidden entirely when the library holds a single film, so the page
+            never shows a heading over an empty grid. */}
+        {samplesGrid.length > 0 && (
         <div id="samples-grid" className="space-y-8 scroll-mt-28">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-navy-200 pb-5">
             <h3 className="text-h2 font-bold text-navy-950 tracking-tight">
@@ -407,8 +419,10 @@ export default function VideoShowcaseGrid({ dbVideos = [], dbCampaigns = [] }: V
             ))}
           </div>
         </div>
+        )}
 
         {/* ── SECTION 3: CHECKERBOARD EDITORIAL SERIES (MAX 2 ROWS) ── */}
+        {editorialSeries.length > 0 && (
         <div className="space-y-16 pt-8">
           <div className="text-center max-w-2xl mx-auto space-y-3">
             <h3 className="text-h2 font-bold text-navy-950 tracking-tight">
@@ -463,8 +477,11 @@ export default function VideoShowcaseGrid({ dbVideos = [], dbCampaigns = [] }: V
             })}
           </div>
         </div>
+        )}
 
-        {/* ── SECTION 4: RHYTHM BREAKER (HORIZONTAL ARCHIVE REEL) ── */}
+        {/* ── SECTION 4: RHYTHM BREAKER (HORIZONTAL ARCHIVE REEL) ──
+            Only worth its own strip once there is more than the featured film. */}
+        {archiveReels.length > 1 && (
         <div className="bg-navy-950 text-warm-50 rounded-2xl p-8 md:p-12 space-y-8 shadow-2xl relative overflow-hidden border border-navy-800">
           <div className="absolute top-0 right-0 w-96 h-96 bg-radial-gradient from-bronze-500/10 to-transparent rounded-full pointer-events-none" />
 
@@ -484,6 +501,7 @@ export default function VideoShowcaseGrid({ dbVideos = [], dbCampaigns = [] }: V
             ))}
           </div>
         </div>
+        )}
 
       </div>
     </section>

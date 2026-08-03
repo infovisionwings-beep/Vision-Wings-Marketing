@@ -164,14 +164,9 @@ export default function Work({ dbCampaigns = [], settings }: WorkProps) {
             }
           });
 
-          if (merged.length < 6) {
-            fallbackBricks.slice(1).forEach((fb) => {
-              if (fb.type === "photo" && !merged.some((m) => m.title === fb.title)) {
-                merged.push(fb);
-              }
-            });
-          }
-
+          // Real work is never padded out with the placeholder bricks. Mixing
+          // stock photography in beside genuine projects is what made the
+          // gallery read as demo content even after the archive was filled.
           setBricks(merged);
         }
       } catch (err) {
