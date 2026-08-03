@@ -17,14 +17,14 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://visionwing.com"), // Placeholder URL, update to actual domain
+  metadataBase: new URL("https://www.visionwingsmarketing.com"),
   title: {
-    default: "Vision Wings - Premium Marketing Agency",
-    template: "%s | Vision Wings",
+    default: "Vision Wings Marketing - Strategic Growth & Marketing Agency",
+    template: "%s | Vision Wings Marketing",
   },
-  description: "Vision Wings is a premium marketing agency, brand strategy studio, and business consultancy dedicated to elevating visionary brands.",
-  keywords: ["marketing agency", "brand strategy", "business consultancy", "premium design", "Vision Wings"],
-  authors: [{ name: "Vision Wings" }],
+  description: "Vision Wings Marketing is a strategic marketing and growth partner based in Varanasi, elevating growth-stage businesses.",
+  keywords: ["marketing agency", "brand strategy", "business consultancy", "growth marketing", "Vision Wings Marketing", "Varanasi agency"],
+  authors: [{ name: "Vision Wings Marketing" }],
   icons: {
     icon: [
       { url: "/icon.svg", type: "image/svg+xml" },
@@ -34,17 +34,17 @@ export const metadata: Metadata = {
     apple: "/logo-svg/Primary%20ICON.svg",
   },
   openGraph: {
-    title: "Vision Wings - Premium Marketing Agency",
-    description: "Vision Wings is a premium marketing agency, brand strategy studio, and business consultancy.",
-    url: "https://visionwing.com",
-    siteName: "Vision Wings",
+    title: "Vision Wings Marketing - Strategic Growth & Marketing Agency",
+    description: "Vision Wings Marketing is a strategic marketing agency and growth partner.",
+    url: "https://www.visionwingsmarketing.com",
+    siteName: "Vision Wings Marketing",
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Vision Wings - Premium Marketing Agency",
-    description: "Vision Wings is a premium marketing agency, brand strategy studio, and business consultancy.",
+    title: "Vision Wings Marketing - Strategic Growth & Marketing Agency",
+    description: "Vision Wings Marketing is a strategic marketing agency and growth partner.",
     creator: "@visionwing",
   },
   robots: {
@@ -63,19 +63,19 @@ export const metadata: Metadata = {
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "ProfessionalService",
-  "name": "Vision Wings",
-  "image": "https://visionwing.com/logo-svg/Primary%20ICON.svg",
-  "description": "Vision Wings is a premium marketing agency, brand strategy studio, and business consultancy.",
+  "name": "Vision Wings Marketing",
+  "image": "https://www.visionwingsmarketing.com/logo-svg/Primary%20ICON.svg",
+  "description": "Vision Wings Marketing is a strategic marketing agency and growth partner based in Varanasi, India.",
   "address": {
     "@type": "PostalAddress",
-    "streetAddress": "123 Strategy Blvd",
-    "addressLocality": "New York",
-    "addressRegion": "NY",
-    "postalCode": "10001",
-    "addressCountry": "US"
+    "streetAddress": "Kandawa",
+    "addressLocality": "Varanasi",
+    "addressRegion": "Uttar Pradesh",
+    "postalCode": "221106",
+    "addressCountry": "IN"
   },
-  "url": "https://visionwing.com",
-  "telephone": "+11234567890",
+  "url": "https://www.visionwingsmarketing.com",
+  "telephone": "+918081952359",
 };
 
 import SmoothScrollProvider from "@/components/motion/SmoothScrollProvider";

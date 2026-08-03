@@ -1,14 +1,16 @@
-export const metadata = {
-  title: "Privacy Policy",
+import fs from "fs";
+import path from "path";
+import { Metadata } from "next";
+import { LegalDocViewer } from "@/components/legal/LegalDocViewer";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy | Vision Wings Marketing",
+  description: "Privacy Policy for Vision Wings Marketing — learn how we process and protect your personal data under DPDP Act 2023.",
 };
 
 export default function PrivacyPage() {
-  return (
-    <div className="max-w-4xl mx-auto py-24 px-6 space-y-6">
-      <h1 className="text-h2 font-bold text-navy-950">Privacy Policy</h1>
-      <p className="text-body text-navy-700">
-        Your privacy is important to Vision Wings. This Privacy Policy explains how we collect, use, and protect your personal information.
-      </p>
-    </div>
-  );
+  const filePath = path.join(process.cwd(), "..", "legal", "01-privacy-policy.md");
+  const markdown = fs.readFileSync(filePath, "utf-8");
+
+  return <LegalDocViewer currentSlug="privacy" markdown={markdown} />;
 }
