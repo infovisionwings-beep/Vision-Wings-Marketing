@@ -7,6 +7,7 @@ import FeaturedVideosSection from "@/components/sections/FeaturedVideosSection";
 import Insights from "@/components/sections/Insights";
 import Contact from "@/components/sections/Contact";
 import { getCompletedVideos } from "@/app/actions/videos";
+import { getPublishedPhotos } from "@/app/actions/photos";
 import { getSettings } from "@/app/actions/settings";
 import { getCampaigns } from "@/app/actions/campaigns";
 import { getClientLogos } from "@/app/actions/clientLogos";
@@ -15,6 +16,7 @@ export const revalidate = 60; // 1 minute revalidation for CMS freshness
 
 async function DynamicHomepageContent() {
   let dbVideos: any[] = [];
+  let dbPhotos: any[] = [];
   let settings: any = {};
   let heroCampaigns: any[] = [];
   let showcaseCampaigns: any[] = [];
@@ -22,8 +24,9 @@ async function DynamicHomepageContent() {
   let logos: any[] = [];
 
   try {
-    const [vData, sData, heroData, showData, archData, logoData] = await Promise.all([
+    const [vData, pData, sData, heroData, showData, archData, logoData] = await Promise.all([
       getCompletedVideos().catch(() => []),
+      getPublishedPhotos().catch(() => []),
       getSettings().catch(() => ({})),
       getCampaigns("hero").catch(() => []),
       getCampaigns("showcases").catch(() => []),
@@ -32,6 +35,7 @@ async function DynamicHomepageContent() {
     ]);
 
     dbVideos = vData || [];
+    dbPhotos = pData || [];
     settings = sData || {};
     heroCampaigns = heroData || [];
     showcaseCampaigns = showData || [];
@@ -46,7 +50,7 @@ async function DynamicHomepageContent() {
       <Hero campaign={heroCampaigns[0]} settings={settings} />
       <AboutVision settings={settings} logos={logos} />
       <Services settings={settings} />
-      <Work dbCampaigns={archiveCampaigns} settings={settings} />
+      <Work dbCampaigns={archiveCampaigns} dbPhotos={dbPhotos} settings={settings} />
       <FeaturedVideosSection dbVideos={dbVideos} settings={settings} dbCampaigns={showcaseCampaigns} />
       <Insights settings={settings} />
       <Contact settings={settings} />

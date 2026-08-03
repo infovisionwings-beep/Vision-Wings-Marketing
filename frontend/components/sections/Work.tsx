@@ -12,6 +12,7 @@ import { Link } from "@/components/ui/Link";
 import { ArrowUpRight } from "lucide-react";
 import { content } from "@/lib/content";
 import { getProjects } from "@/app/actions/projects";
+import { photoTitle, photoSource, photoYear } from "@/lib/media/present";
 
 interface GalleryBrick {
   id: string | number;
@@ -104,10 +105,25 @@ const curatedSupplementalPhotos = [
 
 interface WorkProps {
   dbCampaigns?: any[];
+  dbPhotos?: any[];
   settings?: Record<string, string>;
 }
 
-export default function Work({ dbCampaigns = [], settings }: WorkProps) {
+/**
+ * The two quote cards are this section's own editorial voice rather than
+ * placeholder imagery, so they survive when real work replaces the demo bricks.
+ * They break up what would otherwise be an unbroken wall of images.
+ */
+function withQuoteCards(bricks: GalleryBrick[]): GalleryBrick[] {
+  const merged: GalleryBrick[] = [fallbackBricks[0]];
+  bricks.forEach((brick, i) => {
+    merged.push(brick);
+    if (i === 1 && bricks.length > 2) merged.push(fallbackBricks[4]);
+  });
+  return merged;
+}
+
+export default function Work({ dbCampaigns = [], dbPhotos = [], settings }: WorkProps) {
   const [bricks, setBricks] = useState<GalleryBrick[]>(fallbackBricks);
 
   useEffect(() => {
@@ -154,27 +170,36 @@ export default function Work({ dbCampaigns = [], settings }: WorkProps) {
             imageUrl: p.coverImage || curatedSupplementalPhotos[idx % curatedSupplementalPhotos.length],
           }));
 
-          const merged: GalleryBrick[] = [];
-          merged.push(fallbackBricks[0]);
-
-          dbBricks.forEach((b, i) => {
-            merged.push(b);
-            if (i === 1 && dbBricks.length >= 2) {
-              merged.push(fallbackBricks[4]);
-            }
-          });
-
           // Real work is never padded out with the placeholder bricks. Mixing
           // stock photography in beside genuine projects is what made the
           // gallery read as demo content even after the archive was filled.
-          setBricks(merged);
+          setBricks(withQuoteCards(dbBricks));
+          return;
+        }
+
+        // Nothing curated as a campaign or project yet, but the media library
+        // may still hold published imagery. Showing the client's own work beats
+        // showing stock photography of somebody else's.
+        if (dbPhotos && dbPhotos.length > 0) {
+          const photoBricks: GalleryBrick[] = dbPhotos.map((p: any, idx: number) => ({
+            id: p.id || `photo-${idx}`,
+            type: "photo",
+            title: photoTitle(p),
+            category: p.category || "Brand Archive",
+            year: photoYear(p),
+            // No slug: a library image has no case study behind it, so the
+            // brick links to the archive index rather than a 404.
+            imageUrl: photoSource(p),
+          }));
+
+          setBricks(withQuoteCards(photoBricks));
         }
       } catch (err) {
         console.error("Failed to load projects for Exhibition Gallery:", err);
       }
     }
     load();
-  }, [dbCampaigns]);
+  }, [dbCampaigns, dbPhotos]);
 
   return (
     <section id="work" className="py-20 md:py-32 lg:py-40 px-5 md:px-10 xl:px-20 bg-warm-50 text-navy-950 overflow-hidden">

@@ -48,3 +48,29 @@ export function videoDate(v: any): string {
     .toLocaleDateString("en-US", { month: "short", year: "numeric" })
     .toUpperCase();
 }
+
+/* ── Photos ──
+   Same shape of problem as videos: the row carries `heading` / `webpPath`,
+   never `title` / `imageUrl`. */
+
+export function photoTitle(p: any): string {
+  if (p?.heading) return String(p.heading);
+  return String(p?.originalFileName || "Untitled")
+    .replace(/\.[^/.]+$/, "")
+    .replace(/[-_]+/g, " ")
+    .trim();
+}
+
+/** The webp rendition is the optimised one; the original is the safety net. */
+export function photoSource(p: any): string {
+  return p?.webpPath || p?.inputPath || p?.thumbnailPath;
+}
+
+export function photoAlt(p: any): string {
+  return p?.altText || photoTitle(p);
+}
+
+export function photoYear(p: any): string {
+  const stamp = p?.processedAt || p?.createdAt;
+  return stamp ? new Date(stamp).getFullYear().toString() : "";
+}
