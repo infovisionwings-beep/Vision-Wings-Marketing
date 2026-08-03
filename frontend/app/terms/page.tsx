@@ -1,14 +1,16 @@
-export const metadata = {
-  title: "Terms of Service",
+import fs from "fs";
+import path from "path";
+import { Metadata } from "next";
+import { LegalDocViewer } from "@/components/legal/LegalDocViewer";
+
+export const metadata: Metadata = {
+  title: "Terms of Service | Vision Wings Marketing",
+  description: "Terms of Service for Vision Wings Marketing — governing your use of our website and marketing services.",
 };
 
 export default function TermsPage() {
-  return (
-    <div className="max-w-4xl mx-auto py-24 px-6 space-y-6">
-      <h1 className="text-h2 font-bold text-navy-950">Terms of Service</h1>
-      <p className="text-body text-navy-700">
-        Welcome to Vision Wings. By accessing or using our services, website, and applications, you agree to be bound by these Terms of Service.
-      </p>
-    </div>
-  );
+  const filePath = path.join(process.cwd(), "..", "legal", "02-terms-of-service.md");
+  const markdown = fs.readFileSync(filePath, "utf-8");
+
+  return <LegalDocViewer currentSlug="terms" markdown={markdown} />;
 }

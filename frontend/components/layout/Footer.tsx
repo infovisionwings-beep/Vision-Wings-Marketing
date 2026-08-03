@@ -42,18 +42,24 @@ export default function Footer() {
 
           <div className="flex flex-col gap-1 col-span-2 lg:col-span-1">
             <h4 className="text-h4 text-bronze-500 mb-2">CONNECT</h4>
-            <a href="mailto:hello@visionwing.agency" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>hello@visionwing.agency</a>
+            <a href="mailto:info.visionwings@gmail.com" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>info.visionwings@gmail.com</a>
             <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>LinkedIn</a>
             <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Twitter (X)</a>
           </div>
         </div>
       </div>
       
-      <div className="max-w-[1280px] mx-auto mt-16 md:mt-24 pt-8 border-t border-navy-700 flex flex-col md:flex-row justify-between items-center gap-6">
-        <p className="text-caption text-navy-300">© {new Date().getFullYear()} Vision Wings. All rights reserved.</p>
-        <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
-          <Link href="/privacy" className="text-caption text-navy-300 hover:text-warm-50 transition-colors py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Privacy Policy</Link>
-          <Link href="/terms" className="text-caption text-navy-300 hover:text-warm-50 transition-colors py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Terms of Service</Link>
+      <div className="max-w-[1280px] mx-auto mt-16 md:mt-24 pt-8 border-t border-navy-700 flex flex-col lg:flex-row justify-between items-center gap-6">
+        <p className="text-caption text-navy-300">© {new Date().getFullYear()} Vision Wings Marketing. All rights reserved.</p>
+        <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-caption">
+          <Link href="/privacy" className="text-navy-300 hover:text-warm-50 transition-colors py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Privacy Policy</Link>
+          <Link href="/terms" className="text-navy-300 hover:text-warm-50 transition-colors py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Terms of Service</Link>
+          <Link href="/cookies" className="text-navy-300 hover:text-warm-50 transition-colors py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Cookie Policy</Link>
+          <Link href="/refund-policy" className="text-navy-300 hover:text-warm-50 transition-colors py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Refund Policy</Link>
+          <Link href="/disclaimer" className="text-navy-300 hover:text-warm-50 transition-colors py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Disclaimer</Link>
+          <Link href="/copyright" className="text-navy-300 hover:text-warm-50 transition-colors py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Copyright Policy</Link>
+          <Link href="/accessibility" className="text-navy-300 hover:text-warm-50 transition-colors py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Accessibility</Link>
+          <Link href="/acceptable-use" className="text-navy-300 hover:text-warm-50 transition-colors py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Acceptable Use</Link>
         </div>
       </div>
     </footer>
