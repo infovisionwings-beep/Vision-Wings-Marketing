@@ -7,7 +7,7 @@ if (vercelUrl && !process.env.BETTER_AUTH_URL) {
   process.env.BETTER_AUTH_URL = vercelUrl.startsWith('http') ? vercelUrl : `https://${vercelUrl}`;
 }
 if (!process.env.BETTER_AUTH_TRUSTED_ORIGINS) {
-  process.env.BETTER_AUTH_TRUSTED_ORIGINS = 'https://vw-ashen.vercel.app,https://vw-hyl1toegu-wwwksingh144-9864s-projects.vercel.app,http://localhost:3000';
+  process.env.BETTER_AUTH_TRUSTED_ORIGINS = 'https://www.visionwingsmarketing.com,https://visionwingsmarketing.com,https://vw-ashen.vercel.app,https://vw-hyl1toegu-wwwksingh144-9864s-projects.vercel.app,http://localhost:3000';
 }
 
 export const auth = createNeonAuth({
