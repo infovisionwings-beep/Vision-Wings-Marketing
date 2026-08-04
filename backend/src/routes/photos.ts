@@ -85,6 +85,8 @@ router.post('/', (req: Request, res: Response, next: any) => {
       originalFileName = inputUrl.split('/').pop() || 'photo.jpg';
     }
 
+    const publishStatus = req.body?.publishStatus || 'published';
+
     // Create DB Record
     const [insertedPhoto] = await db
       .insert(photos)
@@ -95,6 +97,7 @@ router.post('/', (req: Request, res: Response, next: any) => {
         originalSize,
         originalMimeType,
         status: 'uploaded',
+        publishStatus,
         inputPath: inputUrl,
         webpPath: inputUrl, // Immediately viewable fallback
         category,

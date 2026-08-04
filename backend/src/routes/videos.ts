@@ -81,6 +81,8 @@ router.post('/', (req: Request, res: Response, next: any) => {
       originalFileName = inputUrl.split('/').pop() || 'video.mp4';
     }
 
+    const publishStatus = req.body?.publishStatus || 'published';
+
     // Create DB Record
     const [insertedVideo] = await db
       .insert(videos)
@@ -90,6 +92,7 @@ router.post('/', (req: Request, res: Response, next: any) => {
         originalFileName,
         originalSize,
         status: 'uploaded',
+        publishStatus,
         inputPath: inputUrl,
         category,
         heading,

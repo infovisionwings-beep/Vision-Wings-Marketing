@@ -28,12 +28,12 @@ export function videoDuration(v: any): string {
 }
 
 export function videoPoster(v: any): string | undefined {
-  return v?.thumbnailPath || undefined;
+  return v?.thumbnailPath || v?.posterImage || v?.coverImage || undefined;
 }
 
 /** Source order matches what the inline player already shipped with. */
 export function videoSource(v: any): string {
-  return v?.webmPath || v?.mp4Path || v?.inputPath;
+  return v?.webmPath || v?.mp4Path || v?.inputPath || v?.videoUrl || "";
 }
 
 export function videoYear(v: any): string {
@@ -63,7 +63,7 @@ export function photoTitle(p: any): string {
 
 /** The webp rendition is the optimised one; the original is the safety net. */
 export function photoSource(p: any): string {
-  return p?.webpPath || p?.inputPath || p?.thumbnailPath;
+  return p?.webpPath || p?.inputPath || p?.thumbnailPath || p?.coverImage || p?.imageUrl || "";
 }
 
 export function photoAlt(p: any): string {
