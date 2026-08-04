@@ -104,6 +104,7 @@ const curatedSupplementalPhotos = [
 ];
 
 interface WorkProps {
+  dbProjects?: any[];
   dbCampaigns?: any[];
   dbPhotos?: any[];
   settings?: Record<string, string>;
@@ -123,84 +124,79 @@ function withQuoteCards(bricks: GalleryBrick[]): GalleryBrick[] {
   return merged;
 }
 
-export default function Work({ dbCampaigns = [], dbPhotos = [], settings }: WorkProps) {
+export default function Work({ dbProjects = [], dbCampaigns = [], dbPhotos = [], settings }: WorkProps) {
   const [bricks, setBricks] = useState<GalleryBrick[]>(fallbackBricks);
 
   useEffect(() => {
     async function load() {
       try {
-        // If CMS archive campaigns exist, map them into bricks
-        if (dbCampaigns && dbCampaigns.length > 0) {
-          const campBricks: GalleryBrick[] = dbCampaigns.map((c: any, idx: number) => {
-            // Only render as a text quote if there is a quoteText AND no image uploaded
-            if (c.quoteText && !c.coverImage && !c.posterImage) {
-              return {
-                id: c.id || `quote-${idx}`,
-                type: "quote",
-                quoteText: c.quoteText,
-                quoteSubtitle: c.subtitle || "CLIENT GROWTH IMPACT",
-              };
-            }
+        const projectBricks: GalleryBrick[] = (dbProjects || []).map((p: any, idx: number) => ({
+          id: p.id || `proj-${idx}`,
+          type: "photo",
+          title: p.title,
+          category: p.category || "Project Exhibit",
+          year: p.year || "2024",
+          slug: p.slug || String(p.id),
+          imageUrl: p.coverImage || curatedSupplementalPhotos[idx % curatedSupplementalPhotos.length],
+        }));
+
+        const campBricks: GalleryBrick[] = (dbCampaigns || []).map((c: any, idx: number) => {
+          if (c.quoteText && !c.coverImage && !c.posterImage) {
             return {
-              id: c.id || `camp-${idx}`,
-              type: "photo",
-              title: c.title,
-              category: c.category || "Brand Archive",
-              year: c.year || "2025",
-              slug: c.slug,
-              imageUrl: c.coverImage || c.posterImage || curatedSupplementalPhotos[idx % curatedSupplementalPhotos.length],
+              id: c.id || `quote-${idx}`,
+              type: "quote",
+              quoteText: c.quoteText,
+              quoteSubtitle: c.subtitle || "CLIENT GROWTH IMPACT",
             };
-          });
-
-          // Prepend default quote if no quote cards exist in DB
-          const hasQuote = campBricks.some((b) => b.type === "quote");
-          const merged: GalleryBrick[] = hasQuote ? campBricks : [fallbackBricks[0], ...campBricks];
-          setBricks(merged);
-          return;
-        }
-
-        const data = await getProjects();
-        if (data && data.length > 0) {
-          const dbBricks: GalleryBrick[] = data.map((p: any, idx: number) => ({
-            id: p.id || `db-${idx}`,
+          }
+          return {
+            id: c.id || `camp-${idx}`,
             type: "photo",
-            title: p.title,
-            category: p.category,
-            year: p.year || "2024",
-            slug: p.slug || String(p.id),
-            imageUrl: p.coverImage || curatedSupplementalPhotos[idx % curatedSupplementalPhotos.length],
-          }));
+            title: c.title,
+            category: c.category || "Brand Archive",
+            year: c.year || "2025",
+            slug: c.slug,
+            imageUrl: c.coverImage || c.posterImage || curatedSupplementalPhotos[idx % curatedSupplementalPhotos.length],
+          };
+        });
 
-          // Real work is never padded out with the placeholder bricks. Mixing
-          // stock photography in beside genuine projects is what made the
-          // gallery read as demo content even after the archive was filled.
-          setBricks(withQuoteCards(dbBricks));
-          return;
+        let realBricks = [...projectBricks, ...campBricks];
+
+        if (realBricks.length === 0) {
+          const fetchedProjects = await getProjects();
+          if (fetchedProjects && fetchedProjects.length > 0) {
+            realBricks = fetchedProjects.map((p: any, idx: number) => ({
+              id: p.id || `db-${idx}`,
+              type: "photo",
+              title: p.title,
+              category: p.category,
+              year: p.year || "2024",
+              slug: p.slug || String(p.id),
+              imageUrl: p.coverImage || curatedSupplementalPhotos[idx % curatedSupplementalPhotos.length],
+            }));
+          }
         }
 
-        // Nothing curated as a campaign or project yet, but the media library
-        // may still hold published imagery. Showing the client's own work beats
-        // showing stock photography of somebody else's.
-        if (dbPhotos && dbPhotos.length > 0) {
-          const photoBricks: GalleryBrick[] = dbPhotos.map((p: any, idx: number) => ({
+        if (realBricks.length === 0 && dbPhotos && dbPhotos.length > 0) {
+          realBricks = dbPhotos.map((p: any, idx: number) => ({
             id: p.id || `photo-${idx}`,
             type: "photo",
             title: photoTitle(p),
             category: p.category || "Brand Archive",
             year: photoYear(p),
-            // No slug: a library image has no case study behind it, so the
-            // brick links to the archive index rather than a 404.
             imageUrl: photoSource(p),
           }));
+        }
 
-          setBricks(withQuoteCards(photoBricks));
+        if (realBricks.length > 0) {
+          setBricks(withQuoteCards(realBricks));
         }
       } catch (err) {
         console.error("Failed to load projects for Exhibition Gallery:", err);
       }
     }
     load();
-  }, [dbCampaigns, dbPhotos]);
+  }, [dbProjects, dbCampaigns, dbPhotos]);
 
   return (
     <section id="work" className="py-20 md:py-32 lg:py-40 px-5 md:px-10 xl:px-20 bg-warm-50 text-navy-950 overflow-hidden">

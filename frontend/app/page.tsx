@@ -11,6 +11,7 @@ import { getPublishedPhotos } from "@/app/actions/photos";
 import { getSettings } from "@/app/actions/settings";
 import { getCampaigns } from "@/app/actions/campaigns";
 import { getClientLogos } from "@/app/actions/clientLogos";
+import { getProjects } from "@/app/actions/projects";
 import { pageMetadata } from "@/lib/seo";
 
 // The homepage carried no metadata of its own, so it had no canonical and
@@ -34,9 +35,10 @@ async function DynamicHomepageContent() {
   let showcaseCampaigns: any[] = [];
   let archiveCampaigns: any[] = [];
   let logos: any[] = [];
+  let dbProjects: any[] = [];
 
   try {
-    const [vData, pData, sData, heroData, showData, archData, logoData] = await Promise.all([
+    const [vData, pData, sData, heroData, showData, archData, logoData, projData] = await Promise.all([
       getCompletedVideos().catch(() => []),
       getPublishedPhotos().catch(() => []),
       getSettings().catch(() => ({})),
@@ -44,6 +46,7 @@ async function DynamicHomepageContent() {
       getCampaigns("showcases").catch(() => []),
       getCampaigns("archive").catch(() => []),
       getClientLogos().catch(() => []),
+      getProjects().catch(() => []),
     ]);
 
     dbVideos = vData || [];
@@ -53,6 +56,7 @@ async function DynamicHomepageContent() {
     showcaseCampaigns = showData || [];
     archiveCampaigns = archData || [];
     logos = logoData || [];
+    dbProjects = projData || [];
   } catch (err) {
     console.error("Failed to fetch CMS data for homepage:", err);
   }
@@ -62,7 +66,7 @@ async function DynamicHomepageContent() {
       <Hero campaign={heroCampaigns[0]} settings={settings} />
       <AboutVision settings={settings} logos={logos} />
       <Services settings={settings} />
-      <Work dbCampaigns={archiveCampaigns} dbPhotos={dbPhotos} settings={settings} />
+      <Work dbProjects={dbProjects} dbCampaigns={archiveCampaigns} dbPhotos={dbPhotos} settings={settings} />
       <FeaturedVideosSection dbVideos={dbVideos} settings={settings} dbCampaigns={showcaseCampaigns} />
       <Insights settings={settings} />
       <Contact settings={settings} />
