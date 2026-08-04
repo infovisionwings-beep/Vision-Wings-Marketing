@@ -2,7 +2,9 @@ import { getInsightBySlug } from "@/app/actions/insights";
 import { notFound } from "next/navigation";
 import { Link } from "@/components/ui/Link";
 import Button from "@/components/ui/Button";
-import { ArrowLeft, Calendar, BookOpen, Share2, Bookmark, CheckCircle2, User, Users } from "lucide-react";
+import { ArrowLeft, Calendar, BookOpen, CheckCircle2, User, Users } from "lucide-react";
+import EssayActions from "@/components/essay/EssayActions";
+import { isEssaySaved } from "@/app/actions/savedEssays";
 import { format } from "date-fns";
 import { cache } from "react";
 import type { Metadata } from "next";
@@ -11,6 +13,9 @@ import { pageMetadata, SITE_URL } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 interface Article {
+  /** The database row this came from. Absent for the hardcoded fallback
+   *  essays below, which have nothing for a bookmark to point at. */
+  id?: number;
   title: string;
   category: string;
   date: string;
@@ -123,6 +128,7 @@ const resolveArticle = cache(async (slug: string): Promise<Article | null> => {
     const dbInsight = await getInsightBySlug(slug);
     if (dbInsight) {
       return {
+        id: dbInsight.id,
         title: dbInsight.title,
         category: dbInsight.category || "Strategic Perspective",
         date: dbInsight.publishedAt
@@ -177,6 +183,10 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
   if (!article) {
     return notFound();
   }
+
+  // Resolved on the server so the bookmark renders in its true state on first
+  // paint rather than flipping under the reader a moment later.
+  const savedAlready = article.id ? await isEssaySaved(article.id) : false;
 
   // Format content: normalize non-breaking spaces so words wrap naturally without breaking midway
   let rawHtml = (article.content || "")
@@ -445,16 +455,11 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
                 <CheckCircle2 className="w-4 h-4 text-bronze-600" />
                 <span className="font-mono text-xs">Verified by Vision Wings Editorial Board</span>
               </div>
-              <div className="flex items-center gap-3">
-                <button className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-navy-200 hover:border-navy-400 font-semibold text-xs transition-colors" data-interactive>
-                  <Share2 className="w-3.5 h-3.5" />
-                  <span>Share Essay</span>
-                </button>
-                <button className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-navy-200 hover:border-navy-400 font-semibold text-xs transition-colors" data-interactive>
-                  <Bookmark className="w-3.5 h-3.5" />
-                  <span>Save</span>
-                </button>
-              </div>
+              <EssayActions
+                insightId={article.id}
+                title={article.title}
+                initiallySaved={savedAlready}
+              />
             </div>
 
           </div>
