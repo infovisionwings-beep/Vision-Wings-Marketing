@@ -390,7 +390,7 @@ export const CONTENT_SECTIONS: ContentSection[] = [
       {
         label: "Contact strip",
         fields: [
-          text("contact.email", "Email address", "hello@visionwing.agency"),
+          text("contact.email", "Email address", "info.visionwings@gmail.com"),
           text("contact.location", "Location line", "Varanasi, UP · Global Partners"),
         ],
       },
