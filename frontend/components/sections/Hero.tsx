@@ -27,7 +27,10 @@ export default function Hero({ campaign, settings }: HeroProps) {
   const primaryCtaLink = campaign?.primaryCtaLink || content(settings, "hero.cta_primary_link");
   const secondaryCtaText = campaign?.secondaryCtaText || content(settings, "hero.cta_secondary_text");
   const secondaryCtaLink = campaign?.secondaryCtaLink || content(settings, "hero.cta_secondary_link");
-  const heroImage = content(settings, "hero.image");
+  // A hero campaign's own image wins over the Site Content setting. Without
+  // this, publishing a hero campaign with an image left the old one on screen
+  // and the picture had to be changed in a second, unrelated place.
+  const heroImage = campaign?.coverImage || content(settings, "hero.image");
   const heroImageAlt = content(settings, "hero.image_alt");
 
   return (

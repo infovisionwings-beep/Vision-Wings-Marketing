@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
  * links inside the pipeline console do not 404.
  */
 export default async function MediaLibraryPage() {
-  await requireAdmin(["Admin", "Content Manager"]);
+  await requireAdmin(["SEO", "Content Manager"]);
 
   return (
     <div className="space-y-8">

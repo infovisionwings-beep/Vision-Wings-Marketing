@@ -6,6 +6,7 @@ import { createCampaign, updateCampaign } from "@/app/actions/campaigns";
 import Button from "@/components/ui/Button";
 import { ArrowLeft, Image as ImageIcon, Film, Sparkles, Loader2, Plus, X, Globe, Eye, Layers } from "lucide-react";
 import MediaPickerModal from "./MediaPickerModal";
+import { getSection, sectionsFor, sectionUses } from "@/lib/media/sections";
 
 interface CampaignFormProps {
   campaign?: any;
@@ -16,6 +17,10 @@ export default function CampaignForm({ campaign, defaultSection = "showcases" }:
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [section, setSection] = useState(campaign?.section || defaultSection);
+  // Undefined for a row filed under a slot the site no longer renders, which the
+  // picker surfaces rather than hiding.
+  const activeSection = getSection(section);
+  const mediaKind = activeSection?.mediaKind ?? "image";
   const [title, setTitle] = useState(campaign?.title || "");
   const [slug, setSlug] = useState(campaign?.slug || "");
   const [coverImageUrl, setCoverImageUrl] = useState(campaign?.coverImage || "");
@@ -138,18 +143,73 @@ export default function CampaignForm({ campaign, defaultSection = "showcases" }:
             </h2>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-mono font-semibold text-navy-600">SECTION:</span>
+        </div>
+
+        {/* Placement comes first, and in the site's own words. Picking whether
+            you are publishing a picture or a film narrows the list to the slots
+            that can actually hold it, and each is named by the heading that
+            renders above it on the page rather than by its database key. */}
+        <div className="space-y-4 rounded-2xl border border-navy-200 bg-warm-100/60 p-5">
+          <div className="space-y-1">
+            <h3 className="text-sm font-bold font-display text-navy-950">Where should this appear?</h3>
+            <p className="text-xs text-navy-600">
+              Choose the part of the site you want to publish to. Only the details that part
+              actually displays are asked for below.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Media type">
+            {(["image", "video"] as const).map((k) => (
+              <button
+                key={k}
+                type="button"
+                onClick={() => {
+                  const first = sectionsFor(k)[0];
+                  if (first) setSection(first.key);
+                }}
+                aria-pressed={mediaKind === k}
+                className={`min-h-[44px] rounded-xl border px-5 text-sm font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-bronze-500 ${
+                  mediaKind === k
+                    ? "border-navy-950 bg-navy-950 text-warm-50"
+                    : "border-navy-200 bg-white text-navy-800 hover:border-navy-400"
+                }`}
+                data-interactive
+              >
+                {k === "image" ? "Photo" : "Video"}
+              </button>
+            ))}
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="campaign-section" className="text-xs font-mono font-bold uppercase text-navy-950">
+              Section
+            </label>
             <select
+              id="campaign-section"
               value={section}
               onChange={(e) => setSection(e.target.value)}
-              className="px-3 py-1.5 rounded-lg bg-navy-950 text-warm-50 font-mono text-xs font-bold border border-navy-800 focus:ring-2 focus:ring-bronze-500 outline-none"
+              className="w-full rounded-xl border border-navy-200 bg-white p-3.5 text-sm text-navy-950 outline-none focus:ring-2 focus:ring-bronze-500"
             >
-              <option value="hero">Hero Featured Campaign</option>
-              <option value="samples">Samples Grid</option>
-              <option value="showcases">Campaign Showcase (01, 02, 03)</option>
-              <option value="archive">Campaign Archive</option>
+              {sectionsFor(mediaKind).map((s) => (
+                <option key={s.key} value={s.key}>{s.label}</option>
+              ))}
+              {/* A row saved against a slot nothing renders would otherwise
+                  vanish from the editor and look deleted. */}
+              {activeSection === undefined && (
+                <option value={section}>{section} (not shown anywhere)</option>
+              )}
             </select>
+            {activeSection ? (
+              <p className="text-xs text-navy-600">
+                <span className="font-semibold text-navy-800">{activeSection.where}.</span>{" "}
+                {activeSection.help}
+              </p>
+            ) : (
+              <p className="text-xs text-red-700">
+                This campaign is filed under &ldquo;{section}&rdquo;, which nothing on the site
+                renders, so it is currently invisible. Pick a section above to publish it.
+              </p>
+            )}
           </div>
         </div>
 
@@ -192,6 +252,7 @@ export default function CampaignForm({ campaign, defaultSection = "showcases" }:
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {sectionUses(section, "subtitle") && (
             <div className="flex flex-col gap-2">
               <label className="text-xs font-mono font-bold uppercase text-navy-950">Subtitle</label>
               <input
@@ -202,7 +263,9 @@ export default function CampaignForm({ campaign, defaultSection = "showcases" }:
                 className="p-3 rounded-xl border border-navy-200 bg-white text-navy-950 text-sm focus:ring-2 focus:ring-bronze-500 outline-none"
               />
             </div>
+            )}
 
+            {sectionUses(section, "client") && (
             <div className="flex flex-col gap-2">
               <label className="text-xs font-mono font-bold uppercase text-navy-950">Client Name</label>
               <input
@@ -213,9 +276,11 @@ export default function CampaignForm({ campaign, defaultSection = "showcases" }:
                 className="p-3 rounded-xl border border-navy-200 bg-white text-navy-950 text-sm focus:ring-2 focus:ring-bronze-500 outline-none"
               />
             </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {sectionUses(section, "category") && (
             <div className="flex flex-col gap-2">
               <label className="text-xs font-mono font-bold uppercase text-navy-950">Category</label>
               <input
@@ -226,7 +291,9 @@ export default function CampaignForm({ campaign, defaultSection = "showcases" }:
                 className="p-3 rounded-xl border border-navy-200 bg-white text-navy-950 text-sm focus:ring-2 focus:ring-bronze-500 outline-none"
               />
             </div>
+            )}
 
+            {sectionUses(section, "year") && (
             <div className="flex flex-col gap-2">
               <label className="text-xs font-mono font-bold uppercase text-navy-950">Year</label>
               <input
@@ -237,7 +304,9 @@ export default function CampaignForm({ campaign, defaultSection = "showcases" }:
                 className="p-3 rounded-xl border border-navy-200 bg-white text-navy-950 text-sm focus:ring-2 focus:ring-bronze-500 outline-none"
               />
             </div>
+            )}
 
+            {sectionUses(section, "duration") && (
             <div className="flex flex-col gap-2">
               <label className="text-xs font-mono font-bold uppercase text-navy-950">Duration</label>
               <input
@@ -248,6 +317,7 @@ export default function CampaignForm({ campaign, defaultSection = "showcases" }:
                 className="p-3 rounded-xl border border-navy-200 bg-white text-navy-950 text-sm focus:ring-2 focus:ring-bronze-500 outline-none"
               />
             </div>
+            )}
           </div>
 
           <div className="flex flex-col gap-2">

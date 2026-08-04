@@ -11,11 +11,15 @@ import { sendEmail, MAIL_FROM } from '../email';
 
 const router = Router();
 
-// Per-designation access. 'Developer' (super admin) is allowed everywhere by the
-// middleware, so it is listed only where it is the sole permitted role.
-// Content Managers own photos/videos; SEO owns blog content; Admin does both.
-const MEDIA_ROLES = ['Developer', 'Admin', 'Content Manager'];
-const CONTENT_ROLES = ['Developer', 'Admin', 'Content Manager', 'SEO'];
+// Ownership split, matching the page guards in frontend/app/admin:
+//   media library   — SEO and Content Manager both upload
+//   campaigns       — SEO decides what appears where on the public site
+//   written content — Content Manager owns essays and insights
+// Developer is the super admin and Admin is the existing full-access role, so
+// both appear everywhere. These must stay in step with the frontend guards: a
+// page that blocks a role while the API still answers it is not a restriction.
+const MEDIA_ROLES = ['Developer', 'Admin', 'SEO', 'Content Manager'];
+const CAMPAIGN_ROLES = ['Developer', 'Admin', 'SEO'];
 
 // Roles the super admin may hand out. 'Developer' is deliberately absent: it comes
 // from SUPER_ADMIN_EMAIL only, so no invite can mint another super admin.
@@ -652,7 +656,7 @@ router.get('/media/campaigns', adminAuthMiddleware(), async (req, res, next) => 
   }
 });
 
-router.post('/media/campaigns', adminAuthMiddleware(CONTENT_ROLES), async (req, res, next) => {
+router.post('/media/campaigns', adminAuthMiddleware(CAMPAIGN_ROLES), async (req, res, next) => {
   try {
     const adminEmail = (req as any).admin?.email || 'admin';
     const body = req.body;
@@ -717,7 +721,7 @@ router.post('/media/campaigns', adminAuthMiddleware(CONTENT_ROLES), async (req, 
   }
 });
 
-router.put('/media/campaigns/:id', adminAuthMiddleware(CONTENT_ROLES), async (req, res, next) => {
+router.put('/media/campaigns/:id', adminAuthMiddleware(CAMPAIGN_ROLES), async (req, res, next) => {
   try {
     const id = String(req.params.id);
     const adminEmail = (req as any).admin?.email || 'admin';
@@ -764,7 +768,7 @@ router.put('/media/campaigns/:id', adminAuthMiddleware(CONTENT_ROLES), async (re
   }
 });
 
-router.delete('/media/campaigns/:id', adminAuthMiddleware(CONTENT_ROLES), async (req, res, next) => {
+router.delete('/media/campaigns/:id', adminAuthMiddleware(CAMPAIGN_ROLES), async (req, res, next) => {
   try {
     const id = String(req.params.id);
     const adminEmail = (req as any).admin?.email || 'admin';
@@ -795,7 +799,7 @@ router.delete('/media/campaigns/:id', adminAuthMiddleware(CONTENT_ROLES), async 
 });
 
 // Batch reorder campaigns
-router.put('/media/campaigns-reorder', adminAuthMiddleware(CONTENT_ROLES), async (req, res, next) => {
+router.put('/media/campaigns-reorder', adminAuthMiddleware(CAMPAIGN_ROLES), async (req, res, next) => {
   try {
     const { orderedIds } = req.body;
     if (!Array.isArray(orderedIds)) {
