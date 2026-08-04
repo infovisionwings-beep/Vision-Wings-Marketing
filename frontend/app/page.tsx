@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Hero from "@/components/sections/Hero";
 import AboutVision from "@/components/sections/AboutVision";
 import Services from "@/components/sections/Services";
+import Projects from "@/components/sections/Projects";
 import Work from "@/components/sections/Work";
 import FeaturedVideosSection from "@/components/sections/FeaturedVideosSection";
 import Insights from "@/components/sections/Insights";
@@ -67,6 +68,7 @@ async function DynamicHomepageContent() {
       <Hero campaign={heroCampaigns[0]} settings={settings} />
       <AboutVision settings={settings} logos={logos} />
       <Services settings={settings} />
+      <Projects projects={dbProjects} settings={settings} />
       <Work dbProjects={dbProjects} dbCampaigns={archiveCampaigns} dbPhotos={dbPhotos} settings={settings} />
       <FeaturedVideosSection dbVideos={dbVideos} settings={settings} dbCampaigns={showcaseCampaigns} />
       <Insights settings={settings} />
