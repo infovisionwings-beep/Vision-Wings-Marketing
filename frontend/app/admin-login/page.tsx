@@ -1,15 +1,22 @@
 'use client'
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { loginAdmin } from '@/app/actions/adminAuth';
-import { ShieldCheck, Lock, AlertCircle } from 'lucide-react';
+import { ShieldCheck, Lock, AlertCircle, Clock } from 'lucide-react';
 
 export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
   const router = useRouter();
+
+  // Read from the URL directly rather than useSearchParams, so this page needs
+  // no Suspense boundary.
+  useEffect(() => {
+    setTimedOut(new URLSearchParams(window.location.search).get('reason') === 'idle');
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +48,15 @@ export default function AdminLogin() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {timedOut && !error && (
+            <div className="p-4 bg-bronze-950/40 border border-bronze-900/50 rounded-xl flex items-start gap-3">
+              <Clock className="w-5 h-5 text-bronze-400 shrink-0 mt-0.5" />
+              <p className="text-sm text-bronze-100 leading-relaxed">
+                Your session closed after 15 minutes without activity. Sign in again to continue.
+              </p>
+            </div>
+          )}
+
           {error && (
             <div className="p-4 bg-red-950/50 border border-red-900/50 rounded-xl flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
@@ -78,6 +94,12 @@ export default function AdminLogin() {
               <span>Authenticate Session</span>
             )}
           </button>
+
+          <div className="text-center mt-6 pt-6 border-t border-navy-800">
+            <p className="text-xs text-navy-400">
+              Sessions close after 15 minutes without activity.
+            </p>
+          </div>
         </form>
       </div>
     </div>

@@ -13,6 +13,27 @@ import { eq, and, gt, desc, sql, or } from 'drizzle-orm'
 const LOGIN_RATE_LIMIT_MAX = 5;
 const LOGIN_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 
+// A 6-digit code is only 10^6 wide and lives for 15 minutes. Unmetered guessing
+// walks that space; these two caps are what make the code worth anything.
+const OTP_VERIFY_MAX_ATTEMPTS = 5;
+const OTP_RESEND_MAX = 3;
+const OTP_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+
+/** Codes are a credential, so they come from the CSPRNG, not Math.random. */
+function generateOtp(): string {
+  return String(crypto.getRandomValues(new Uint32Array(1))[0] % 900000 + 100000);
+}
+
+/** Constant-time compare so a wrong code cannot be narrowed by response timing. */
+function otpMatches(expected: string, provided: string): boolean {
+  if (expected.length !== provided.length) return false;
+  let diff = 0;
+  for (let i = 0; i < expected.length; i++) {
+    diff |= expected.charCodeAt(i) ^ provided.charCodeAt(i);
+  }
+  return diff === 0;
+}
+
 async function ensureSignupOtpsTable() {
   try {
     await db.execute(sql`
@@ -47,6 +68,22 @@ export async function authenticateWithTurnstile(formData: FormData) {
     return { error: "Missing required fields or human verification failed." };
   }
 
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return { error: "Please enter a valid email address." };
+  }
+
+  // Validate email length
+  if (email.length > 254) {
+    return { error: "Email address is too long." };
+  }
+
+  // Validate password length
+  if (!password || password.length < 8) {
+    return { error: "Password must be at least 8 characters long." };
+  }
+
   // Rate limiting — keyed by email to prevent brute-force per account
   const rateLimitKey = `login:${email}`;
   const rateCheck = checkRateLimit(rateLimitKey, LOGIN_RATE_LIMIT_MAX, LOGIN_RATE_LIMIT_WINDOW_MS);
@@ -74,8 +111,24 @@ export async function authenticateWithTurnstile(formData: FormData) {
   }
 
   if (isSignUp) {
-    if (password.length < 8) {
-      return { error: "Password must be at least 8 characters long." };
+    // Strengthen password requirements
+    if (password.length < 10) {
+      return { error: "Password must be at least 10 characters long." };
+    }
+
+    // Require at least one uppercase letter
+    if (!/[A-Z]/.test(password)) {
+      return { error: "Password must contain at least one uppercase letter." };
+    }
+
+    // Require at least one number
+    if (!/[0-9]/.test(password)) {
+      return { error: "Password must contain at least one number." };
+    }
+
+    // Require at least one special character
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      return { error: "Password must contain at least one special character (!@#$%^&* etc)." };
     }
 
     // Check if user has already completed registration
@@ -91,8 +144,7 @@ export async function authenticateWithTurnstile(formData: FormData) {
 
     await ensureSignupOtpsTable();
 
-    // Generate 6-digit cryptographic OTP
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpCode = generateOtp();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
     // Save pending registration in signup_otps table
@@ -172,11 +224,20 @@ export async function authenticateWithTurnstile(formData: FormData) {
 
   logAdminAction("auth.login", email, email, { success: true });
 
-  // Check if sign-in user needs onboarding
+  // Check if sign-in user needs onboarding. Both arms of this `or` tested the
+  // email, so the check only ever ran one way — but saveOnboardingProfile keys
+  // the row by the Better Auth user id, which meant the row was never found and
+  // a reader who had already completed onboarding was sent back through it on
+  // every single sign-in.
+  const signedInUserId = result?.data?.user?.id;
   const [profile] = await db
     .select()
     .from(userProfiles)
-    .where(or(eq(userProfiles.userId, email), eq(userProfiles.userId, email)))
+    .where(
+      signedInUserId
+        ? or(eq(userProfiles.userId, signedInUserId), eq(userProfiles.userId, email))
+        : eq(userProfiles.userId, email)
+    )
     .limit(1);
 
   if (!profile) {
@@ -216,11 +277,25 @@ export async function getPendingSignupStatus() {
 }
 
 export async function verifySignupOtp(formData: FormData) {
-  const email = (formData.get('email') as string || '').toLowerCase().trim();
+  // The email is taken from the httpOnly cookie set when the code was issued,
+  // never from the form. Trusting the posted value let anyone submit guesses
+  // against any address with a pending registration, not just their own.
+  const cookieStore = await cookies();
+  const email = (cookieStore.get('pending_signup_email')?.value || '').toLowerCase().trim();
   const otp = (formData.get('otp') as string || '').trim();
 
-  if (!email || !otp) {
-    return { error: "Missing email or verification code." };
+  if (!email) {
+    return { error: "This verification session has expired. Please sign up again." };
+  }
+  if (!/^\d{6}$/.test(otp)) {
+    return { error: "Enter the 6-digit code from your email." };
+  }
+
+  const otpRateKey = `otp-verify:${email}`;
+  const rateCheck = checkRateLimit(otpRateKey, OTP_VERIFY_MAX_ATTEMPTS, OTP_RATE_LIMIT_WINDOW_MS);
+  if (!rateCheck.allowed) {
+    const retryMinutes = Math.ceil(rateCheck.retryAfterMs / 60_000);
+    return { error: `Too many incorrect codes. Please try again in ${retryMinutes} minute${retryMinutes > 1 ? 's' : ''}.` };
   }
 
   await ensureSignupOtpsTable();
@@ -242,7 +317,7 @@ export async function verifySignupOtp(formData: FormData) {
     return { error: "Verification code expired or not found. Please request a new code." };
   }
 
-  if (pendingRecord.otp !== otp) {
+  if (!otpMatches(pendingRecord.otp, otp)) {
     return { error: "Invalid verification code. Please check your email and try again." };
   }
 
@@ -251,6 +326,8 @@ export async function verifySignupOtp(formData: FormData) {
     .update(signupOtps)
     .set({ status: "verified" })
     .where(eq(signupOtps.id, pendingRecord.id));
+
+  resetRateLimit(otpRateKey);
 
   // Create authentic account & session in Neon Auth
   try {
@@ -276,8 +353,17 @@ export async function verifySignupOtp(formData: FormData) {
     return { error: err?.message || "Authentication error after OTP verification." };
   }
 
-  // Clear pending signup cookie
-  const cookieStore = await cookies();
+  // The row holds the submitted password in clear text (the column is named
+  // passwordHash but nothing hashes it) because it has to be replayed into
+  // auth.signUp once the code checks out. Marking it "verified" left every
+  // password ever registered sitting in the table indefinitely. It has served
+  // its purpose now, so it goes.
+  try {
+    await db.delete(signupOtps).where(eq(signupOtps.email, pendingRecord.email));
+  } catch (err) {
+    console.error("Failed to purge consumed signup OTP rows:", err);
+  }
+
   cookieStore.delete("pending_signup_email");
 
   logAdminAction("auth.signup_verified", email, email, { success: true });
@@ -285,9 +371,24 @@ export async function verifySignupOtp(formData: FormData) {
   redirect('/onboarding');
 }
 
-export async function resendSignupOtp(email: string) {
-  const cleanEmail = (email || '').toLowerCase().trim();
-  if (!cleanEmail) return { error: "Email is required." };
+export async function resendSignupOtp() {
+  // Took an arbitrary email as its argument, with no session check and no rate
+  // limit — so it would mail a code to any address on demand, reroll a pending
+  // code repeatedly, and report back whether a registration existed for that
+  // address. The pending email now comes from the same httpOnly cookie the
+  // verify step uses, so a caller can only resend their own code.
+  const cookieStore = await cookies();
+  const cleanEmail = (cookieStore.get('pending_signup_email')?.value || '').toLowerCase().trim();
+  if (!cleanEmail) {
+    return { error: "This verification session has expired. Please sign up again." };
+  }
+
+  const resendRateKey = `otp-resend:${cleanEmail}`;
+  const rateCheck = checkRateLimit(resendRateKey, OTP_RESEND_MAX, OTP_RATE_LIMIT_WINDOW_MS);
+  if (!rateCheck.allowed) {
+    const retryMinutes = Math.ceil(rateCheck.retryAfterMs / 60_000);
+    return { error: `Too many code requests. Please try again in ${retryMinutes} minute${retryMinutes > 1 ? 's' : ''}.` };
+  }
 
   await ensureSignupOtpsTable();
 
@@ -307,7 +408,7 @@ export async function resendSignupOtp(email: string) {
     return { error: "No pending registration found for this email. Please sign up again." };
   }
 
-  const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+  const newOtp = generateOtp();
   const newExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
   await db

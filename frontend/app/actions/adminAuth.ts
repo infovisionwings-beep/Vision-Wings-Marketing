@@ -6,6 +6,41 @@ import { auth } from '@/lib/auth/server';
 import * as jose from 'jose';
 import { getBackendUrl } from '@/lib/utils/backendUrl';
 
+/**
+ * Idle timeout, enforced by the browser rather than by client-side JavaScript.
+ *
+ * The admin JWT lives for 12h and is minted by the backend for non-super-admins,
+ * so its expiry is not ours to shorten. This second cookie is: it lapses 15
+ * minutes after the last write, and `requireAdmin` refuses a request that has the
+ * session cookie without it. A tab left open, a copied cookie, or a client with
+ * JavaScript disabled all lose access on the same schedule, because the timeout
+ * is the absence of a cookie the browser stopped sending.
+ */
+export const ADMIN_IDLE_TIMEOUT_SECONDS = 15 * 60;
+
+function setAdminActivityCookie(cookieStore: Awaited<ReturnType<typeof cookies>>) {
+  cookieStore.set('admin_activity', String(Date.now()), {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: ADMIN_IDLE_TIMEOUT_SECONDS,
+  });
+}
+
+/**
+ * Heartbeat from the dashboard. Extends the idle window only for a caller who
+ * already holds both cookies — it can restart the clock, never start it.
+ */
+export async function touchAdminSession(): Promise<{ active: boolean }> {
+  const cookieStore = await cookies();
+  if (!cookieStore.get('admin_session')?.value) return { active: false };
+  if (!cookieStore.get('admin_activity')?.value) return { active: false };
+
+  setAdminActivityCookie(cookieStore);
+  return { active: true };
+}
+
 export async function loginAdmin(password: string) {
   try {
     const sessionRes = await auth.getSession();
@@ -53,6 +88,7 @@ export async function loginAdmin(password: string) {
       path: '/',
       maxAge: 12 * 60 * 60 // 12 hours
     });
+    setAdminActivityCookie(cookieStore);
 
     return { success: true };
   } catch (error: any) {
@@ -63,6 +99,20 @@ export async function loginAdmin(password: string) {
 
 export async function logoutAdmin() {
   const cookieStore = await cookies();
-  cookieStore.delete('admin_session');
+
+  // Overwrite with an already-expired cookie before deleting: `delete` alone
+  // omits the attributes the cookie was written with, which leaves it in place
+  // in some browsers.
+  for (const name of ['admin_session', 'admin_activity']) {
+    cookieStore.set(name, '', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 0,
+    });
+    cookieStore.delete(name);
+  }
+
   redirect('/admin-login');
 }

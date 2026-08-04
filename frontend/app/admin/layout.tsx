@@ -8,6 +8,7 @@ import { ArrowUpRight } from "lucide-react";
 import { requireAdmin, requireAdminToken } from "@/lib/auth/rbac";
 import { AdminMobileNav } from "@/components/admin/AdminMobileNav";
 import { AdminNavList, AdminLogoutButton } from "@/components/admin/AdminNav";
+import { InactivityWarning } from "@/components/admin/InactivityWarning";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="min-h-screen bg-warm-100/60 flex text-navy-950 font-sans">
+      <InactivityWarning />
       {/* Sidebar */}
       <aside className="w-64 bg-navy-950 text-warm-50 flex flex-col hidden md:flex border-r border-navy-800 relative z-20">
 
