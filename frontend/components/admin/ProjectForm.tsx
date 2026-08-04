@@ -5,22 +5,43 @@
 // MOTION_INTENSITY: 5
 // VISUAL_DENSITY: 5
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createProject, updateProject } from "@/app/actions/projects";
 import { uploadImage } from "@/app/actions/upload";
 import Button from "@/components/ui/Button";
 import { useRouter } from "next/navigation";
-import { Briefcase, Image as ImageIcon, Sparkles, Loader2, ArrowLeft, Zap, Film } from "lucide-react";
+import { Briefcase, Image as ImageIcon, Sparkles, Loader2, ArrowLeft, Zap, Film, Upload } from "lucide-react";
 import MediaPickerModal from "./MediaPickerModal";
 
 export default function ProjectForm({ project }: { project?: any }) {
   const router = useRouter();
+  const contentFileInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploadingContentImage, setIsUploadingContentImage] = useState(false);
   const [coverImageUrl, setCoverImageUrl] = useState(project?.coverImage || "");
   const [content, setContent] = useState(project?.content || "");
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [photoTarget, setPhotoTarget] = useState<"cover" | "content">("cover");
   const [showVideoModal, setShowVideoModal] = useState(false);
+
+  const handleContentFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setIsUploadingContentImage(true);
+      const uploadData = new FormData();
+      uploadData.append("file", file);
+      const url = await uploadImage(uploadData);
+      const imgTag = `\n\n<p><img src="${url}" alt="Exhibition Asset" style="max-width: 100%; border-radius: 12px; margin: 24px 0;" /></p>\n\n`;
+      setContent((prev: string) => prev + imgTag);
+    } catch (err) {
+      console.error("Failed to upload image for content:", err);
+      alert("Could not upload photo. Please try again.");
+    } finally {
+      setIsUploadingContentImage(false);
+      if (contentFileInputRef.current) contentFileInputRef.current.value = "";
+    }
+  };
 
   // Lock body scroll when photo or video modal popup is active
   useEffect(() => {
@@ -205,6 +226,28 @@ export default function ProjectForm({ project }: { project?: any }) {
               Exhibition Overview &amp; Manifesto (Markdown / HTML)
             </label>
             <div className="flex items-center gap-2">
+              <input
+                ref={contentFileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleContentFileUpload}
+              />
+              <button
+                type="button"
+                onClick={() => contentFileInputRef.current?.click()}
+                disabled={isUploadingContentImage}
+                className="px-2.5 py-1 bg-navy-950 hover:bg-navy-900 text-bronze-300 text-xs font-mono font-bold rounded flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                title="Upload photo directly from your device and insert into content"
+              >
+                {isUploadingContentImage ? (
+                  <Loader2 className="w-3 h-3 animate-spin text-bronze-400" />
+                ) : (
+                  <Upload className="w-3 h-3 text-bronze-400" />
+                )}
+                <span>{isUploadingContentImage ? "Uploading…" : "Upload Local Photo"}</span>
+              </button>
+
               <button
                 type="button"
                 onClick={() => {
@@ -213,7 +256,7 @@ export default function ProjectForm({ project }: { project?: any }) {
                 }}
                 className="px-2.5 py-1 bg-navy-950 hover:bg-navy-900 text-bronze-400 text-xs font-mono font-bold rounded flex items-center gap-1"
               >
-                <span>🖼️ Insert Image Asset</span>
+                <span>🖼️ Pick From Library</span>
               </button>
               <button
                 type="button"
