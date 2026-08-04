@@ -15,6 +15,7 @@ import { authRateLimitMiddleware, publicRateLimitMiddleware, userActionRateLimit
 import { errorHandler } from './middleware/errorHandler';
 import { validateBody, ProjectSchema, InsightSchema, UserProfileSchema, ContactSubmissionSchema } from './validators';
 import { sendEmail, MAIL_FROM } from './email';
+import { isQueueAvailable } from './queue';
 
 
 dotenv.config();
@@ -78,6 +79,14 @@ app.use('/api/settings', settingsRoutes);
 
 // Public Campaigns API
 app.use('/api/campaigns', publicRateLimitMiddleware, campaignRoutes);
+
+// Whether uploads can be converted right now. The admin upload dialog asks
+// before it starts, so an exhausted Upstash quota becomes a choice the operator
+// makes rather than a file stuck on "converting" with no explanation.
+app.get('/api/media/conversion-status', publicRateLimitMiddleware, async (req, res) => {
+  const available = await isQueueAvailable();
+  res.json({ available });
+});
 
 // Health check
 app.get('/health', publicRateLimitMiddleware, (req, res) => {

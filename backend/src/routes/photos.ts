@@ -112,6 +112,32 @@ router.post('/', (req: Request, res: Response, next: any) => {
       `Received photo record [Category: ${category}] (${(originalSize / (1024 * 1024)).toFixed(2)} MB). Stored original in Vercel Blob CDN.`
     );
 
+    // `skipConversion` is the operator's explicit "use it as-is" choice, made in
+    // the upload dialog once it has been told conversion is unavailable. An
+    // already-WebP file takes the same path because there is nothing to convert.
+    //
+    // Serving the original is safe here: webpPath was already set to inputUrl
+    // above as an immediately viewable fallback. What was missing was a terminal
+    // status, so the asset stayed mid-pipeline forever and never appeared in any
+    // published list. Marking it completed is what makes it usable.
+    const skipConversion = req.body?.skipConversion === true || req.body?.skipConversion === 'true';
+
+    if (skipConversion) {
+      await db
+        .update(photos)
+        .set({ status: 'completed', processedAt: new Date() })
+        .where(eq(photos.id, photoId));
+
+      insertedPhoto.status = 'completed';
+      await PipelineLogger.log(
+        photoId,
+        'SUCCESS',
+        'Conversion skipped at the operator\'s request. The uploaded file is served directly from blob storage.'
+      );
+
+      return res.status(201).json({ success: true, photo: insertedPhoto, converted: false });
+    }
+
     // Enqueue background processing job
     try {
       await enqueuePhotoJob({
@@ -128,17 +154,38 @@ router.post('/', (req: Request, res: Response, next: any) => {
         .update(photos)
         .set({ status: 'queued' })
         .where(eq(photos.id, photoId));
-      
-      insertedPhoto.status = 'queued';
-    } catch (queueErr) {
-      console.error('Queue dispatch failed, photo job queued status pending worker poll:', queueErr);
-      await PipelineLogger.log(photoId, 'ERROR', `Failed to enqueue job: ${queueErr}`);
-    }
 
-    res.status(201).json({
-      success: true,
-      photo: insertedPhoto,
-    });
+      insertedPhoto.status = 'queued';
+
+      return res.status(201).json({ success: true, photo: insertedPhoto, queued: true });
+    } catch (queueErr) {
+      // The queue refused the job, so nothing will ever pick this asset up. It
+      // used to be left on "uploaded" — indistinguishable from work in progress,
+      // which is how media ended up stuck on "converting" indefinitely. Fall back
+      // to serving the original and say so, rather than promising a conversion
+      // that cannot happen.
+      console.error('Queue dispatch failed; serving the original photo unconverted:', queueErr);
+      await PipelineLogger.log(
+        photoId,
+        'ERROR',
+        `Conversion queue unavailable (${queueErr}). Serving the uploaded file directly instead.`
+      );
+
+      await db
+        .update(photos)
+        .set({ status: 'completed', processedAt: new Date() })
+        .where(eq(photos.id, photoId));
+
+      insertedPhoto.status = 'completed';
+
+      return res.status(201).json({
+        success: true,
+        photo: insertedPhoto,
+        queued: false,
+        converted: false,
+        warning: 'Conversion is unavailable, so the original file is being served. Upload a WebP for the smallest file size.',
+      });
+    }
   } catch (error: any) {
     console.error('Photo upload endpoint error:', error);
     next(error);
