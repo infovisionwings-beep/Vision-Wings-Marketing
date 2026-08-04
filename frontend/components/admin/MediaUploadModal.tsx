@@ -163,6 +163,7 @@ export default function MediaUploadModal({
             originalSize: file.size,
             originalMimeType: file.type || (kind === "photo" ? "image/jpeg" : "video/mp4"),
             userId: "admin",
+            publishStatus: "published",
             // An already-optimal file is registered as "use as-is" too: there is
             // nothing to convert, so queueing it would only burn a Redis request.
             skipConversion: skipConversion || isAlreadyOptimal(file),

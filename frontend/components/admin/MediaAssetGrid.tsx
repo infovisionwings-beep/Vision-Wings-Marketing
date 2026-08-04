@@ -128,6 +128,11 @@ export default function MediaAssetGrid({
     setBusyId(null);
   };
 
+  const togglePublish = (a: Asset) => {
+    const nextStatus = a.publishStatus === "published" ? "draft" : "published";
+    return act(a.id, () => updateMedia(kind, a.id, { ...a, publishStatus: nextStatus }));
+  };
+
   const archive = (a: Asset) => act(a.id, () => softDeleteMedia(kind, a.id));
 
   const restore = (a: Asset) =>
@@ -256,6 +261,21 @@ export default function MediaAssetGrid({
                     <span className="absolute right-2 top-2 rounded-full bg-navy-950/85 px-2 py-0.5 text-[11px] font-semibold text-warm-50">
                       Archived
                     </span>
+                  )}
+                  {!archived && (
+                    <button
+                      type="button"
+                      onClick={() => togglePublish(a)}
+                      disabled={busy}
+                      className={`absolute right-2 bottom-2 rounded-full px-2.5 py-0.5 text-[11px] font-bold transition-all shadow-md active:scale-95 ${
+                        a.publishStatus === "published"
+                          ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                          : "bg-amber-500 text-white hover:bg-amber-600"
+                      }`}
+                      title="Click to toggle Public / Draft status"
+                    >
+                      {a.publishStatus === "published" ? "Published" : "Draft"}
+                    </button>
                   )}
                   {a.isStarred && !archived && (
                     <Star className="absolute right-2 top-2 h-4 w-4 fill-bronze-400 text-bronze-400" aria-label="Starred" />

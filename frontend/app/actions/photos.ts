@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { photos } from "@/lib/db/schema";
-import { and, eq, asc, desc } from "drizzle-orm";
+import { and, eq, ne, asc, desc } from "drizzle-orm";
 
 /**
  * Public photo feed, mirroring getCompletedVideos.
@@ -16,7 +16,12 @@ export async function getPublishedPhotos() {
     const results = await db
       .select()
       .from(photos)
-      .where(and(eq(photos.status, "completed"), eq(photos.publishStatus, "published")))
+      .where(
+        and(
+          eq(photos.publishStatus, "published"),
+          ne(photos.status, "failed")
+        )
+      )
       .orderBy(desc(photos.isStarred), asc(photos.displayOrder), desc(photos.createdAt));
 
     // Serialize Dates for Client Component consumption
