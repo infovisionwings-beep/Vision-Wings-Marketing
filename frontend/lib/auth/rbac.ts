@@ -31,6 +31,19 @@ export async function requireAdminToken(): Promise<string> {
   if (!token) {
     redirect('/admin-login');
   }
+
+  // Presence is not enough. These tokens expire after 12h, and the backend
+  // rejects an expired one with 401 exactly as it rejects a missing one — so a
+  // stale cookie produced the same silent "Unauthorized" with empty lists that
+  // no cookie did, while still satisfying a presence-only check. Verifying here
+  // means the session is re-minted instead of the dashboard rendering against a
+  // token every backend call is about to refuse.
+  try {
+    await jose.jwtVerify(token, secretKey);
+  } catch {
+    redirect('/admin-login');
+  }
+
   return token;
 }
 
