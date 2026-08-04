@@ -7,7 +7,7 @@ import Button from "@/components/ui/Button";
 import { Eye, Target, Briefcase, FileText, Mail } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useActiveSection } from "@/hooks/useActiveSection";
-import { UserCircle, LogOut } from "lucide-react";
+import { UserCircle, LogOut, LayoutGrid } from "lucide-react";
 import { logoutUser } from "@/app/actions/auth";
 import { useTransition } from "react";
 
@@ -104,7 +104,16 @@ export default function Navbar({ user, isAdmin }: { user: any; isAdmin?: boolean
                       <p className="text-sm font-semibold text-warm-50 truncate">{user?.email || "Admin"}</p>
                     </div>
 
-                    <button 
+                    <Link
+                      href="/dashboard"
+                      className="w-full px-3 py-2 text-sm text-warm-50 hover:bg-navy-900 rounded-lg transition-colors flex items-center gap-2 min-h-[40px] outline-none focus-visible:ring-2 focus-visible:ring-bronze-500"
+                      data-interactive
+                    >
+                      <LayoutGrid className="w-4 h-4 text-navy-300" />
+                      <span>Dashboard</span>
+                    </Link>
+
+                    <button
                       onClick={() => startTransition(() => logoutUser())}
                       disabled={isPending}
                       className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-navy-900 rounded-lg transition-colors flex items-center gap-2 mt-1 min-h-[40px]"

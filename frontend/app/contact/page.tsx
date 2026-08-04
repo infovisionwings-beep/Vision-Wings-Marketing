@@ -67,7 +67,7 @@ export default function ContactPage() {
               </div>
               <div>
                 <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-navy-400 block mb-1">EXECUTIVE DISPATCH</span>
-                <a href="mailto:hello@visionwing.agency" className="text-body font-bold text-navy-950 hover:text-bronze-600 transition-colors" data-interactive>hello@visionwing.agency</a>
+                <a href="mailto:info.visionwings@gmail.com" className="text-body font-bold text-navy-950 hover:text-bronze-600 transition-colors" data-interactive>info.visionwings@gmail.com</a>
                 <p className="text-caption text-navy-500 mt-0.5">Encrypted direct transmission</p>
               </div>
             </div>

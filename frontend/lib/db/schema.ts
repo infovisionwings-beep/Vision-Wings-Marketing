@@ -64,6 +64,20 @@ export const userProfiles = pgTable("user_profiles", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+/**
+ * A reader's saved essays. Holds only the pairing — the essay itself is read
+ * back through a join, so an essay the admin archives or deletes leaves every
+ * reader's library on its own. There is no copy here to go stale.
+ *
+ * userId matches userProfiles.userId: the Better Auth email, lowercased.
+ */
+export const savedEssays = pgTable("saved_essays", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  insightId: integer("insight_id").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const contactSubmissions = pgTable("contact_submissions", {
   id: uuid("id").defaultRandom().primaryKey(),
   firstName: varchar("first_name", { length: 255 }).notNull(),

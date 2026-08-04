@@ -32,6 +32,13 @@ export async function requireAdminToken(): Promise<string> {
     redirect('/admin-login');
   }
 
+  // The idle cookie lapses 15 minutes after the last heartbeat. Its absence
+  // alongside a live session cookie means the session went idle, not that the
+  // user was never here — either way the dashboard is closed to them.
+  if (!cookieStore.get('admin_activity')?.value) {
+    redirect('/admin-login?reason=idle');
+  }
+
   // Presence is not enough. These tokens expire after 12h, and the backend
   // rejects an expired one with 401 exactly as it rejects a missing one — so a
   // stale cookie produced the same silent "Unauthorized" with empty lists that
@@ -102,6 +109,14 @@ export async function requireAdmin(requiredRoles?: string[]): Promise<AdminUser>
 
     let adminPayload: jose.JWTPayload | null = null;
 
+    // A session cookie with no idle cookie beside it is a timed-out session.
+    // Treated as no admin session at all rather than falling through to the
+    // primary-session branch, which would otherwise re-admit the same user.
+    const isIdleExpired = !!adminToken && !cookieStore.get('admin_activity')?.value;
+    if (isIdleExpired) {
+      redirect('/admin-login?reason=idle');
+    }
+
     // 1. Check secondary admin JWT session cookie first
     if (adminToken) {
       try {
@@ -160,7 +175,8 @@ export async function requireAdmin(requiredRoles?: string[]): Promise<AdminUser>
     }
 
     if (!activeRole) {
-      redirect('/');
+      // No admin role found — redirect to login, not home
+      redirect('/admin-login');
     }
 
     // Role check

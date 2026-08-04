@@ -12,6 +12,7 @@ import { Link } from "@/components/ui/Link"
 export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const [isOtpPending, startOtpTransition] = useTransition()
   const [showOtp, setShowOtp] = useState(false)
@@ -54,9 +55,10 @@ export default function LoginPage() {
   const handleOtpSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
+    // The email is no longer sent: the server reads it from the httpOnly cookie
+    // it set when issuing the code, so a posted address cannot redirect the check.
     const formData = new FormData(e.currentTarget)
-    formData.append('email', registeredEmail)
-    
+
     startOtpTransition(async () => {
       const result = await verifySignupOtp(formData)
       if (result?.error) {
@@ -66,13 +68,13 @@ export default function LoginPage() {
   }
 
   const handleResend = async () => {
-    if (!registeredEmail) return
     setError(null)
-    const res = await resendSignupOtp(registeredEmail)
+    setNotice(null)
+    const res = await resendSignupOtp()
     if (res?.error) {
       setError(res.error)
     } else if (res?.message) {
-      alert(res.message)
+      setNotice(res.message)
     }
   }
 
@@ -253,9 +255,21 @@ export default function LoginPage() {
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
+                      role="alert"
                       className="text-red-600 text-caption font-mono uppercase tracking-wider text-center bg-red-50/80 py-3 px-4 rounded-lg border border-red-200/80 flex items-center justify-center gap-1.5"
                     >
                       <span>⚠</span> {error}
+                    </motion.div>
+                  )}
+                  {notice && !error && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      role="status"
+                      className="text-bronze-800 text-caption font-mono uppercase tracking-wider text-center bg-bronze-50 py-3 px-4 rounded-lg border border-bronze-200 flex items-center justify-center gap-1.5"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" /> {notice}
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -316,7 +330,7 @@ export default function LoginPage() {
                         label="Cryptographic Password"
                         placeholder="••••••••"
                         className="pl-12"
-                        helperText={isSignUp ? "Minimum 8 characters required" : undefined}
+                        helperText={isSignUp ? "Min 10 chars, uppercase, number, special char (!@#$% etc)" : undefined}
                       />
                     </div>
                   </div>
