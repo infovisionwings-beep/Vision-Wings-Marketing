@@ -11,6 +11,18 @@ import { getPublishedPhotos } from "@/app/actions/photos";
 import { getSettings } from "@/app/actions/settings";
 import { getCampaigns } from "@/app/actions/campaigns";
 import { getClientLogos } from "@/app/actions/clientLogos";
+import { pageMetadata } from "@/lib/seo";
+
+// The homepage carried no metadata of its own, so it had no canonical and
+// inherited the root layout's static og:url — which is what made every page on
+// the site advertise the same social card.
+export const metadata = pageMetadata({
+  title: "Vision Wings Marketing - Strategic Growth & Marketing Agency",
+  description:
+    "Vision Wings Marketing is a strategic marketing and growth partner based in Varanasi, elevating growth-stage businesses.",
+  path: "",
+  absoluteTitle: true,
+});
 
 export const revalidate = 60; // 1 minute revalidation for CMS freshness
 

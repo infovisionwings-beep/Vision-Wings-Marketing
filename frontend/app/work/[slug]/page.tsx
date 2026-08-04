@@ -5,6 +5,7 @@ import { ArrowLeft, Calendar, Tag, Layers } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { cache } from "react";
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 
 interface CaseStudy {
   title: string;
@@ -64,16 +65,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const project = await resolveProject(slug);
   if (!project) return {};
 
-  return {
+  return pageMetadata({
     title: project.title,
     description: project.content.slice(0, 160),
-    openGraph: {
-      title: project.title,
-      description: project.content.slice(0, 160),
-      images: project.coverImage ? [project.coverImage] : undefined,
-      type: "article",
-    },
-  };
+    path: `/work/${slug}`,
+    image: project.coverImage || undefined,
+    type: "article",
+  });
 }
 
 export default async function ProjectDetailPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -85,7 +83,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   }
 
   return (
-    <main className="min-h-screen bg-warm-50 pt-32 pb-24 px-5 md:px-10 xl:px-20">
+    <div className="min-h-screen bg-warm-50 pt-32 pb-24 px-5 md:px-10 xl:px-20">
       <div className="max-w-4xl mx-auto space-y-12">
 
         {/* Back Link */}
@@ -147,6 +145,6 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         </div>
 
       </div>
-    </main>
+    </div>
   );
 }

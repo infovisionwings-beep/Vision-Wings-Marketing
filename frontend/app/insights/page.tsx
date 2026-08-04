@@ -3,11 +3,13 @@ import RevealOnScroll from "@/components/motion/RevealOnScroll";
 import { Link } from "@/components/ui/Link";
 import { ArrowUpRight, Plus, ArrowRight, Sparkles, BookOpen } from "lucide-react";
 import { format } from "date-fns";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "Marketing Insights & Perspectives",
   description: "Senior strategic viewpoints on brand acceleration, growth marketing, performance advertising, and digital conversion.",
-};
+  path: "/insights",
+});
 
 export const dynamic = "force-dynamic";
 
@@ -99,7 +101,7 @@ export default async function EssaysLandingPage() {
   const [heroEssay, secondEssay, thirdEssay, ...remainingEssays] = list;
 
   return (
-    <main className="min-h-screen bg-warm-50 pt-32 pb-28 px-5 md:px-10 xl:px-20 text-navy-950 overflow-hidden">
+    <div className="min-h-screen bg-warm-50 pt-32 pb-28 px-5 md:px-10 xl:px-20 text-navy-950 overflow-hidden">
       <div className="max-w-[1280px] mx-auto space-y-16 lg:space-y-24">
         
         {/* Editorial Title Banner - Exact to Reference 2: "Best of the week" / "Thinking & Perspectives" with italic emphasis */}
@@ -307,6 +309,6 @@ export default async function EssaysLandingPage() {
         </div>
 
       </div>
-    </main>
+    </div>
   );
 }

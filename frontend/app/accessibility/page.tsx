@@ -1,12 +1,13 @@
 import fs from "fs";
 import path from "path";
-import { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { LegalDocViewer } from "@/components/legal/LegalDocViewer";
 
-export const metadata: Metadata = {
-  title: "Accessibility Statement | Vision Wings Marketing",
+export const metadata = pageMetadata({
+  title: "Accessibility Statement",
   description: "Accessibility Statement for Vision Wings Marketing — WCAG 2.1 AA conformance, testing measures, and feedback contact.",
-};
+  path: "/accessibility",
+});
 
 export default function AccessibilityPage() {
   const filePath = path.join(process.cwd(), "..", "legal", "07-accessibility-statement.md");

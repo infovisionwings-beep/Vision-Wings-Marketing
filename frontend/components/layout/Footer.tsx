@@ -25,19 +25,19 @@ export default function Footer() {
         <div className="grid grid-cols-2 gap-8 col-span-1 md:col-span-2 lg:col-span-3 lg:grid-cols-3">
           <div className="flex flex-col gap-1">
             <h4 className="text-h4 text-bronze-500 mb-2">EXPERTISE</h4>
-            <Link href="#strategy" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Brand Strategy</Link>
-            <Link href="#design" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Visual Identity</Link>
-            <Link href="#growth" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Growth Marketing</Link>
-            <Link href="#web" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Digital Funnels</Link>
+            <Link href="/#strategy" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Brand Strategy</Link>
+            <Link href="/#strategy" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Visual Identity</Link>
+            <Link href="/#strategy" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Growth Marketing</Link>
+            <Link href="/#strategy" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Digital Funnels</Link>
           </div>
 
           <div className="flex flex-col gap-1">
             <h4 className="text-h4 text-bronze-500 mb-2">AGENCY</h4>
-            <Link href="#about" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>About Us</Link>
-            <Link href="#work" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Featured Work</Link>
+            <Link href="/#vision" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>About Us</Link>
+            <Link href="/work" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Featured Work</Link>
             <Link href="/videos" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Video Campaigns</Link>
             <Link href="/insights" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Marketing Insights</Link>
-            <Link href="#contact" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Contact</Link>
+            <Link href="/contact" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Contact</Link>
           </div>
 
           <div className="flex flex-col gap-1 col-span-2 lg:col-span-1">
