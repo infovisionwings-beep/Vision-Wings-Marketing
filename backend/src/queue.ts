@@ -55,6 +55,37 @@ export async function enqueueVideoJob(jobData: VideoJobData) {
   }
 }
 
+/**
+ * Can the conversion pipeline actually accept work right now?
+ *
+ * When the Upstash quota is exhausted every Redis command is refused, so jobs
+ * were accepted, never queued, and the asset sat on "converting" forever with
+ * nothing telling the operator why. Asking first lets the upload offer a way
+ * through instead of silently stranding the file.
+ *
+ * A 3s ceiling keeps a hanging connection from blocking the request: an
+ * unreachable queue is treated exactly like a refused one.
+ */
+export async function isQueueAvailable(): Promise<boolean> {
+  if (!redisConnection) return false;
+  try {
+    // Deliberately a write, and deliberately not PING or EXISTS. Over an
+    // exhausted Upstash quota those both still succeed — PING is unmetered and
+    // reads stay permitted — while writes are refused. Probing with either
+    // reported a healthy queue while every enqueue was being rejected. Adding a
+    // job is a write, so only a write predicts it. The key expires on its own so
+    // the probe leaves nothing behind.
+    await Promise.race([
+      redisConnection.set('conversion-probe', '1', 'EX', 30),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('redis probe timed out')), 3000)),
+    ]);
+    return true;
+  } catch (err) {
+    console.warn('[queue] conversion pipeline unavailable:', err instanceof Error ? err.message : err);
+    return false;
+  }
+}
+
 export interface PhotoJobData {
   photoId: string;
   userId: string;

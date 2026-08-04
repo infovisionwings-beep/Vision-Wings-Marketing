@@ -20,6 +20,9 @@ const RULES = {
     registerUrl: "/api/photos",
     noun: "image",
     converts: "Converted to WebP automatically.",
+    // Already in the target format, so there is nothing for the converter to do.
+    optimalExt: ".webp",
+    optimalLabel: "WebP",
   },
   video: {
     accept: "video/mp4,video/quicktime,video/webm",
@@ -33,6 +36,9 @@ const RULES = {
     registerUrl: "/api/videos",
     noun: "video",
     converts: "Converted to WebM and MP4 automatically.",
+    // Already in the target format, so there is nothing for the converter to do.
+    optimalExt: ".webm",
+    optimalLabel: "WebM",
   },
 } as const;
 
@@ -62,6 +68,10 @@ export default function MediaUploadModal({
   const [progress, setProgress] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [done, setDone] = useState(0);
+  // Files held back while the operator decides what to do about an unavailable
+  // converter. Null means there is nothing waiting on a decision.
+  const [pending, setPending] = useState<File[] | null>(null);
+  const [servedAsIs, setServedAsIs] = useState(0);
 
   useEffect(() => {
     if (!open) return;
@@ -74,15 +84,55 @@ export default function MediaUploadModal({
   }, [open, busy, onClose]);
 
   useEffect(() => {
-    if (!open) { setError(""); setProgress(null); setDone(0); }
+    if (!open) { setError(""); setProgress(null); setDone(0); setPending(null); setServedAsIs(0); }
   }, [open]);
+
+  const isAlreadyOptimal = (file: File) =>
+    file.name.toLowerCase().endsWith(rules.optimalExt);
+
+  /**
+   * Ask the backend whether conversion can run before uploading anything.
+   *
+   * An exhausted Upstash quota makes the queue refuse every job, and the asset
+   * used to sit on "converting" forever with nothing explaining why. Checking
+   * first turns that into a decision the operator makes knowingly. A failed
+   * check is treated as unavailable, because that is the safer assumption.
+   */
+  const checkConversion = async (): Promise<boolean> => {
+    try {
+      const res = await fetch(`${getBackendUrl()}/api/media/conversion-status`, { cache: "no-store" });
+      if (!res.ok) return false;
+      const data = await res.json();
+      return data?.available === true;
+    } catch {
+      return false;
+    }
+  };
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     setError("");
+
+    const list = Array.from(files);
+    // A file already in the target format needs no converter, so it never has to
+    // wait on this question.
+    if (!list.every(isAlreadyOptimal)) {
+      const available = await checkConversion();
+      if (!available) {
+        setPending(list);
+        if (inputRef.current) inputRef.current.value = "";
+        return;
+      }
+    }
+
+    await uploadAll(list, false);
+  };
+
+  const uploadAll = async (list: File[], skipConversion: boolean) => {
+    setPending(null);
     setBusy(true);
 
-    for (const file of Array.from(files)) {
+    for (const file of list) {
       const ext = (file.name.match(/\.[a-z0-9]+$/i)?.[0] || rules.defaultExt).toLowerCase();
 
       if (!rules.types.includes(file.type as never) && !rules.exts.includes(ext as never)) {
@@ -116,6 +166,9 @@ export default function MediaUploadModal({
             originalMimeType: file.type || (kind === "photo" ? "image/jpeg" : "video/mp4"),
             userId: "admin",
             category,
+            // An already-optimal file is registered as "use as-is" too: there is
+            // nothing to convert, so queueing it would only burn a Redis request.
+            skipConversion: skipConversion || isAlreadyOptimal(file),
           }),
         });
 
@@ -125,6 +178,11 @@ export default function MediaUploadModal({
           const detail = await res.json().catch(() => null);
           throw new Error(detail?.error || `Backend rejected the upload (HTTP ${res.status}).`);
         }
+
+        // The backend also falls back to serving the original if the queue dies
+        // between the check and the upload, so trust its answer over our own.
+        const body = await res.json().catch(() => null);
+        if (body?.converted === false) setServedAsIs((n) => n + 1);
 
         setDone((n) => n + 1);
       } catch (err: any) {
@@ -181,7 +239,68 @@ export default function MediaUploadModal({
           {done > 0 && !busy && !error && (
             <div className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
-              <p>{done} {rules.noun}{done === 1 ? "" : "s"} uploaded. Conversion runs in the background.</p>
+              <p>
+                {done} {rules.noun}{done === 1 ? "" : "s"} uploaded.{" "}
+                {servedAsIs > 0
+                  ? `${servedAsIs === done ? "Serving the original file" : `${servedAsIs} serving the original file`} — no conversion was run.`
+                  : "Conversion runs in the background."}
+              </p>
+            </div>
+          )}
+
+          {/* Conversion is unreachable and the operator has to choose. Shown
+              instead of silently uploading a file that would sit on
+              "converting" forever with nothing to pick it up. */}
+          {pending && !busy && (
+            <div className="space-y-4 rounded-xl border border-amber-300 bg-amber-50 p-4">
+              <div className="flex items-start gap-3 text-sm text-amber-900">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <div className="space-y-1">
+                  <p className="font-semibold">Automatic conversion is unavailable right now.</p>
+                  <p>
+                    {rules.converts.replace("automatically.", "")}is temporarily offline, so{" "}
+                    {pending.length === 1 ? "this file" : `these ${pending.length} files`} cannot be
+                    optimised.
+                  </p>
+                </div>
+              </div>
+
+              <ul className="ml-1 space-y-2 text-sm text-amber-900">
+                <li className="flex gap-2">
+                  <span aria-hidden="true">•</span>
+                  <span>
+                    <strong>Recommended:</strong> upload a {rules.optimalLabel} file instead. It is
+                    already in the format we serve, so it needs no conversion and stays small.
+                  </span>
+                </li>
+                <li className="flex gap-2">
+                  <span aria-hidden="true">•</span>
+                  <span>
+                    <strong>Or continue:</strong> the {rules.noun} is used exactly as uploaded. It
+                    works everywhere immediately, just at a larger file size
+                    {kind === "video" ? " and with no generated poster frame" : ""}.
+                  </span>
+                </li>
+              </ul>
+
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Button
+                  variant="primary"
+                  className="w-full justify-center sm:w-auto"
+                  onClick={() => uploadAll(pending, true)}
+                  data-interactive
+                >
+                  Continue &amp; use as-is
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="w-full justify-center sm:w-auto"
+                  onClick={() => { setPending(null); inputRef.current?.click(); }}
+                  data-interactive
+                >
+                  Choose a {rules.optimalLabel} file
+                </Button>
+              </div>
             </div>
           )}
 
