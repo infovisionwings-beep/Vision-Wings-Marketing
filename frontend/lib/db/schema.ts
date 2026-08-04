@@ -221,3 +221,14 @@ export const campaigns = pgTable("campaigns", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+// User Signup OTPs for first-time email verification
+export const signupOtps = pgTable("signup_otps", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  email: varchar("email", { length: 255 }).notNull(),
+  passwordHash: text("password_hash").notNull(),
+  otp: varchar("otp", { length: 10 }).notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  status: varchar("status", { length: 50 }).default("pending"), // pending, verified, expired
+  createdAt: timestamp("created_at").defaultNow(),
+});

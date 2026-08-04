@@ -83,6 +83,11 @@ import CursorAperture from "@/components/motion/CursorAperture";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { auth } from '@/lib/auth/server';
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { db } from "@/lib/db";
+import { userProfiles } from "@/lib/db/schema";
+import { eq, or } from "drizzle-orm";
 
 import { LoaderProvider } from "@/components/providers/LoaderProvider";
 
@@ -91,7 +96,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  let user = null;
+  let user: any = null;
   let isAdmin = false;
   try {
     const sessionRes = await auth.getSession();
@@ -109,8 +114,34 @@ export default async function RootLayout({
       ) {
         isAdmin = true;
       }
+
+      // Mandatory Onboarding Gate: Non-admin logged-in users must complete onboarding profile before entering main website
+      if (!isAdmin) {
+        const headerList = await headers();
+        const pathname = headerList.get("x-pathname") || "";
+        const isExcluded =
+          pathname.startsWith("/onboarding") ||
+          pathname.startsWith("/login") ||
+          pathname.startsWith("/admin") ||
+          pathname.startsWith("/api");
+
+        if (!isExcluded) {
+          const [profile] = await db
+            .select()
+            .from(userProfiles)
+            .where(or(eq(userProfiles.userId, user.id), eq(userProfiles.userId, user.email || "")))
+            .limit(1);
+
+          if (!profile) {
+            redirect("/onboarding");
+          }
+        }
+      }
     }
   } catch (e) {
+    if (e && typeof e === 'object' && 'digest' in e && String(e.digest).startsWith('NEXT_REDIRECT')) {
+      throw e;
+    }
     // Ignore errors during build or if Neon Auth is unconfigured
   }
 

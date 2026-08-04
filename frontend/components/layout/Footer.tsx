@@ -43,8 +43,8 @@ export default function Footer() {
           <div className="flex flex-col gap-1 col-span-2 lg:col-span-1">
             <h4 className="text-h4 text-bronze-500 mb-2">CONNECT</h4>
             <a href="mailto:info.visionwings@gmail.com" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>info.visionwings@gmail.com</a>
-            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>LinkedIn</a>
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Twitter (X)</a>
+            <a href="https://www.instagram.com/visionwingsmarketing" target="_blank" rel="noopener noreferrer" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Instagram</a>
+            <a href="https://wa.me/918018952359" target="_blank" rel="noopener noreferrer" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>WhatsApp: +91 8018952359</a>
           </div>
         </div>
       </div>

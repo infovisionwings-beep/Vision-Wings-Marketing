@@ -71,13 +71,16 @@ export async function getProjectBySlug(slug: string) {
 export async function createProject(data: any) {
   const user = await requireAdmin();
 
+  const title = (data.title || "").trim();
+  const slug = (data.slug || "").trim();
+
   const [inserted] = await db
     .insert(projects)
     .values({
-      title: data.title,
-      slug: data.slug,
-      category: data.category,
-      year: data.year,
+      title: title,
+      slug: slug,
+      category: (data.category || "").trim(),
+      year: (data.year || "").trim(),
       coverImage: data.coverImage || "",
       content: data.content || "",
       isFeatured: data.isFeatured ?? false,
@@ -89,24 +92,30 @@ export async function createProject(data: any) {
     "project.create",
     user.name || user.email || "unknown",
     user.email ?? "unknown",
-    { slug: data.slug, title: data.title }
+    { slug, title }
   );
 
   revalidatePath("/");
+  revalidatePath("/work");
+  revalidatePath(`/work/${slug}`);
   revalidatePath("/admin/projects");
+  revalidatePath("/sitemap.xml");
   return inserted;
 }
 
 export async function updateProject(id: number, data: any) {
   const user = await requireAdmin();
 
+  const title = (data.title || "").trim();
+  const slug = (data.slug || "").trim();
+
   const [updated] = await db
     .update(projects)
     .set({
-      title: data.title,
-      slug: data.slug,
-      category: data.category,
-      year: data.year,
+      title: title,
+      slug: slug,
+      category: (data.category || "").trim(),
+      year: (data.year || "").trim(),
       coverImage: data.coverImage,
       content: data.content,
       isFeatured: data.isFeatured,
@@ -123,13 +132,18 @@ export async function updateProject(id: number, data: any) {
   );
 
   revalidatePath("/");
+  revalidatePath("/work");
+  revalidatePath(`/work/${slug}`);
   revalidatePath("/admin/projects");
+  revalidatePath("/sitemap.xml");
   return updated;
 }
 
 /** Soft delete: sets publishStatus to 'archived'. Reversible via restoreProject. */
 export async function archiveProject(id: number) {
   const user = await requireAdmin();
+
+  const [existing] = await db.select().from(projects).where(eq(projects.id, id));
 
   await db
     .update(projects)
@@ -145,11 +159,15 @@ export async function archiveProject(id: number) {
 
   revalidatePath("/");
   revalidatePath("/work");
+  if (existing?.slug) revalidatePath(`/work/${existing.slug}`);
   revalidatePath("/admin/projects");
+  revalidatePath("/sitemap.xml");
 }
 
 export async function restoreProject(id: number) {
   const user = await requireAdmin();
+
+  const [existing] = await db.select().from(projects).where(eq(projects.id, id));
 
   await db
     .update(projects)
@@ -165,7 +183,9 @@ export async function restoreProject(id: number) {
 
   revalidatePath("/");
   revalidatePath("/work");
+  if (existing?.slug) revalidatePath(`/work/${existing.slug}`);
   revalidatePath("/admin/projects");
+  revalidatePath("/sitemap.xml");
 }
 
 /**

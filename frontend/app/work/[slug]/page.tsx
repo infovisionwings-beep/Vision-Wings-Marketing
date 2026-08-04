@@ -7,6 +7,8 @@ import { cache } from "react";
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 
+export const dynamic = "force-dynamic";
+
 interface CaseStudy {
   title: string;
   category: string;

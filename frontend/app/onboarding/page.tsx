@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, ArrowLeft, Briefcase, User, Check, Sparkles, Building2, Globe, Share2, Users, Newspaper, Mic, HelpCircle, CheckCircle2 } from 'lucide-react'
 import Button from "@/components/ui/Button"
 import Input from "@/components/ui/Input"
 import Textarea from "@/components/ui/Textarea"
-import { saveOnboardingProfile } from '@/app/actions/onboarding'
+import { saveOnboardingProfile, checkOnboardingStatus } from '@/app/actions/onboarding'
 import { useRouter } from 'next/navigation'
 import { Link } from "@/components/ui/Link"
 
@@ -24,7 +24,7 @@ const SERVICES = [
 const SOURCES = [
   { id: 'google', label: 'Google Search / Organic', icon: Globe },
   { id: 'referral', label: 'Executive Referral / Colleague', icon: Users },
-  { id: 'social', label: 'Social Media (LinkedIn / X)', icon: Share2 },
+  { id: 'social', label: 'Social Media (Instagram / WhatsApp)', icon: Share2 },
   { id: 'blog', label: 'Industry Essay / Case Study', icon: Newspaper },
   { id: 'podcast', label: 'Podcast / Feature Interview', icon: Mic },
   { id: 'other', label: 'Other Direct Channel', icon: HelpCircle },
@@ -35,6 +35,18 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(1)
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function verifyStatus() {
+      const res = await checkOnboardingStatus()
+      if (!res.isAuthenticated) {
+        router.push('/login')
+      } else if (res.hasProfile) {
+        router.push('/')
+      }
+    }
+    verifyStatus()
+  }, [router])
 
   // Form State
   const [type, setType] = useState<'individual' | 'company'>('individual')
