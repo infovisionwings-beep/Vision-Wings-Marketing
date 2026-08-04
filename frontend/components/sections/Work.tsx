@@ -132,7 +132,8 @@ export default function Work({ dbCampaigns = [], dbPhotos = [], settings }: Work
         // If CMS archive campaigns exist, map them into bricks
         if (dbCampaigns && dbCampaigns.length > 0) {
           const campBricks: GalleryBrick[] = dbCampaigns.map((c: any, idx: number) => {
-            if (c.quoteText) {
+            // Only render as a text quote if there is a quoteText AND no image uploaded
+            if (c.quoteText && !c.coverImage && !c.posterImage) {
               return {
                 id: c.id || `quote-${idx}`,
                 type: "quote",
@@ -147,7 +148,7 @@ export default function Work({ dbCampaigns = [], dbPhotos = [], settings }: Work
               category: c.category || "Brand Archive",
               year: c.year || "2025",
               slug: c.slug,
-              imageUrl: c.coverImage || curatedSupplementalPhotos[idx % curatedSupplementalPhotos.length],
+              imageUrl: c.coverImage || c.posterImage || curatedSupplementalPhotos[idx % curatedSupplementalPhotos.length],
             };
           });
 

@@ -295,32 +295,34 @@ export default function VideoShowcaseGrid({ dbVideos = [], dbCampaigns = [] }: V
     category: c.category || "CMS Sample Video",
     date: c.year || "2025",
     duration: c.duration || "02:45",
-    coverImage: c.coverImage || fallbackShowcaseVideos[0].coverImage,
+    coverImage: c.posterImage || c.coverImage || fallbackShowcaseVideos[0].coverImage,
     videoUrl: c.videoUrl || fallbackShowcaseVideos[0].videoUrl,
     description: c.description || "CMS driven sample video asset.",
   }));
 
-  // Published uploads. The heading, category and description an admin typed in
-  // the media library lead here; the filename and pipeline stats are only the
-  // last resort for an asset nobody has captioned yet.
+  // Published uploads
   const liveAssets: VideoAsset[] = dbVideos.map((v) => ({
     id: v.id,
     title: videoTitle(v),
     category: v.category || "Video Campaign",
     date: videoDate(v),
     duration: videoDuration(v),
-    coverImage: videoPoster(v) || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80",
+    coverImage: v.posterImage || v.coverImage || videoPoster(v) || fallbackShowcaseVideos[0].coverImage,
     videoUrl: videoSource(v),
     description:
       v.description ||
       v.subHeading ||
-      `High-definition rendition from our cloud media pipeline. Original size: ${(Number(v.originalSize) / (1024 * 1024)).toFixed(1)} MB.`,
+      `High-definition video asset.`,
     isLiveDb: true
   }));
 
-  // Demo reels are a placeholder for an empty library, not a permanent filler
-  // strip — once anything real is published they stop being mixed in.
-  const realVideos = [...cmsAssets, ...liveAssets];
+  // Combine both CMS video campaigns and uploaded DB videos uniquely
+  const realVideos = [...cmsAssets];
+  for (const live of liveAssets) {
+    if (!realVideos.some((c) => c.id === live.id || (c.videoUrl && live.videoUrl && c.videoUrl === live.videoUrl))) {
+      realVideos.push(live);
+    }
+  }
   const allVideos = realVideos.length > 0 ? realVideos : fallbackShowcaseVideos;
   const featuredVideo = allVideos[0];
   const samplesGrid = allVideos.slice(1, 4); // Up to 3 items for Bento Cell Count Rule

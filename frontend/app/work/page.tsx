@@ -1,5 +1,6 @@
 import { getProjects } from "@/app/actions/projects";
 import { getPublishedPhotos } from "@/app/actions/photos";
+import { getCampaigns } from "@/app/actions/campaigns";
 import RevealOnScroll from "@/components/motion/RevealOnScroll";
 import { Link } from "@/components/ui/Link";
 import { ArrowRight } from "lucide-react";
@@ -49,33 +50,45 @@ const fallbackProjects = [
 ];
 
 export default async function WorkPage() {
-  let projects: any[] = fallbackProjects;
+  let projects: any[] = [];
   try {
-    const dbProjects = await getProjects();
-    if (dbProjects && dbProjects.length > 0) {
-      projects = dbProjects.map((p: any, idx: number) => ({
-        ...p,
-        coverImage: p.coverImage || curatedSupplementalPhotos[idx % curatedSupplementalPhotos.length]
+    const [dbCampaigns, dbProjects, dbPhotos] = await Promise.all([
+      getCampaigns().catch(() => []),
+      getProjects().catch(() => []),
+      getPublishedPhotos().catch(() => []),
+    ]);
+
+    const campaignItems = (dbCampaigns || [])
+      .filter((c: any) => c.coverImage || c.posterImage)
+      .map((c: any, idx: number) => ({
+        id: c.id,
+        title: c.title,
+        category: c.category || "Brand Archive",
+        year: c.year || "2025",
+        slug: c.slug || null,
+        coverImage: c.coverImage || c.posterImage || curatedSupplementalPhotos[idx % curatedSupplementalPhotos.length],
       }));
-    } else {
-      // No case studies written yet, but the media library may hold published
-      // imagery. Showing the client's own work beats stock photography of
-      // somebody else's. These carry no slug — there is no case study behind a
-      // library image — so the card renders without a "Read Case Study" link.
-      const dbPhotos = await getPublishedPhotos();
-      if (dbPhotos.length > 0) {
-        projects = dbPhotos.map((p: any) => ({
-          id: p.id,
-          title: photoTitle(p),
-          category: p.category || "Brand Archive",
-          year: photoYear(p),
-          slug: null,
-          coverImage: photoSource(p),
-        }));
-      }
-    }
+
+    const projectItems = (dbProjects || []).map((p: any, idx: number) => ({
+      ...p,
+      coverImage: p.coverImage || curatedSupplementalPhotos[idx % curatedSupplementalPhotos.length],
+    }));
+
+    const photoItems = (dbPhotos || []).map((p: any) => ({
+      id: p.id,
+      title: photoTitle(p),
+      category: p.category || "Brand Archive",
+      year: photoYear(p),
+      slug: null,
+      coverImage: photoSource(p),
+    }));
+
+    // Combine all real items
+    const combined = [...campaignItems, ...projectItems, ...photoItems];
+    projects = combined.length > 0 ? combined : fallbackProjects;
   } catch (err) {
     console.error("Failed to load projects for Work list page:", err);
+    projects = fallbackProjects;
   }
 
   return (

@@ -72,15 +72,11 @@ export default function FeaturedVideosSection({
       category: c.category || (idx === 0 ? "Brand Campaign & Commercial" : "Performance Ad Campaign"),
       duration: c.duration || "03:45",
       year: c.year || "2025",
-      thumbnail: c.coverImage || fallbackFeaturedVideos[idx]?.thumbnail || fallbackFeaturedVideos[0].thumbnail,
+      thumbnail: c.posterImage || c.coverImage || fallbackFeaturedVideos[idx]?.thumbnail || fallbackFeaturedVideos[0].thumbnail,
       desc: c.description || fallbackFeaturedVideos[idx]?.desc || "High-conversion marketing campaign.",
       isHero: idx === 0,
     }));
   } else if (dbVideos && dbVideos.length > 0) {
-    // 2. Second priority: published uploads from the media library. These read
-    // through lib/media/present because the row has `heading` / `thumbnailPath`,
-    // not `title` / `thumbnailUrl` — the mismatch is what used to push every
-    // real upload onto placeholder copy and stock photography.
     displayVideos = dbVideos.slice(0, 3).map((v, idx) => ({
       id: v.id || `db-${idx}`,
       title: videoTitle(v),
@@ -88,7 +84,7 @@ export default function FeaturedVideosSection({
       category: v.category || "Video Campaign",
       duration: videoDuration(v),
       year: videoYear(v),
-      thumbnail: videoPoster(v) || fallbackFeaturedVideos[idx]?.thumbnail || fallbackFeaturedVideos[0].thumbnail,
+      thumbnail: v.posterImage || v.coverImage || videoPoster(v) || fallbackFeaturedVideos[idx]?.thumbnail || fallbackFeaturedVideos[0].thumbnail,
       desc: v.description || v.subHeading || "",
       isHero: idx === 0,
     }));
