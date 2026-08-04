@@ -9,9 +9,15 @@ export async function logAdminAction(
   details?: Record<string, unknown>
 ) {
   try {
-    const headersList = await headers();
-    const ipAddress = headersList.get("x-forwarded-for") || headersList.get("x-real-ip") || "unknown";
-    const userAgent = headersList.get("user-agent") || "unknown";
+    let ipAddress = "unknown";
+    let userAgent = "unknown";
+    try {
+      const headersList = await headers();
+      ipAddress = headersList.get("x-forwarded-for") || headersList.get("x-real-ip") || "unknown";
+      userAgent = headersList.get("user-agent") || "unknown";
+    } catch (hErr) {
+      // headers() context not available
+    }
 
     await db.insert(adminAuditLogs).values({
       adminName: userId,

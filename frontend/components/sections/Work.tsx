@@ -124,72 +124,77 @@ function withQuoteCards(bricks: GalleryBrick[]): GalleryBrick[] {
   return merged;
 }
 
+function computeBricks(
+  dbProjects: any[] = [],
+  dbCampaigns: any[] = [],
+  dbPhotos: any[] = []
+): GalleryBrick[] {
+  const projectBricks: GalleryBrick[] = (dbProjects || []).map((p: any, idx: number) => ({
+    id: p.id || `proj-${idx}`,
+    type: "photo",
+    title: p.title,
+    category: p.category || "Project Exhibit",
+    year: p.year || "2024",
+    slug: p.slug || String(p.id),
+    imageUrl: p.coverImage || curatedSupplementalPhotos[idx % curatedSupplementalPhotos.length],
+  }));
+
+  const campBricks: GalleryBrick[] = (dbCampaigns || []).map((c: any, idx: number) => {
+    if (c.quoteText && !c.coverImage && !c.posterImage) {
+      return {
+        id: c.id || `quote-${idx}`,
+        type: "quote",
+        quoteText: c.quoteText,
+        quoteSubtitle: c.subtitle || "CLIENT GROWTH IMPACT",
+      };
+    }
+    return {
+      id: c.id || `camp-${idx}`,
+      type: "photo",
+      title: c.title,
+      category: c.category || "Brand Archive",
+      year: c.year || "2025",
+      slug: c.slug,
+      imageUrl: c.coverImage || c.posterImage || curatedSupplementalPhotos[idx % curatedSupplementalPhotos.length],
+    };
+  });
+
+  const photoBricks: GalleryBrick[] = (dbPhotos || []).map((p: any) => ({
+    id: p.id,
+    type: "photo",
+    title: photoTitle(p),
+    category: p.category || "Brand Archive",
+    year: photoYear(p),
+    imageUrl: photoSource(p),
+  }));
+
+  const realBricks = [...projectBricks, ...campBricks, ...photoBricks];
+
+  if (realBricks.length > 0) {
+    return withQuoteCards(realBricks);
+  }
+
+  return fallbackBricks;
+}
+
 export default function Work({ dbProjects = [], dbCampaigns = [], dbPhotos = [], settings }: WorkProps) {
-  const [bricks, setBricks] = useState<GalleryBrick[]>(fallbackBricks);
+  const [bricks, setBricks] = useState<GalleryBrick[]>(() =>
+    computeBricks(dbProjects, dbCampaigns, dbPhotos)
+  );
 
   useEffect(() => {
     async function load() {
       try {
-        const projectBricks: GalleryBrick[] = (dbProjects || []).map((p: any, idx: number) => ({
-          id: p.id || `proj-${idx}`,
-          type: "photo",
-          title: p.title,
-          category: p.category || "Project Exhibit",
-          year: p.year || "2024",
-          slug: p.slug || String(p.id),
-          imageUrl: p.coverImage || curatedSupplementalPhotos[idx % curatedSupplementalPhotos.length],
-        }));
-
-        const campBricks: GalleryBrick[] = (dbCampaigns || []).map((c: any, idx: number) => {
-          if (c.quoteText && !c.coverImage && !c.posterImage) {
-            return {
-              id: c.id || `quote-${idx}`,
-              type: "quote",
-              quoteText: c.quoteText,
-              quoteSubtitle: c.subtitle || "CLIENT GROWTH IMPACT",
-            };
-          }
-          return {
-            id: c.id || `camp-${idx}`,
-            type: "photo",
-            title: c.title,
-            category: c.category || "Brand Archive",
-            year: c.year || "2025",
-            slug: c.slug,
-            imageUrl: c.coverImage || c.posterImage || curatedSupplementalPhotos[idx % curatedSupplementalPhotos.length],
-          };
-        });
-
-        let realBricks = [...projectBricks, ...campBricks];
-
-        if (realBricks.length === 0) {
-          const fetchedProjects = await getProjects();
-          if (fetchedProjects && fetchedProjects.length > 0) {
-            realBricks = fetchedProjects.map((p: any, idx: number) => ({
-              id: p.id || `db-${idx}`,
-              type: "photo",
-              title: p.title,
-              category: p.category,
-              year: p.year || "2024",
-              slug: p.slug || String(p.id),
-              imageUrl: p.coverImage || curatedSupplementalPhotos[idx % curatedSupplementalPhotos.length],
-            }));
-          }
+        const computed = computeBricks(dbProjects, dbCampaigns, dbPhotos);
+        if (computed !== fallbackBricks) {
+          setBricks(computed);
+          return;
         }
 
-        if (realBricks.length === 0 && dbPhotos && dbPhotos.length > 0) {
-          realBricks = dbPhotos.map((p: any, idx: number) => ({
-            id: p.id || `photo-${idx}`,
-            type: "photo",
-            title: photoTitle(p),
-            category: p.category || "Brand Archive",
-            year: photoYear(p),
-            imageUrl: photoSource(p),
-          }));
-        }
-
-        if (realBricks.length > 0) {
-          setBricks(withQuoteCards(realBricks));
+        const fetchedProjects = await getProjects();
+        if (fetchedProjects && fetchedProjects.length > 0) {
+          const freshComputed = computeBricks(fetchedProjects, dbCampaigns, dbPhotos);
+          setBricks(freshComputed);
         }
       } catch (err) {
         console.error("Failed to load projects for Exhibition Gallery:", err);

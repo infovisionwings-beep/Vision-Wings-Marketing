@@ -25,7 +25,8 @@ export const metadata = pageMetadata({
   absoluteTitle: true,
 });
 
-export const revalidate = 60; // 1 minute revalidation for CMS freshness
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 async function DynamicHomepageContent() {
   let dbVideos: any[] = [];

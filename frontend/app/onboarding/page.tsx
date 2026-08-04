@@ -1,14 +1,15 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, ArrowLeft, Briefcase, User, Check, Sparkles, Building2, Globe, Share2, Users, Newspaper, Mic, HelpCircle, CheckCircle2 } from 'lucide-react'
 import Button from "@/components/ui/Button"
 import Input from "@/components/ui/Input"
 import Textarea from "@/components/ui/Textarea"
-import { saveOnboardingProfile } from '@/app/actions/onboarding'
+import { saveOnboardingProfile, checkOnboardingStatus } from '@/app/actions/onboarding'
 import { useRouter } from 'next/navigation'
 import { Link } from "@/components/ui/Link"
+import { COUNTRIES_DATA } from '@/lib/utils/location-data'
 
 const SERVICES = [
   "Brand Strategy & Architecture",
@@ -24,7 +25,7 @@ const SERVICES = [
 const SOURCES = [
   { id: 'google', label: 'Google Search / Organic', icon: Globe },
   { id: 'referral', label: 'Executive Referral / Colleague', icon: Users },
-  { id: 'social', label: 'Social Media (LinkedIn / X)', icon: Share2 },
+  { id: 'social', label: 'Social Media (Instagram / WhatsApp)', icon: Share2 },
   { id: 'blog', label: 'Industry Essay / Case Study', icon: Newspaper },
   { id: 'podcast', label: 'Podcast / Feature Interview', icon: Mic },
   { id: 'other', label: 'Other Direct Channel', icon: HelpCircle },
@@ -36,15 +37,29 @@ export default function OnboardingPage() {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
+  useEffect(() => {
+    async function verifyStatus() {
+      const res = await checkOnboardingStatus()
+      if (!res.isAuthenticated) {
+        router.push('/login')
+      } else if (res.hasProfile) {
+        router.push('/')
+      }
+    }
+    verifyStatus()
+  }, [router])
+
   // Form State
   const [type, setType] = useState<'individual' | 'company'>('individual')
   const [name, setName] = useState('')
-  const [phone, setPhone] = useState('')
+  const [phone, setPhone] = useState('+91 ')
   
-  // Individual fields
-  const [country, setCountry] = useState('')
+  // Individual location fields
+  const [country, setCountry] = useState('India')
   const [state, setState] = useState('')
+  const [customState, setCustomState] = useState('')
   const [city, setCity] = useState('')
+  const [customCity, setCustomCity] = useState('')
   const [pincode, setPincode] = useState('')
   
   // Company fields
@@ -58,6 +73,35 @@ export default function OnboardingPage() {
   // Source (Slide 3)
   const [source, setSource] = useState('')
 
+  const selectedCountryInfo = COUNTRIES_DATA.find(c => c.name === country) || COUNTRIES_DATA[0]
+  const selectedStateInfo = selectedCountryInfo.states.find(s => s.name === state)
+
+  const handleCountryChange = (newCountry: string) => {
+    setCountry(newCountry)
+    setState('')
+    setCustomState('')
+    setCity('')
+    setCustomCity('')
+
+    const cInfo = COUNTRIES_DATA.find(c => c.name === newCountry)
+    if (cInfo) {
+      const rawNumber = phone.replace(/^\+\d+\s*/, '')
+      setPhone(`${cInfo.dialCode} ${rawNumber}`)
+    }
+  }
+
+  const handleStateChange = (newState: string) => {
+    setState(newState)
+    if (newState !== 'Other') setCustomState('')
+    setCity('')
+    setCustomCity('')
+  }
+
+  const handleCityChange = (newCity: string) => {
+    setCity(newCity)
+    if (newCity !== 'Other') setCustomCity('')
+  }
+
   const handleNext = () => {
     if (step === 1) {
       if (!name || !phone) {
@@ -68,8 +112,11 @@ export default function OnboardingPage() {
         setError("Please complete all required company dossier specifications.")
         return
       }
-      if (type === 'individual' && (!country || !state || !city || !pincode)) {
-        setError("Please provide your complete location coordinates.")
+      const finalState = state === 'Other' ? customState : state
+      const finalCity = city === 'Other' ? customCity : city
+
+      if (type === 'individual' && (!country || !finalState || !finalCity || !pincode)) {
+        setError("Please select your country, state, city, and enter your postal code.")
         return
       }
     }
@@ -109,10 +156,13 @@ export default function OnboardingPage() {
       formData.append('source', source)
       formData.append('interests', JSON.stringify(interests))
 
+      const finalState = state === 'Other' ? customState : state
+      const finalCity = city === 'Other' ? customCity : city
+
       if (type === 'individual') {
         formData.append('country', country)
-        formData.append('state', state)
-        formData.append('city', city)
+        formData.append('state', finalState)
+        formData.append('city', finalCity)
         formData.append('pincode', pincode)
       } else {
         formData.append('companyName', companyName)
@@ -276,21 +326,124 @@ export default function OnboardingPage() {
                         value={name} 
                         onChange={e => setName(e.target.value)} 
                       />
-                      <Input 
-                        label="Verified Phone (with Country Code)" 
-                        required 
-                        placeholder="e.g. +1 (555) 019-2831" 
-                        value={phone} 
-                        onChange={e => setPhone(e.target.value)} 
-                      />
+
+                      {/* Verified Phone with Auto Flag & Country Code */}
+                      <div className="flex flex-col gap-1.5 w-full">
+                        <label className="text-[11px] font-mono font-semibold uppercase tracking-wider text-navy-700 flex items-center justify-between">
+                          <span>Verified Phone Number</span>
+                          <span className="text-[9px] text-bronze-600 font-mono">REQUIRED</span>
+                        </label>
+                        <div className="relative flex items-center">
+                          <div className="absolute left-3.5 flex items-center gap-1.5 text-sm font-mono font-bold text-navy-800 pointer-events-none select-none z-10">
+                            <span>{selectedCountryInfo.flag}</span>
+                            <span className="text-navy-950">{selectedCountryInfo.dialCode}</span>
+                          </div>
+                          <input 
+                            type="tel" 
+                            required 
+                            placeholder="8018952359" 
+                            value={phone.startsWith(selectedCountryInfo.dialCode) ? phone.slice(selectedCountryInfo.dialCode.length).trimStart() : phone} 
+                            onChange={e => {
+                              const val = e.target.value.replace(/[^0-9\s-]/g, '')
+                              setPhone(`${selectedCountryInfo.dialCode} ${val}`)
+                            }} 
+                            className="w-full pl-20 pr-4 py-3 bg-white/90 border border-navy-200/80 rounded-lg text-body text-navy-950 focus:outline-none focus:border-bronze-500 focus:ring-4 focus:ring-bronze-500/15 transition-all font-medium font-mono"
+                          />
+                        </div>
+                        <p className="text-[10px] text-navy-400 font-mono">Auto-prefix: {selectedCountryInfo.flag} {selectedCountryInfo.dialCode}</p>
+                      </div>
                     </div>
 
                     {type === 'individual' ? (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2 border-t border-navy-100">
-                        <Input label="Country of Residence" required placeholder="United States" value={country} onChange={e => setCountry(e.target.value)} />
-                        <Input label="State / Province" required placeholder="California" value={state} onChange={e => setState(e.target.value)} />
-                        <Input label="City / Municipality" required placeholder="San Francisco" value={city} onChange={e => setCity(e.target.value)} />
-                        <Input label="Postal / Zip Code" required placeholder="94105" value={pincode} onChange={e => setPincode(e.target.value)} />
+                        {/* Country Dropdown */}
+                        <div className="flex flex-col gap-1.5 w-full">
+                          <label className="text-[11px] font-mono font-semibold uppercase tracking-wider text-navy-700 flex items-center justify-between">
+                            <span>Country of Residence</span>
+                            <span className="text-[9px] text-bronze-600 font-mono">REQUIRED</span>
+                          </label>
+                          <select 
+                            value={country} 
+                            onChange={e => handleCountryChange(e.target.value)} 
+                            className="w-full px-4 py-3 bg-white/90 border border-navy-200/80 rounded-lg text-body text-navy-950 focus:outline-none focus:border-bronze-500 focus:ring-4 focus:ring-bronze-500/15 transition-all font-medium"
+                          >
+                            {COUNTRIES_DATA.map(c => (
+                              <option key={c.code} value={c.name}>
+                                {c.flag} {c.name} ({c.dialCode})
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* State Dropdown */}
+                        <div className="flex flex-col gap-1.5 w-full">
+                          <label className="text-[11px] font-mono font-semibold uppercase tracking-wider text-navy-700 flex items-center justify-between">
+                            <span>State / Province</span>
+                            <span className="text-[9px] text-bronze-600 font-mono">REQUIRED</span>
+                          </label>
+                          <select 
+                            value={state} 
+                            onChange={e => handleStateChange(e.target.value)} 
+                            className="w-full px-4 py-3 bg-white/90 border border-navy-200/80 rounded-lg text-body text-navy-950 focus:outline-none focus:border-bronze-500 focus:ring-4 focus:ring-bronze-500/15 transition-all font-medium"
+                          >
+                            <option value="">Select state / province...</option>
+                            {selectedCountryInfo.states.map(s => (
+                              <option key={s.name} value={s.name}>
+                                {s.name}
+                              </option>
+                            ))}
+                            <option value="Other">Other / Not Listed...</option>
+                          </select>
+                          {state === 'Other' && (
+                            <Input 
+                              placeholder="Type your state name" 
+                              value={customState} 
+                              onChange={e => setCustomState(e.target.value)} 
+                              className="mt-1" 
+                            />
+                          )}
+                        </div>
+
+                        {/* City Dropdown */}
+                        <div className="flex flex-col gap-1.5 w-full">
+                          <label className="text-[11px] font-mono font-semibold uppercase tracking-wider text-navy-700 flex items-center justify-between">
+                            <span>City / District</span>
+                            <span className="text-[9px] text-bronze-600 font-mono">REQUIRED</span>
+                          </label>
+                          <select 
+                            value={city} 
+                            disabled={!state}
+                            onChange={e => handleCityChange(e.target.value)} 
+                            className="w-full px-4 py-3 bg-white/90 border border-navy-200/80 rounded-lg text-body text-navy-950 focus:outline-none focus:border-bronze-500 focus:ring-4 focus:ring-bronze-500/15 transition-all font-medium disabled:opacity-50 disabled:bg-warm-100"
+                          >
+                            <option value="">
+                              {state ? "Select city / district..." : "Select state first..."}
+                            </option>
+                            {selectedStateInfo?.cities.map(ct => (
+                              <option key={ct} value={ct}>
+                                {ct}
+                              </option>
+                            ))}
+                            {state && <option value="Other">Other / Custom City...</option>}
+                          </select>
+                          {city === 'Other' && (
+                            <Input 
+                              placeholder="Type your city name" 
+                              value={customCity} 
+                              onChange={e => setCustomCity(e.target.value)} 
+                              className="mt-1" 
+                            />
+                          )}
+                        </div>
+
+                        {/* Pincode Input */}
+                        <Input 
+                          label="Postal / Zip Code (Pincode)" 
+                          required 
+                          placeholder="e.g. 751024" 
+                          value={pincode} 
+                          onChange={e => setPincode(e.target.value)} 
+                        />
                       </div>
                     ) : (
                       <div className="space-y-5 pt-2 border-t border-navy-100">

@@ -7,6 +7,8 @@ import { ArrowRight } from "lucide-react";
 import { photoTitle, photoSource, photoYear } from "@/lib/media/present";
 import { pageMetadata } from "@/lib/seo";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = pageMetadata({
   title: "Marketing Campaigns & Work",
   description: "A curation of high-velocity marketing campaigns, conversion funnels, and brand acceleration that drive outsized growth.",

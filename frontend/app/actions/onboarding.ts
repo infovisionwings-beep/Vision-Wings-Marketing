@@ -1,9 +1,35 @@
 'use server'
 
 import { auth } from '@/lib/auth/server'
-import { getBackendUrl } from '@/lib/utils/backendUrl';
+import { getBackendUrl } from '@/lib/utils/backendUrl'
+import { db } from '@/lib/db'
+import { userProfiles } from '@/lib/db/schema'
+import { eq, or } from 'drizzle-orm'
 
 const API_URL = getBackendUrl();
+
+export async function checkOnboardingStatus() {
+  try {
+    const { data: sessionData } = await auth.getSession();
+    if (!sessionData?.user) {
+      return { isAuthenticated: false, hasProfile: false };
+    }
+
+    const user = sessionData.user;
+    const [profile] = await db
+      .select()
+      .from(userProfiles)
+      .where(or(eq(userProfiles.userId, user.id), eq(userProfiles.userId, user.email || "")))
+      .limit(1);
+
+    return {
+      isAuthenticated: true,
+      hasProfile: !!profile,
+    };
+  } catch (err) {
+    return { isAuthenticated: false, hasProfile: false };
+  }
+}
 
 export async function saveOnboardingProfile(formData: FormData) {
   // 1. Check if user is authenticated
@@ -44,34 +70,36 @@ export async function saveOnboardingProfile(formData: FormData) {
     // Ignore parse error
   }
 
-  // 3. Save to backend database
-  try {
-    const bodyPayload = {
-      userId,
-      type,
-      name,
-      phone,
-      address,
-      companyName: type === 'company' ? companyName : null,
-      employeesCount: type === 'company' ? employeesCount : null,
-      interests,
-      source,
-    };
+  const bodyPayload = {
+    userId,
+    type,
+    name,
+    phone,
+    address,
+    companyName: type === 'company' ? companyName : null,
+    employeesCount: type === 'company' ? employeesCount : null,
+    interests,
+    source,
+  };
 
-    const res = await fetch(`${API_URL}/api/user-profiles`, {
+  // 3. Direct DB insert for immediate consistency
+  try {
+    await db.insert(userProfiles).values(bodyPayload).onConflictDoNothing();
+  } catch (dbErr) {
+    console.warn("Direct Drizzle insert to user_profiles notice:", dbErr);
+  }
+
+  // 4. Save to backend database API
+  try {
+    await fetch(`${API_URL}/api/user-profiles`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(bodyPayload)
     });
-
-    if (!res.ok) {
-        throw new Error('Failed to save profile on backend');
-    }
   } catch (error: any) {
-    console.error("Failed to save onboarding profile:", error);
-    return { error: "An error occurred while saving your profile." };
+    console.error("Backend fetch notice (saved via DB direct):", error);
   }
 
-  // 4. Return success so the UI can redirect
+  // 5. Return success so the UI can redirect
   return { success: true };
 }

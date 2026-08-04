@@ -3,8 +3,8 @@
 import { useState, useTransition, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Turnstile } from '@marsidev/react-turnstile'
-import { authenticateWithTurnstile, verifySignupOtp } from '@/app/actions/auth'
-import { Mail, Lock, ArrowRight, KeyRound, ShieldCheck, Zap, LockKeyhole, Eye, CheckCircle2 } from 'lucide-react'
+import { authenticateWithTurnstile, verifySignupOtp, getPendingSignupStatus, resendSignupOtp, cancelSignupOtp } from '@/app/actions/auth'
+import { Mail, Lock, ArrowRight, KeyRound, ShieldCheck, Zap, LockKeyhole, Eye, CheckCircle2, RefreshCw } from 'lucide-react'
 import Button from "@/components/ui/Button"
 import Input from "@/components/ui/Input"
 import { Link } from "@/components/ui/Link"
@@ -23,6 +23,14 @@ export default function LoginPage() {
   const [next, setNext] = useState("")
   useEffect(() => {
     setNext(new URLSearchParams(window.location.search).get('next') || "")
+    async function checkPending() {
+      const res = await getPendingSignupStatus()
+      if (res?.pendingEmail) {
+        setShowOtp(true)
+        setRegisteredEmail(res.pendingEmail)
+      }
+    }
+    checkPending()
   }, [])
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -36,6 +44,9 @@ export default function LoginPage() {
       const result = await authenticateWithTurnstile(formData)
       if (result?.error) {
         setError(result.error)
+      } else if (result?.showOtp && result?.email) {
+        setShowOtp(true)
+        setRegisteredEmail(result.email)
       }
     })
   }
@@ -52,6 +63,23 @@ export default function LoginPage() {
         setError(result.error)
       }
     })
+  }
+
+  const handleResend = async () => {
+    if (!registeredEmail) return
+    setError(null)
+    const res = await resendSignupOtp(registeredEmail)
+    if (res?.error) {
+      setError(res.error)
+    } else if (res?.message) {
+      alert(res.message)
+    }
+  }
+
+  const handleCancelOtp = async () => {
+    await cancelSignupOtp()
+    setShowOtp(false)
+    setError(null)
   }
 
   return (
@@ -241,13 +269,21 @@ export default function LoginPage() {
                   {!isOtpPending && <ArrowRight className="w-4 h-4" />}
                 </Button>
                 
-                <div className="mt-6 text-center">
+                <div className="mt-6 flex items-center justify-between text-xs font-mono">
                   <button
                     type="button"
-                    onClick={() => { setShowOtp(false); setError(null); }}
-                    className="text-caption font-mono uppercase tracking-wider text-navy-500 hover:text-navy-950 transition-colors"
+                    onClick={handleResend}
+                    className="inline-flex items-center gap-1.5 text-bronze-600 hover:text-bronze-700 font-semibold transition-colors"
                   >
-                    ← Return to Authentication
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Resend OTP Code</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCancelOtp}
+                    className="uppercase tracking-wider text-navy-500 hover:text-navy-950 transition-colors"
+                  >
+                    ← Cancel &amp; Restart
                   </button>
                 </div>
               </form>
