@@ -18,11 +18,15 @@ export async function getCampaigns(section?: string) {
       .select()
       .from(campaigns)
       .where(and(...conditions))
+      // Newest first, ahead of starring. Publishing something and not seeing it
+      // on the homepage reads as a broken save, so the most recent campaign now
+      // leads its section and the star only breaks ties between older entries.
+      // Explicit display order still wins outright when someone has set one.
       .orderBy(
-        desc(campaigns.isStarred),
-        desc(campaigns.isFeatured),
         asc(campaigns.displayOrder),
-        desc(campaigns.createdAt)
+        desc(campaigns.createdAt),
+        desc(campaigns.isStarred),
+        desc(campaigns.isFeatured)
       );
 
     return results.map((c) => ({

@@ -5,7 +5,6 @@ import { upload } from "@vercel/blob/client";
 import { UploadCloud, X, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { getBackendUrl } from "@/lib/utils/backendUrl";
-import { MEDIA_CATEGORIES } from "@/lib/media/categories";
 
 const RULES = {
   photo: {
@@ -63,7 +62,6 @@ export default function MediaUploadModal({
   const panelRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
-  const [category, setCategory] = useState<string>(MEDIA_CATEGORIES[0]);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState<number | null>(null);
   const [error, setError] = useState("");
@@ -165,7 +163,6 @@ export default function MediaUploadModal({
             originalSize: file.size,
             originalMimeType: file.type || (kind === "photo" ? "image/jpeg" : "video/mp4"),
             userId: "admin",
-            category,
             // An already-optimal file is registered as "use as-is" too: there is
             // nothing to convert, so queueing it would only burn a Redis request.
             skipConversion: skipConversion || isAlreadyOptimal(file),
@@ -304,18 +301,11 @@ export default function MediaUploadModal({
             </div>
           )}
 
-          <div className="space-y-1.5">
-            <label htmlFor="upload-category" className="text-sm font-medium text-navy-800">Category</label>
-            <select
-              id="upload-category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              disabled={busy}
-              className="w-full rounded-xl border border-navy-200 bg-white px-4 py-2.5 text-navy-950 outline-none focus:border-bronze-500 focus:ring-2 focus:ring-bronze-500/40"
-            >
-              {MEDIA_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
+          {/* Uploading is now just "put the file in the library". Where a piece
+              of media appears, and the wording that goes with it, is decided in
+              Campaigns against a named section of the site — asking for a
+              taxonomy here made the first step harder than it needed to be and
+              the answer was never used to place anything. */}
 
           <input
             ref={inputRef}

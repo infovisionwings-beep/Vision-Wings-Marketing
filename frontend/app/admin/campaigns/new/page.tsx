@@ -8,7 +8,7 @@ export default async function NewCampaignPage({
 }: {
   searchParams: Promise<{ section?: string }>;
 }) {
-  await requireAdmin();
+  await requireAdmin(["SEO"]);
   const resolvedParams = await searchParams;
   const defaultSection = resolvedParams?.section || "showcases";
 
