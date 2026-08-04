@@ -5,7 +5,7 @@ import { requireAdmin } from "@/lib/auth/rbac";
 import { logAdminAction } from "@/lib/auth/audit-log";
 import { db } from "@/lib/db";
 import { projects } from "@/lib/db/schema";
-import { eq, and, ne, desc } from "drizzle-orm";
+import { eq, and, ne, isNull, or, desc } from "drizzle-orm";
 
 /** Public: excludes archived projects. Used by the homepage and /work. */
 export async function getProjects() {
@@ -13,7 +13,7 @@ export async function getProjects() {
     const results = await db
       .select()
       .from(projects)
-      .where(ne(projects.publishStatus, "archived"))
+      .where(or(isNull(projects.publishStatus), ne(projects.publishStatus, "archived")))
       .orderBy(desc(projects.createdAt));
 
     return results.map(p => ({
@@ -53,7 +53,7 @@ export async function getProjectBySlug(slug: string) {
     const list = await db
       .select()
       .from(projects)
-      .where(and(eq(projects.slug, slug), ne(projects.publishStatus, "archived")))
+      .where(and(eq(projects.slug, slug), or(isNull(projects.publishStatus), ne(projects.publishStatus, "archived"))))
       .limit(1);
     const p = list[0];
     if (!p) return null;
@@ -81,6 +81,7 @@ export async function createProject(data: any) {
       coverImage: data.coverImage || "",
       content: data.content || "",
       isFeatured: data.isFeatured ?? false,
+      publishStatus: "active",
     })
     .returning();
 

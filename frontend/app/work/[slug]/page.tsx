@@ -82,8 +82,38 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     return notFound();
   }
 
+  // Format content: convert plain paragraphs or render HTML tags safely
+  let rawHtml = (project.content || "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&#160;/gi, " ");
+  if (!rawHtml.trim().startsWith("<")) {
+    rawHtml = rawHtml
+      .split("\n\n")
+      .map(p => `<p>${p.trim()}</p>`)
+      .join("");
+  }
+
   return (
     <div className="min-h-screen bg-warm-50 pt-32 pb-24 px-5 md:px-10 xl:px-20">
+      <style dangerouslySetInnerHTML={{ __html: `
+        .project-prose img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 1rem;
+          margin: 2rem 0;
+          box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.15);
+        }
+        .project-prose p {
+          margin-bottom: 1.5rem;
+          line-height: 1.8;
+        }
+        .project-prose video {
+          max-width: 100%;
+          height: auto;
+          border-radius: 1rem;
+          margin: 2rem 0;
+        }
+      `}} />
       <div className="max-w-4xl mx-auto space-y-12">
 
         {/* Back Link */}
@@ -127,9 +157,10 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         </div>
 
         {/* Body Content */}
-        <article className="prose prose-navy max-w-none text-body-lg text-navy-800 whitespace-pre-wrap leading-relaxed">
-          {project.content}
-        </article>
+        <article 
+          className="project-prose prose prose-navy max-w-none text-body-lg text-navy-800 leading-relaxed font-sans"
+          dangerouslySetInnerHTML={{ __html: rawHtml }}
+        />
 
         {/* Call to action */}
         <div className="pt-12 border-t border-navy-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
