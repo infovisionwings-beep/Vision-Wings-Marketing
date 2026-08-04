@@ -283,6 +283,28 @@ export const CONTENT_SECTIONS: ContentSection[] = [
 
   // ── 4. Work ────────────────────────────────────────────────────────────
   {
+    id: "projects",
+    label: "Case Studies",
+    description:
+      "Header copy for the case-study index. The cases themselves are managed under Projects — featured ones lead, and the section hides itself when there are none.",
+    blocks: [
+      {
+        label: "Header",
+        fields: [
+          text("projects.heading", "Heading", "Selected case studies."),
+          area(
+            "projects.intro",
+            "Intro paragraph",
+            "Each one documented end to end: the brief we were handed, the system we built for it, and what it moved."
+          ),
+          text("projects.cta_text", "Link label", "All projects"),
+          text("projects.cta_link", "Link destination", "/work"),
+        ],
+      },
+    ],
+  },
+
+  {
     id: "work",
     label: "Selected Work",
     description:
