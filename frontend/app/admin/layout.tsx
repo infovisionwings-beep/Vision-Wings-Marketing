@@ -5,7 +5,7 @@
 
 import { Link } from "@/components/ui/Link";
 import { ArrowUpRight } from "lucide-react";
-import { requireAdmin } from "@/lib/auth/rbac";
+import { requireAdmin, requireAdminToken } from "@/lib/auth/rbac";
 import { AdminMobileNav } from "@/components/admin/AdminMobileNav";
 import { AdminNavList, AdminLogoutButton } from "@/components/admin/AdminNav";
 
@@ -13,6 +13,20 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const admin = await requireAdmin();
+
+  // Every data-bearing admin page reaches the backend with the admin_session
+  // cookie as a bearer token. `requireAdmin` alone does not guarantee one: it is
+  // satisfied by the primary site session, and the super admin is granted
+  // Developer straight from SUPER_ADMIN_EMAIL so it survives cookie expiry. The
+  // dashboard therefore rendered perfectly while every backend call returned
+  // "Unauthorized" and every list came back empty — the Media Library showed no
+  // uploads at all despite the assets existing.
+  //
+  // Only /admin/logs and /admin/new remembered to mint the token themselves,
+  // which is precisely why the other pages broke. Minting it is part of entering
+  // the dashboard, not something each new page has to remember. Redirecting is
+  // safe here: /admin-login is a sibling route, not nested under this layout.
+  await requireAdminToken();
   const initials = (admin.name || admin.email || "VW")
     .split(/[\s@.]+/)
     .filter(Boolean)
