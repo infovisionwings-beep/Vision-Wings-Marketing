@@ -1,0 +1,48 @@
+# Repo-root ignores.
+#
+# frontend/ and backend/ carry their own .gitignore for their build output; this
+# file covers the repo root, which had none. That gap is why a handful of
+# zero-byte files created by mistyped shell redirects (`req.body`, `null)`,
+# `frontend/console.log('DB` and friends) ended up committed.
+
+# Dependencies
+node_modules/
+
+# Secrets — belt and braces. The sub-app ignores already cover these, but a
+# stray .env at the root would otherwise be committed with nothing to catch it.
+.env
+.env.*
+!.env.example
+
+# Build output
+dist/
+build/
+.next/
+out/
+
+# Local repo dumps and backups (large, regenerable, not source)
+*.bundle
+git-history.txt
+git-timeline.txt
+
+# Logs and caches
+*.log
+npm-debug.log*
+yarn-error.log*
+.cache/
+*.tsbuildinfo
+
+# Editor and OS droppings
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+*.bak
+*.orig
+
+# Shell-redirect accidents: files whose names are fragments of code. These are
+# always mistakes, never source.
+`*`
+*\)
+*\(
