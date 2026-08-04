@@ -1,12 +1,13 @@
 import fs from "fs";
 import path from "path";
-import { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { LegalDocViewer } from "@/components/legal/LegalDocViewer";
 
-export const metadata: Metadata = {
-  title: "Acceptable Use Policy | Vision Wings Marketing",
+export const metadata = pageMetadata({
+  title: "Acceptable Use Policy",
   description: "Acceptable Use Policy for Vision Wings Marketing — prohibited conduct, content restrictions, and compliance rules.",
-};
+  path: "/acceptable-use",
+});
 
 export default function AcceptableUsePage() {
   const filePath = path.join(process.cwd(), "..", "legal", "08-acceptable-use-policy.md");

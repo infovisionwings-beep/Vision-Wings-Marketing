@@ -4,11 +4,13 @@ import RevealOnScroll from "@/components/motion/RevealOnScroll";
 import { Link } from "@/components/ui/Link";
 import { ArrowRight } from "lucide-react";
 import { photoTitle, photoSource, photoYear } from "@/lib/media/present";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "Marketing Campaigns & Work",
   description: "A curation of high-velocity marketing campaigns, conversion funnels, and brand acceleration that drive outsized growth.",
-};
+  path: "/work",
+});
 
 const curatedSupplementalPhotos = [
   "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1000&q=85",
@@ -77,7 +79,7 @@ export default async function WorkPage() {
   }
 
   return (
-    <main className="min-h-screen bg-warm-50 pt-32 pb-24 px-5 md:px-10 xl:px-20 text-navy-950">
+    <div className="min-h-screen bg-warm-50 pt-32 pb-24 px-5 md:px-10 xl:px-20 text-navy-950">
       <div className="max-w-[1440px] mx-auto space-y-16">
         
         {/* Header */}
@@ -149,6 +151,6 @@ export default async function WorkPage() {
         </div>
 
       </div>
-    </main>
+    </div>
   );
 }

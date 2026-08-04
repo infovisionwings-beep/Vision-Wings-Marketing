@@ -6,6 +6,7 @@ import { ArrowLeft, Calendar, BookOpen, Share2, Bookmark, CheckCircle2, User, Us
 import { format } from "date-fns";
 import { cache } from "react";
 import type { Metadata } from "next";
+import { pageMetadata, SITE_URL } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -160,16 +161,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     .trim()
     .slice(0, 160);
 
-  return {
+  return pageMetadata({
     title: article.title,
     description: plainExcerpt,
-    openGraph: {
-      title: article.title,
-      description: plainExcerpt,
-      images: article.coverImage ? [article.coverImage] : undefined,
-      type: "article",
-    },
-  };
+    path: `/insights/${slug}`,
+    image: article.coverImage || undefined,
+    type: "article",
+  });
 }
 
 export default async function InsightDetailPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -194,8 +192,43 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
   // Extract headings and inject IDs for automatic Table of Contents linking
   const { htmlWithIds, toc } = extractHeadingsAndInjectIds(rawHtml);
 
+  // Article-level structured data. The site only described the business itself
+  // (ProfessionalService on the root layout), so no individual article was
+  // eligible for an article rich result. Every value here is taken from the
+  // article that is actually rendered below — none of it is asserted blind.
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: article.title,
+    description: article.content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 200),
+    image: article.coverImage ? [article.coverImage] : undefined,
+    datePublished: new Date(article.date).toISOString(),
+    author: {
+      "@type": "Person",
+      name: article.author,
+      jobTitle: article.authorRole,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Vision Wings Marketing",
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/logo-svg/Primary%20ICON.svg`,
+      },
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `${SITE_URL}/insights/${slug}`,
+    },
+    articleSection: article.category,
+  };
+
   return (
-    <main className="min-h-screen bg-warm-50 pt-32 pb-28 px-5 md:px-10 xl:px-20 text-navy-950">
+    <div className="min-h-screen bg-warm-50 pt-32 pb-28 px-5 md:px-10 xl:px-20 text-navy-950">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
       
       {/* Editorial Drop Cap Styling & Typography Injection */}
       <style dangerouslySetInnerHTML={{ __html: `
@@ -517,6 +550,6 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
         </div>
 
       </div>
-    </main>
+    </div>
   );
 }
