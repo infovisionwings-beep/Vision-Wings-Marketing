@@ -15,6 +15,19 @@ export const dynamic = "force-dynamic";
 
 const fallbackEssays = [
   {
+    id: "feat-varanasi",
+    title: "How to Promote a Small Business in Varanasi: What Works, What Costs, and What to Do First",
+    category: "Local Strategy & Growth",
+    date: "Aug 5, 2026",
+    slug: "varanasi-business-promotion",
+    coverImage: "https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&w=1600&q=80",
+    readTime: "12 min read",
+    excerpt: "A practical guide to the channels that move customers in Varanasi: Google Business Profile, WhatsApp storefronts, Hindi content, short-form craft videos, and seasonal festival planning.",
+    author: "Amélie Laurent",
+    authorRole: "Partner, Growth Strategy",
+    authorAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+  },
+  {
     id: "feat-1",
     title: "Giving Wings to Your Brand: The New Rules of Performance Marketing",
     category: "Growth Strategy & Ads",
