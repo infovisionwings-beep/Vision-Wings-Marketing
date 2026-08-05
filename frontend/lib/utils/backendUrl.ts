@@ -1,6 +1,6 @@
 export function getBackendUrl(): string {
   const envUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-  const defaultProdUrl = 'https://vision-wings-marketing.onrender.com';
+  const defaultProdUrl = 'https://vision-wings-marketing-fr4h.onrender.com';
 
   // Client-side browser check
   if (typeof window !== 'undefined') {
