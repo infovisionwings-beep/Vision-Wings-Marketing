@@ -1,0 +1,224 @@
+<p>Your customer no longer scrolls ten blue links. They read a summary written by a machine, decide whether they still have a question, and click only if they do. That change is measurable, it is already large, and almost everything sold as a fix for it is invented.</p>
+
+<p>This guide sets out what the evidence actually shows about AI search, what Google itself says you need to do about it, and what an Indian business should change this quarter. Where a claim rests on a study, the study is named with its sample size and method. Where it rests on judgement, it says so.</p>
+
+<blockquote>
+<p><strong>Key Takeaways</strong></p>
+<ul style="list-style: disc; padding-left: 1.5rem; margin: 1rem 0;">
+<li>Fewer clicks is real and measured. Pew Research tracked 68,879 Google searches and found users clicked a result in 8% of visits when an AI summary appeared, against 15% when it did not.</li>
+<li>There is no AI schema to add. Google's own documentation states you do not need new files or markup to appear in AI Overviews or AI Mode.</li>
+<li>Ranking in the top ten is no longer the gate. Only 37.9% of pages cited in AI Overviews rank in the top ten organic results, per an Ahrefs analysis of 4 million citation URLs.</li>
+<li>India is not a lagging market here. Google's AI Mode launched in India before most of the world and now runs in Hindi and four other Indian languages.</li>
+</ul>
+</blockquote>
+
+<h2 id="what-changed">1. What actually changed, measured properly</h2>
+
+<p>Start with the most methodologically transparent study available, because most published numbers on this topic are not.</p>
+
+<p>Pew Research Center analysed real browsing data — not survey answers — from 900 US adults on its KnowledgePanel Digital panel, covering every URL those people visited during March 2025. That produced 68,879 unique Google searches, of which 12,593 returned an AI summary. When an AI summary appeared, users clicked a traditional search result in <strong>8%</strong> of visits. When no summary appeared, they clicked in <strong>15%</strong> — close to double. Users clicked a source link inside the AI summary itself in just 1% of visits, and 26% ended their browsing session entirely, against 16% on pages without a summary (<a href="https://www.pewresearch.org/short-reads/2025/07/22/google-users-are-less-likely-to-click-on-links-when-an-ai-summary-appears-in-the-results/" target="_blank" rel="noopener">Pew Research Center</a>, published 22 July 2025, retrieved 5 August 2026).</p>
+
+<div style="margin: 2.5rem 0; padding: 1.25rem; background: #FAF7F2; border: 1px solid #E2E0DC; border-radius: 16px;">
+<svg viewBox="0 0 440 300" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: auto; display: block;" role="img" aria-label="Grouped bar chart comparing Google search behaviour with and without an AI summary. Clicked a search result: 15 percent without a summary versus 8 percent with one. Ended the browsing session: 16 percent without a summary versus 26 percent with one.">
+  <title>Google search behaviour with and without an AI summary, March 2025</title>
+  <text x="16" y="26" font-family="Georgia, serif" font-size="19" font-weight="700" fill="#0F172A">Summaries halve the click, double the exit</text>
+  <text x="16" y="47" font-family="system-ui, sans-serif" font-size="13.5" fill="#5A6678">Share of search visits, 900 US adults, March 2025</text>
+
+  <g font-family="system-ui, sans-serif" font-size="14.5" fill="#1E293B">
+    <text x="16" y="82" font-weight="700">Clicked a search result</text>
+
+    <rect x="16" y="92" width="240" height="20" fill="#1E293B" rx="3"/>
+    <text x="266" y="107" font-size="15" font-weight="700" fill="#0F172A">15%</text>
+    <text x="310" y="107" font-size="12.5" fill="#5A6678">no AI summary</text>
+
+    <rect x="16" y="120" width="128" height="20" fill="#B87333" rx="3"/>
+    <text x="154" y="135" font-size="15" font-weight="700" fill="#0F172A">8%</text>
+    <text x="190" y="135" font-size="12.5" fill="#5A6678">AI summary shown</text>
+
+    <text x="16" y="186" font-weight="700">Ended the browsing session</text>
+
+    <rect x="16" y="196" width="128" height="20" fill="#1E293B" rx="3"/>
+    <text x="154" y="211" font-size="15" font-weight="700" fill="#0F172A">16%</text>
+    <text x="198" y="211" font-size="12.5" fill="#5A6678">no AI summary</text>
+
+    <rect x="16" y="224" width="208" height="20" fill="#B87333" rx="3"/>
+    <text x="234" y="239" font-size="15" font-weight="700" fill="#0F172A">26%</text>
+    <text x="278" y="239" font-size="12.5" fill="#5A6678">AI summary shown</text>
+  </g>
+</svg>
+<p style="font-family: system-ui, sans-serif; font-size: 0.8rem; color: #5A6678; margin: 0.75rem 0 0 0;">Source: Pew Research Center, 22 July 2025. Browsing data from 900 US adults; 68,879 Google searches, 12,593 with AI summaries. Bar lengths are scaled within each pair, not across the chart.</p>
+</div>
+
+<p>A separate analysis by Ahrefs approached it from the ranking side. It compared 150,000 keywords with an AI Overview present against 150,000 informational keywords without one, using aggregated Google Search Console click-through data, and measured December 2023 against December 2025. The presence of an AI Overview correlated with a <strong>58% lower</strong> average click-through rate for the top-ranking page — sharply worse than the 34.5% the same team measured in April 2025 (<a href="https://ahrefs.com/blog/ai-overviews-reduce-clicks-update/" target="_blank" rel="noopener">Ahrefs</a>, retrieved 5 August 2026).</p>
+
+<p>Two honest qualifications. Pew's panel is American, so the click behaviour is not automatically Indian behaviour. And Ahrefs measures correlation between two keyword samples, not a controlled experiment — informational queries may have drifted for reasons unrelated to AI. The direction is consistent across independent methods, which is why it is worth acting on. The precise percentage is not.</p>
+
+<h2 id="fewer-but-better">2. Fewer clicks, but not worse clicks</h2>
+
+<p>The traffic that survives appears to be more commercially useful, though the evidence here is weaker than the evidence for the decline itself.</p>
+
+<p>Google states in its own documentation that "when people click from search results pages with AI Overviews, these clicks are higher quality (meaning, users are more likely to spend more time on the site)" (<a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener">Google Search Central</a>, retrieved 5 August 2026). Treat that as an interested party's claim, not an independent finding — Google has an obvious commercial reason to reassure publishers.</p>
+
+<p>Semrush's widely-cited June 2025 study reported that an AI search visitor is worth about 4.4 times an organic search visitor, measured by conversion rate across more than 500 high-value topics. The underlying mechanism is plausible: an assistant that has already synthesised five sources sends you a person who has finished researching. But the study is published by a vendor selling AI-visibility tooling, the topic set is not a random sample, and the multiple has been repeated across marketing blogs far more often than it has been independently reproduced. Use it as a reason to look at your own analytics, not as a number to plan around.</p>
+
+<p>The practical read for a small business: if AI referrals are under 1% of your sessions today, they are still worth measuring, because the mix is moving and the traffic converts at least as well as anything else you get.</p>
+
+<h2 id="india-specifically">3. India is an early market, not a late one</h2>
+
+<p>There is a common assumption that AI search is a Western phenomenon that will reach Indian customers in a few years. The rollout order says otherwise.</p>
+
+<p>Google's AI Mode launched in India ahead of most markets, and in October 2025 Google extended AI Mode to five Indian languages including Hindi, alongside bringing Search Live to India (<a href="https://techcrunch.com/2025/10/08/googles-search-live-comes-to-india-ai-mode-gets-more-languages/" target="_blank" rel="noopener">TechCrunch</a>, 8 October 2025, retrieved 5 August 2026). India was chosen as an early market precisely because query volume here is enormous and multilingual.</p>
+
+<p>Kantar's <em>India in Search 2026</em> report recorded average monthly searches for AI-related tools at 235 million, a 154% year-on-year rise (<a href="https://www.business-standard.com/india-news/india-in-search-2026-kantar-report-ai-work-culture-trends-126040700185_1.html" target="_blank" rel="noopener">Business Standard</a>, April 2026, retrieved 5 August 2026). That measures interest in AI tools rather than reliance on them for shopping decisions, so do not over-read it.</p>
+
+<p>The figures circulating for Indian AI-search adoption vary wildly — one widely-shared study puts urban chatbot use for search near 89%, while another reports only 27% of Indian AI users treat AI as their primary starting point. Those two cannot both describe the same behaviour. Both trace to survey panels with undisclosed sampling. We are not citing either as fact, and neither should your agency.</p>
+
+<p>What is safe to conclude: the feature is live in India, it works in Hindi, and your customers are inside it now rather than in 2029.</p>
+
+<p>The practical implication is the same one that applies to ordinary search: an assistant answering a Hindi query has more to work with if you publish in Hindi. We cover why that matters commercially, and how to do it without machine translation, in our guide to <a href="/insights/how-to-promote-a-small-business-in-varanasi">promoting a small business in Varanasi</a>.</p>
+
+<h2 id="no-ai-schema">4. There is no "AI schema", and anyone selling you one is guessing</h2>
+
+<p>This is the section that will save you the most money.</p>
+
+<p>Google's published guidance on AI features is unusually direct. Pages need to be "indexed and eligible to be shown in Google Search with a snippet, fulfilling the Search technical requirements" — and beyond that, "you don't need to create new machine readable files, AI text files, or markup to appear in these features." Google adds that "the best practices for SEO remain relevant for AI features in Google Search" and that "there are no additional requirements to appear in AI Overviews or AI Mode" (<a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener">Google Search Central</a>, retrieved 5 August 2026).</p>
+
+<p>So when a vendor offers to add an <em>llms.txt</em> file, a proprietary "GEO schema", or an AI-optimisation markup layer to your site for a monthly fee, the honest position is that Google has said in writing this is not required for its own AI surfaces. Other assistants may treat such files differently, and that may change. Today, paying for it is a bet on an undocumented mechanism.</p>
+
+<p>The recommendations Google does make are ordinary and unglamorous: allow crawling in robots.txt, use internal links so pages are discoverable, keep important content in text rather than locked inside images, provide a decent page experience, and support the text with good images and video. That is 2015 advice, and it remains the advice.</p>
+
+<h2 id="what-gets-cited">5. What actually gets a page cited</h2>
+
+<p>If ranking first no longer guarantees the click, the useful question becomes what gets a page pulled into the summary at all.</p>
+
+<p>Ahrefs analysed 863,000 keyword SERPs and 4 million AI Overview URLs, matching cases where the same URL appeared in both the AI Overview and the organic results for an identical query. Only <strong>37.9%</strong> of cited URLs ranked within the first ten organic blocks. The rest split almost evenly: 31.2% came from positions 11 to 100, and 31.0% from beyond position 100 (<a href="https://ahrefs.com/blog/ai-overview-citations-top-10/" target="_blank" rel="noopener">Ahrefs</a>, 2 March 2026, retrieved 5 August 2026). YouTube alone accounted for 18.2% of non-ranking citations, making it the single most-cited domain.</p>
+
+<div style="margin: 2.5rem 0; padding: 1.25rem; background: #FAF7F2; border: 1px solid #E2E0DC; border-radius: 16px;">
+<svg viewBox="0 0 440 260" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: auto; display: block;" role="img" aria-label="Stacked bar showing where AI Overview citations come from: 37.9 percent from the top ten organic results, 31.2 percent from positions 11 to 100, and 31 percent from beyond position 100.">
+  <title>Organic ranking position of pages cited in AI Overviews</title>
+  <text x="16" y="26" font-family="Georgia, serif" font-size="19" font-weight="700" fill="#0F172A">Most citations do not come from page one</text>
+  <text x="16" y="47" font-family="system-ui, sans-serif" font-size="13.5" fill="#5A6678">4 million AI Overview citation URLs, by organic position</text>
+
+  <rect x="16" y="72" width="158" height="46" fill="#B87333" rx="4"/>
+  <rect x="176" y="72" width="130" height="46" fill="#1E293B" rx="4"/>
+  <rect x="308" y="72" width="129" height="46" fill="#8A94A6" rx="4"/>
+
+  <g font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#FFFFFF">
+    <text x="95" y="101" text-anchor="middle">37.9%</text>
+    <text x="241" y="101" text-anchor="middle">31.2%</text>
+    <text x="372" y="101" text-anchor="middle">31.0%</text>
+  </g>
+
+  <g font-family="system-ui, sans-serif" font-size="14" fill="#1E293B">
+    <rect x="16" y="146" width="15" height="15" fill="#B87333" rx="3"/>
+    <text x="40" y="158" font-weight="700">Top 10 organic results</text>
+
+    <rect x="16" y="180" width="15" height="15" fill="#1E293B" rx="3"/>
+    <text x="40" y="192" font-weight="700">Positions 11–100</text>
+
+    <rect x="16" y="214" width="15" height="15" fill="#8A94A6" rx="3"/>
+    <text x="40" y="226" font-weight="700">Beyond position 100</text>
+  </g>
+</svg>
+<p style="font-family: system-ui, sans-serif; font-size: 0.8rem; color: #5A6678; margin: 0.75rem 0 0 0;">Source: Ahrefs, 2 March 2026. 863,000 keyword SERPs and 4 million AI Overview URLs, organic-links-only test.</p>
+</div>
+
+<p>Two conclusions follow, and they point in opposite directions from conventional SEO advice.</p>
+
+<p>First, a page that has never ranked can still be cited. A small business that could not realistically win position three for a competitive term can still be the source an assistant quotes on a narrow, specific question. Depth on a small subject beats shallow coverage of a large one.</p>
+
+<p>Second, video is undervalued. YouTube being the most-cited domain is not a quirk of the ranking system — it reflects assistants reaching for demonstrated, spoken explanations. If you already film your work for Instagram, publishing the same clips to YouTube with an honest title and a written description costs an hour a week and puts you in the pool. Our note on <a href="/insights/how-to-promote-a-small-business-in-varanasi#short-form-video">filming craft work on a phone</a> covers what makes a clip worth watching, and is honest about how thin the evidence for short-form video actually is.</p>
+
+<h2 id="what-to-do">6. What to actually do this quarter</h2>
+
+<p>Ranked by evidence strength, not by novelty.</p>
+
+<div tabindex="0" role="region" aria-label="Actions for AI search visibility, ranked by evidence strength" style="overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.5rem 0;">
+<table style="width: 100%; min-width: 620px; border-collapse: collapse; font-size: 0.92rem;">
+<caption style="caption-side: top; text-align: left; font-size: 0.85rem; line-height: 1.5; color: #5A6678; padding-bottom: 0.6rem;">Actions for AI search visibility. "Evidence" describes how well the action is supported by a named source; effort assumes a small in-house team.</caption>
+<thead>
+<tr style="background: #0F172A; color: #FFFFFF;">
+<th scope="col" style="padding: 0.75rem; text-align: left; border: 1px solid #334155;">Action</th>
+<th scope="col" style="padding: 0.75rem; text-align: left; border: 1px solid #334155;">Evidence</th>
+<th scope="col" style="padding: 0.75rem; text-align: left; border: 1px solid #334155;">Effort</th>
+</tr>
+</thead>
+<tbody>
+<tr style="background: #FAF7F2;">
+<td style="padding: 0.7rem; border: 1px solid #E2E0DC;"><strong>Confirm pages are crawlable and indexed</strong></td>
+<td style="padding: 0.7rem; border: 1px solid #E2E0DC;">Stated Google requirement</td>
+<td style="padding: 0.7rem; border: 1px solid #E2E0DC;">One afternoon</td>
+</tr>
+<tr>
+<td style="padding: 0.7rem; border: 1px solid #E2E0DC;"><strong>Answer narrow questions in plain text</strong></td>
+<td style="padding: 0.7rem; border: 1px solid #E2E0DC;">Strong — 62% of citations rank outside the top 10</td>
+<td style="padding: 0.7rem; border: 1px solid #E2E0DC;">Ongoing, small</td>
+</tr>
+<tr style="background: #FAF7F2;">
+<td style="padding: 0.7rem; border: 1px solid #E2E0DC;"><strong>Publish your work to YouTube</strong></td>
+<td style="padding: 0.7rem; border: 1px solid #E2E0DC;">Strong — most-cited domain in AI Overviews</td>
+<td style="padding: 0.7rem; border: 1px solid #E2E0DC;">1–2 hours weekly</td>
+</tr>
+<tr>
+<td style="padding: 0.7rem; border: 1px solid #E2E0DC;"><strong>Move key facts out of images into text</strong></td>
+<td style="padding: 0.7rem; border: 1px solid #E2E0DC;">Stated Google guidance</td>
+<td style="padding: 0.7rem; border: 1px solid #E2E0DC;">A day</td>
+</tr>
+<tr style="background: #FAF7F2;">
+<td style="padding: 0.7rem; border: 1px solid #E2E0DC;"><strong>Track branded queries and direct visits</strong></td>
+<td style="padding: 0.7rem; border: 1px solid #E2E0DC;">Judgement — closes the measurement gap below</td>
+<td style="padding: 0.7rem; border: 1px solid #E2E0DC;">Monthly review</td>
+</tr>
+<tr>
+<td style="padding: 0.7rem; border: 1px solid #E2E0DC;"><strong>Buy an "AI schema" or llms.txt service</strong></td>
+<td style="padding: 0.7rem; border: 1px solid #E2E0DC;">None — Google states it is not required</td>
+<td style="padding: 0.7rem; border: 1px solid #E2E0DC;">Skip it</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<p>The one genuinely new discipline is writing for extraction. An assistant lifts a claim, not a mood. A paragraph that opens with a specific, self-contained statement — what the thing costs, how long it takes, what the exception is — can be quoted whole. A paragraph that builds atmosphere for four sentences before arriving at the point cannot. That is a reasoned position about how retrieval works, not a measured finding, and it costs nothing to adopt.</p>
+
+<h2 id="measurement">7. The measurement problem nobody mentions</h2>
+
+<p>You cannot cleanly see this in your analytics, and you should know that before you draw conclusions from a dashboard.</p>
+
+<p>Google confirms that traffic from AI Overviews appears in Search Console's standard Performance report under the "Web" search type — that is, blended into ordinary organic search with no separate breakdown (<a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener">Google Search Central</a>, retrieved 5 August 2026). There is no filter that isolates it. AI Overviews sit inside Search and send no referral, so tools that track "AI referrals" are measuring chatbots like ChatGPT and Perplexity, not Google's summaries at all.</p>
+
+<p>What that means in practice: falling impressions with steady clicks, or steady impressions with falling clicks, is the pattern to watch. And treat any agency report claiming a precise "AI Overview traffic" figure with suspicion — the data to produce it is not published.</p>
+
+<p>The same scepticism belongs on the cost side of the ledger. If you are being quoted a budget against benchmarks nobody can source, our guide to <a href="/insights/digital-marketing-cost-india">what digital marketing actually costs in India</a> sets out a twenty-minute method for deriving a number you can defend from your own margins.</p>
+
+<div style="margin: 3rem 0; padding: 2rem; background: #0F172A; border-radius: 20px;">
+<p style="color: #FFFFFF; font-family: Georgia, serif; font-size: 1.25rem; line-height: 1.5; margin: 0 0 0.75rem 0;">Not sure whether your traffic drop is AI or something ordinary?</p>
+<p style="color: #CBD5E1; font-size: 0.95rem; line-height: 1.7; margin: 0 0 1.25rem 0;">Most declines we are asked to diagnose turn out to be a technical change, a lost link, or a seasonal dip — not AI. Vision Wings Marketing will read your Search Console data with you and tell you which one it is, plainly.</p>
+<a href="/contact" style="display: inline-block; background: #8F5827; color: #FFFFFF; padding: 0.85rem 1.75rem; border-radius: 999px; font-weight: 700; text-decoration: none; font-size: 0.95rem;">Talk to us</a>
+</div>
+
+<h2 id="faq">Frequently asked questions</h2>
+
+<h3 id="faq-dead">Is SEO dead because of AI search?</h3>
+<p>No, and Google's documentation makes the point for you: "the best practices for SEO remain relevant for AI features in Google Search" and "there are no additional requirements to appear in AI Overviews or AI Mode" (<a href="https://developers.google.com/search/docs/appearance/ai-features" target="_blank" rel="noopener">Google Search Central</a>, retrieved 5 August 2026). What has changed is the return on a given ranking, not the mechanism for earning one. Being indexed, crawlable and clearly written is still the entry ticket — it just buys a smaller click-through than it did in 2023.</p>
+
+<h3 id="faq-llms-txt">Do I need an llms.txt file or AI-specific schema?</h3>
+<p>Not for Google. Its guidance states you do not need to create new machine-readable files, AI text files, or markup to appear in AI Overviews or AI Mode. Other assistants are less transparent about what they read, so the honest answer is that llms.txt is an unproven convention rather than a standard. If a vendor charges you a monthly fee for it, ask them which platform documents it as a requirement and what happens to your visibility if you remove it.</p>
+
+<h3 id="faq-traffic-drop">My organic traffic fell this year. Is AI the cause?</h3>
+<p>Possibly, but check the ordinary explanations first — a site migration, a blocked robots.txt rule, lost backlinks, a seasonal cycle, or a competitor outranking you. The AI signature looks specific: impressions holding roughly steady while clicks fall, concentrated on informational queries rather than branded or transactional ones. Because Google blends AI Overview traffic into the standard "Web" report in Search Console, you are reading a pattern rather than a labelled number.</p>
+
+<h3 id="faq-hindi">Does AI search work in Hindi, and does that matter for my business?</h3>
+<p>Yes to both. Google extended AI Mode to five Indian languages including Hindi in October 2025 (<a href="https://techcrunch.com/2025/10/08/googles-search-live-comes-to-india-ai-mode-gets-more-languages/" target="_blank" rel="noopener">TechCrunch</a>, 8 October 2025). If your site content exists only in English, a Hindi-language query has less of your material to draw on. Publishing genuine Hindi content — written as Hindi, not machine-translated from English marketing copy — gives assistants something to quote when the customer asks in the language they think in.</p>
+
+<h3 id="faq-small-business">Can a small business really get cited when big brands dominate?</h3>
+<p>The Ahrefs citation data suggests yes, with a caveat. Since only 37.9% of cited pages rank in the top ten and roughly a third come from beyond position 100, page-one dominance is not the gate it once was (<a href="https://ahrefs.com/blog/ai-overview-citations-top-10/" target="_blank" rel="noopener">Ahrefs</a>, 2 March 2026). What a small business can win is the narrow, specific question a national brand has no reason to answer — a local process, a material, a price range, a regional constraint. Breadth belongs to the big sites; specificity is still available.</p>
+
+<h2 id="where-to-start">Where to start</h2>
+
+<p>The businesses that stay visible through this shift will not be the ones that bought the earliest AI-optimisation package. They will be the ones whose pages were crawlable, whose answers were specific enough to quote, and whose work existed on video as well as in text.</p>
+
+<p>None of that is new work in disguise. It is the same discipline search has rewarded for a decade, applied to a surface that now summarises before it links.</p>
+
+<p>Open Search Console this week and compare impressions against clicks for the last twelve months. That single chart will tell you whether you have an AI problem, an ordinary problem, or no problem at all — and it costs nothing to look.</p>
+
+<p>If the answer turns out to be that you were never visible in the first place, start further back: the <a href="/insights/how-to-promote-a-small-business-in-varanasi#google-business-profile">free channels worth doing before anything else</a> are the same ones that feed AI answers.</p>

@@ -2,6 +2,7 @@ import { MetadataRoute } from "next";
 import { getInsights } from "@/app/actions/insights";
 import { getProjects } from "@/app/actions/projects";
 import { SITE_URL } from "@/lib/seo";
+import { localInsights } from "@/lib/content/localInsights";
 
 // Article and case-study URLs come from the database, so the sitemap has to be
 // generated per request rather than frozen at build time.
@@ -45,13 +46,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getProjects().catch(() => []),
   ]);
 
-  const insightEntries: MetadataRoute.Sitemap = insights
-    .filter((i: any) => i.slug && i.publishStatus !== "draft" && i.publishStatus !== "archived")
-    .map((i: any) => ({
-      url: `${SITE_URL}/insights/${i.slug}`,
-      // A real per-article timestamp, so lastModified means something instead of
-      // every URL sharing one build time.
-      lastModified: new Date(i.updatedAt || i.publishedAt || i.createdAt || now),
+  const publishedInsights = insights.filter(
+    (i: any) => i.slug && i.publishStatus !== "draft" && i.publishStatus !== "archived",
+  );
+
+  const insightEntries: MetadataRoute.Sitemap = publishedInsights.map((i: any) => ({
+    url: `${SITE_URL}/insights/${i.slug}`,
+    // A real per-article timestamp, so lastModified means something instead of
+    // every URL sharing one build time.
+    lastModified: new Date(i.updatedAt || i.publishedAt || i.createdAt || now),
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
+  // Articles still living as HTML files at the repo root are served by the
+  // detail route, so they belong in the sitemap even before they are seeded into
+  // the database. Skip any whose slug the database already covers.
+  const dbSlugs = new Set(publishedInsights.map((i: any) => i.slug));
+  const localEntries: MetadataRoute.Sitemap = localInsights
+    .filter((item) => !dbSlugs.has(item.slug))
+    .map((item) => ({
+      url: `${SITE_URL}/insights/${item.slug}`,
+      lastModified: new Date(item.publishedAt),
       changeFrequency: "monthly" as const,
       priority: 0.7,
     }));
@@ -65,5 +81,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
 
-  return [...staticEntries, ...insightEntries, ...projectEntries];
+  return [...staticEntries, ...insightEntries, ...localEntries, ...projectEntries];
 }
