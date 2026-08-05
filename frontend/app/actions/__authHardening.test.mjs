@@ -4,7 +4,7 @@
 // silently.
 // Run: node frontend/app/actions/__authHardening.test.mjs
 import assert from "node:assert";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 
 const authSrc = readFileSync(new URL("./auth.ts", import.meta.url), "utf8");
 const adminAuthSrc = readFileSync(new URL("./adminAuth.ts", import.meta.url), "utf8");
@@ -124,6 +124,27 @@ assert.ok(
 );
 assert.ok(/maxAge: 0/.test(logoutBody), "logout must overwrite with an expired cookie, not only delete");
 
+// ── "use server" may only export async functions ──────────────────────────
+// A non-function value export makes the whole actions module fail to evaluate,
+// so every server action on the importing page returns 500 with a digest and no
+// usable message. ADMIN_IDLE_TIMEOUT_SECONDS shipped as `export const` and broke
+// admin login this way. Type-only exports are erased at compile time and are fine.
+const actionFiles = readdirSync(new URL("./", import.meta.url))
+  .filter((f) => (f.endsWith(".ts") || f.endsWith(".tsx")) && !f.includes(".test."));
+for (const file of actionFiles) {
+  const src = readFileSync(new URL(`./${file}`, import.meta.url), "utf8");
+  if (!/^\s*['"]use server['"]/.test(src)) continue;
+  const valueExports = [...src.matchAll(/^export\s+(?:const|let|var|class|enum)\s+(\w+)\s*(=?)(.*)$/gm)]
+    .filter(([, , eq, rest]) => !(eq === "=" && /^\s*(async\b|\([^)]*\)\s*=>\s*\{?\s*$)/.test(rest)))
+    .map(([, name]) => name);
+  assert.deepStrictEqual(
+    valueExports,
+    [],
+    `${file} is "use server" and exports non-function value(s): ${valueExports.join(", ")}. ` +
+      `Drop the export or move the value to a plain module.`
+  );
+}
+
 // ── Unauthenticated /admin ────────────────────────────────────────────────
 assert.ok(
   /path === "\/admin" \|\| path\.startsWith\("\/admin\/"\)/.test(proxySrc),
@@ -140,7 +161,7 @@ assert.ok(!gated("/admin-invite"), "/admin-invite must stay reachable without th
 // ── Neon session proxy dispatch ───────────────────────────────────────────
 // The gate above was already exact, but the neonProxy handoff below it used a
 // bare startsWith("/admin"), which re-caught /admin-login and /admin-invite and
-// redirected them to /login — a 500 in production and a permanent admin lockout.
+// redirected them to /login — the pages that mint the admin cookie, gated on it.
 // Assert the handoff reuses the exact-segment predicates, never a bare prefix.
 // Comments are stripped first: the guard below is described in a comment in
 // proxy.ts, and matching the prose instead of the code would fail on the fix.

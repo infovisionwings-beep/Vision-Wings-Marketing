@@ -15,8 +15,12 @@ import { getBackendUrl } from '@/lib/utils/backendUrl';
  * session cookie without it. A tab left open, a copied cookie, or a client with
  * JavaScript disabled all lose access on the same schedule, because the timeout
  * is the absence of a cookie the browser stopped sending.
+ *
+ * Not exported: a "use server" module may only export async functions, and a
+ * non-function export makes the whole actions module fail to evaluate, so every
+ * server action on the importing page returns 500.
  */
-export const ADMIN_IDLE_TIMEOUT_SECONDS = 15 * 60;
+const ADMIN_IDLE_TIMEOUT_SECONDS = 15 * 60;
 
 function setAdminActivityCookie(cookieStore: Awaited<ReturnType<typeof cookies>>) {
   cookieStore.set('admin_activity', String(Date.now()), {
