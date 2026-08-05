@@ -137,6 +137,32 @@ assert.ok(gated("/admin/projects"), "/admin/projects is gated");
 assert.ok(!gated("/admin-login"), "/admin-login must stay reachable without the cookie");
 assert.ok(!gated("/admin-invite"), "/admin-invite must stay reachable without the cookie");
 
+// ── Neon session proxy dispatch ───────────────────────────────────────────
+// The gate above was already exact, but the neonProxy handoff below it used a
+// bare startsWith("/admin"), which re-caught /admin-login and /admin-invite and
+// redirected them to /login — a 500 in production and a permanent admin lockout.
+// Assert the handoff reuses the exact-segment predicates, never a bare prefix.
+// Comments are stripped first: the guard below is described in a comment in
+// proxy.ts, and matching the prose instead of the code would fail on the fix.
+const proxyCode = proxySrc
+  .replace(/\/\*[\s\S]*?\*\//g, "")
+  .replace(/^\s*\/\/.*$/gm, "");
+assert.ok(
+  !/startsWith\("\/admin"\)/.test(proxyCode),
+  'a bare startsWith("/admin") also matches /admin-login and /admin-invite'
+);
+assert.ok(
+  !/startsWith\("\/dashboard"\)/.test(proxyCode),
+  'a bare startsWith("/dashboard") also matches sibling paths like /dashboards-x'
+);
+const proxied = (p) =>
+  p === "/admin" || p.startsWith("/admin/") ||
+  p === "/dashboard" || p.startsWith("/dashboard/");
+assert.ok(proxied("/admin/insights"), "/admin/insights goes through the session proxy");
+assert.ok(proxied("/dashboard"), "/dashboard goes through the session proxy");
+assert.ok(!proxied("/admin-login"), "/admin-login must never reach the session proxy");
+assert.ok(!proxied("/admin-invite"), "/admin-invite must never reach the session proxy");
+
 // ── Signup password policy ────────────────────────────────────────────────
 const policy = (pw) =>
   pw.length >= 10 &&
