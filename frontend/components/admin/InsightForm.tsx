@@ -3,10 +3,13 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { 
-  Save, X, Image as ImageIcon, Film, Plus, Trash2, Loader2, 
-  Sparkles, User, Users, Calendar, Tag, FileText, ArrowLeft, CheckCircle2 
+import {
+  Save, X, Image as ImageIcon, Film, Plus, Trash2, Loader2,
+  Sparkles, User, Users, Calendar, Tag, FileText, ArrowLeft, CheckCircle2,
+  UploadCloud, ChevronDown, ChevronUp
 } from "lucide-react";
+import { marked } from "marked";
+import DOMPurify from "dompurify";
 import "react-quill-new/dist/quill.snow.css";
 import MediaPickerModal from "./MediaPickerModal";
 
@@ -75,6 +78,13 @@ export const InsightForm: React.FC<InsightFormProps> = ({ insight }) => {
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [photoTarget, setPhotoTarget] = useState<"cover" | "content" | "author" | string | null>(null);
   const [showVideoModal, setShowVideoModal] = useState(false);
+
+  // HTML/Markdown import panel: lets an editor paste a whole drafted article
+  // (e.g. from an external writing tool) instead of composing it in Quill.
+  const [showImportPanel, setShowImportPanel] = useState(false);
+  const [importFormat, setImportFormat] = useState<"auto" | "html" | "markdown">("auto");
+  const [importText, setImportText] = useState("");
+  const [importError, setImportError] = useState("");
 
   // Lock body scroll when photo or video modal popup is active
   useEffect(() => {
@@ -148,6 +158,44 @@ export const InsightForm: React.FC<InsightFormProps> = ({ insight }) => {
       updated[index] = { ...updated[index], [field]: value };
       return { ...prev, contributors: updated };
     });
+  };
+
+  // Heuristic used only when the editor leaves format on "auto": real markdown
+  // essentially never starts with a tag, and pasted HTML documents/fragments do.
+  const looksLikeHtml = (text: string) => /^\s*<(!doctype|html|body|div|p|h[1-6]|figure|table|ul|ol|blockquote|section|article|img|a)\b/i.test(text);
+
+  const handleImport = () => {
+    setImportError("");
+    const raw = importText.trim();
+    if (!raw) {
+      setImportError("Paste some HTML or Markdown first.");
+      return;
+    }
+
+    const asHtml = importFormat === "html" || (importFormat === "auto" && looksLikeHtml(raw));
+    let html: string;
+    try {
+      html = asHtml ? raw : (marked.parse(raw, { async: false }) as string);
+    } catch {
+      setImportError("Could not parse that as Markdown. Switch the format to HTML and try again.");
+      return;
+    }
+
+    // Sanitize regardless of source: this is admin-authored content, but a
+    // pasted article can carry a stray <script>/<iframe> from wherever it was
+    // copied, and this content is later rendered with dangerouslySetInnerHTML
+    // on the public insight page.
+    const clean = DOMPurify.sanitize(html, {
+      ADD_TAGS: ["figure", "figcaption"],
+      ADD_ATTR: ["target", "rel"],
+    });
+
+    setFormData((prev) => ({
+      ...prev,
+      content: prev.content ? `${prev.content}\n${clean}` : clean,
+    }));
+    setImportText("");
+    setShowImportPanel(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -543,8 +591,74 @@ export const InsightForm: React.FC<InsightFormProps> = ({ insight }) => {
                 <Film className="w-3.5 h-3.5" />
                 <span>🎬 Insert Video Asset (Popup)</span>
               </button>
+              <button
+                type="button"
+                onClick={() => setShowImportPanel((v) => !v)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-navy-50 text-navy-700 hover:bg-navy-800 hover:text-white border border-navy-300 font-mono text-xs font-bold transition-all shadow-sm active:scale-95"
+              >
+                <UploadCloud className="w-3.5 h-3.5" />
+                <span>Import HTML / Markdown</span>
+                {showImportPanel ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              </button>
             </div>
           </div>
+
+          {showImportPanel && (
+            <div className="rounded-2xl border border-navy-300 bg-warm-50/60 p-4 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="text-xs text-navy-500 max-w-md">
+                  Paste a full article drafted elsewhere. Markdown is converted to HTML;
+                  either way it's sanitized and appended to the content above.
+                </p>
+                <div className="flex items-center gap-1 bg-white rounded-xl border border-navy-300 p-1">
+                  {(["auto", "markdown", "html"] as const).map((f) => (
+                    <button
+                      key={f}
+                      type="button"
+                      onClick={() => setImportFormat(f)}
+                      className={`px-3 py-1.5 rounded-lg font-mono text-xs font-bold uppercase transition-all ${
+                        importFormat === f
+                          ? "bg-bronze-600 text-white"
+                          : "text-navy-500 hover:bg-navy-50"
+                      }`}
+                    >
+                      {f}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <textarea
+                value={importText}
+                onChange={(e) => setImportText(e.target.value)}
+                rows={10}
+                placeholder="Paste Markdown or full HTML here..."
+                className="w-full p-3 rounded-xl border border-navy-300 bg-white text-sm font-mono text-navy-950 focus:outline-none focus:border-bronze-500"
+              />
+
+              {importError && (
+                <p className="text-xs text-red-600 font-medium">{importError}</p>
+              )}
+
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => { setShowImportPanel(false); setImportText(""); setImportError(""); }}
+                  className="px-3 py-1.5 rounded-lg text-xs font-mono font-bold text-navy-500 hover:bg-navy-100 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleImport}
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-bronze-600 hover:bg-bronze-500 text-white font-mono text-xs font-bold transition-all shadow-sm active:scale-95"
+                >
+                  <UploadCloud className="w-3.5 h-3.5" />
+                  Insert into content
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="bg-white rounded-2xl border border-navy-300 overflow-hidden shadow-inner min-h-[420px] text-navy-950">
             <ReactQuill
