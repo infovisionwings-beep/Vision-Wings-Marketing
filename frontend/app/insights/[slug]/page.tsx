@@ -311,9 +311,95 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
             font-size: 1.35rem;
           }
         }
-        .editorial-prose pre, .editorial-prose table {
+        .editorial-prose pre {
           max-width: 100%;
           overflow-x: auto;
+          background-color: #0F172A;
+          color: #F8FAFC;
+          padding: 1.25rem;
+          border-radius: 1rem;
+          margin: 2rem 0;
+          font-family: var(--font-mono), monospace;
+          font-size: 0.9rem;
+        }
+        .editorial-prose table {
+          width: 100%;
+          margin: 2.5rem 0;
+          border-collapse: collapse;
+          font-size: 0.95rem;
+          border-radius: 1rem;
+          overflow: hidden;
+          border: 1px solid #CBD5E1;
+          background-color: #FFFFFF;
+          box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.06);
+          display: table;
+        }
+        .editorial-prose thead {
+          background-color: #0F172A;
+        }
+        .editorial-prose th {
+          background-color: #0F172A;
+          color: #F8FAFC;
+          font-family: var(--font-display), sans-serif;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          font-size: 0.8rem;
+          padding: 1rem 1.25rem;
+          text-align: left;
+          border-bottom: 2px solid #334155;
+        }
+        .editorial-prose td {
+          padding: 0.9rem 1.25rem;
+          border-bottom: 1px solid #E2E8F0;
+          color: #1E293B;
+          font-size: 0.95rem;
+          line-height: 1.6;
+        }
+        .editorial-prose tr:nth-child(even) {
+          background-color: #F8FAFC;
+        }
+        .editorial-prose tr:hover {
+          background-color: #F1F5F9;
+        }
+        .editorial-prose caption {
+          caption-side: bottom;
+          margin-top: 0.75rem;
+          font-size: 0.85rem;
+          color: #64748B;
+          font-style: italic;
+        }
+        .editorial-prose svg {
+          max-width: 100%;
+          height: auto;
+          margin: 2rem auto;
+          display: block;
+        }
+        .editorial-prose iframe, .editorial-prose embed, .editorial-prose object {
+          width: 100%;
+          min-height: 420px;
+          border-radius: 1rem;
+          border: 1px solid #CBD5E1;
+          margin: 2.5rem 0;
+          box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1);
+          background-color: #FFFFFF;
+        }
+        .editorial-prose figure {
+          margin: 2.5rem 0;
+          width: 100%;
+        }
+        .editorial-prose figcaption {
+          margin-top: 0.75rem;
+          text-align: center;
+          font-size: 0.85rem;
+          color: #64748B;
+          font-style: italic;
+          font-family: var(--font-mono), monospace;
+        }
+        .editorial-prose canvas {
+          max-width: 100%;
+          margin: 2rem auto;
+          display: block;
         }
         .editorial-prose img {
           max-width: 100%;
