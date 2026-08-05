@@ -146,6 +146,33 @@ const resolveArticle = cache(async (slug: string): Promise<Article | null> => {
     if (fallbackContentMap[slug]) {
       return fallbackContentMap[slug];
     }
+    if (slug === "varanasi-business-promotion") {
+      try {
+        const fs = await import("fs");
+        const path = await import("path");
+        const filePath = path.resolve(process.cwd(), "../varanasi-business-promotion.html");
+        if (fs.existsSync(filePath)) {
+          const htmlContent = fs.readFileSync(filePath, "utf-8");
+          return {
+            title: "How to Promote a Small Business in Varanasi: What Works, What Costs, and What to Do First",
+            category: "Local Strategy & Growth",
+            date: "Aug 5, 2026",
+            readTime: "12 min read",
+            author: "Amélie Laurent",
+            authorRole: "Partner, Growth Strategy",
+            authorAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+            coverImage: "https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&w=1600&q=80",
+            content: htmlContent,
+            contributors: [
+              { name: "Mia di Silva", role: "Design Craft & Analytics", avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=150&q=80" },
+              { name: "Oliva Nacelle", role: "Market Telemetry", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80" }
+            ],
+          };
+        }
+      } catch (e) {
+        console.error("Failed to read local Varanasi promotion guide:", e);
+      }
+    }
     return {
       ...fallbackContentMap["brand-architecture"],
       title: slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase())
