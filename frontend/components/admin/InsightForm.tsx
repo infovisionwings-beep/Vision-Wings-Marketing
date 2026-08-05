@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 import {
   Save, X, Image as ImageIcon, Film, Plus, Trash2, Loader2,
   Sparkles, User, Users, Calendar, Tag, FileText, ArrowLeft, CheckCircle2,
-  UploadCloud, ChevronDown, ChevronUp
+  UploadCloud, ChevronDown, ChevronUp, Code, Eye
 } from "lucide-react";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
@@ -79,12 +79,18 @@ export const InsightForm: React.FC<InsightFormProps> = ({ insight }) => {
   const [photoTarget, setPhotoTarget] = useState<"cover" | "content" | "author" | string | null>(null);
   const [showVideoModal, setShowVideoModal] = useState(false);
 
-  // HTML/Markdown import panel: lets an editor paste a whole drafted article
-  // (e.g. from an external writing tool) instead of composing it in Quill.
+  // HTML/Markdown import panel & editor mode switching
   const [showImportPanel, setShowImportPanel] = useState(false);
   const [importFormat, setImportFormat] = useState<"auto" | "html" | "markdown">("auto");
   const [importText, setImportText] = useState("");
   const [importError, setImportError] = useState("");
+
+  const hasComplexHtml = (text: string) => /<(table|thead|tbody|tr|td|th|svg|path|iframe|embed|object|figure|canvas|script|style|div\s+class)/i.test(text);
+
+  const [editorMode, setEditorMode] = useState<"visual" | "html">(() => {
+    return insight?.content && hasComplexHtml(insight.content) ? "html" : "visual";
+  });
+  const [showRawPreview, setShowRawPreview] = useState(false);
 
   // Lock body scroll when photo or video modal popup is active
   useEffect(() => {
@@ -181,14 +187,26 @@ export const InsightForm: React.FC<InsightFormProps> = ({ insight }) => {
       return;
     }
 
-    // Sanitize regardless of source: this is admin-authored content, but a
-    // pasted article can carry a stray <script>/<iframe> from wherever it was
-    // copied, and this content is later rendered with dangerouslySetInnerHTML
-    // on the public insight page.
+    // Comprehensive sanitization: preserve tables, graphs, SVGs, iframes, styles, and data attributes
     const clean = DOMPurify.sanitize(html, {
-      ADD_TAGS: ["figure", "figcaption"],
-      ADD_ATTR: ["target", "rel"],
+      ADD_TAGS: [
+        "figure", "figcaption", "table", "thead", "tbody", "tfoot", "tr", "th", "td",
+        "caption", "colgroup", "col", "svg", "path", "g", "rect", "circle", "line",
+        "polyline", "polygon", "text", "tspan", "use", "defs", "linearGradient", "stop",
+        "foreignObject", "marker", "clipPath", "iframe", "embed", "object", "canvas", "style", "script"
+      ],
+      ADD_ATTR: [
+        "target", "rel", "style", "class", "id", "colspan", "rowspan", "border",
+        "cellpadding", "cellspacing", "width", "height", "viewbox", "viewBox", "fill", "stroke",
+        "stroke-width", "stroke-linecap", "stroke-linejoin", "d", "transform", "src",
+        "frameborder", "allow", "allowfullscreen", "loading", "align", "valign", "scope", "title"
+      ],
+      ADD_DATA_URI_TAGS: ["img", "src", "use"],
     });
+
+    if (hasComplexHtml(clean)) {
+      setEditorMode("html");
+    }
 
     setFormData((prev) => ({
       ...prev,
@@ -660,17 +678,122 @@ export const InsightForm: React.FC<InsightFormProps> = ({ insight }) => {
             </div>
           )}
 
-          <div className="bg-white rounded-2xl border border-navy-300 overflow-hidden shadow-inner min-h-[420px] text-navy-950">
-            <ReactQuill
-              theme="snow"
-              value={formData.content}
-              onChange={(val) => setFormData((prev) => ({ ...prev, content: val }))}
-              modules={quillModules}
-              formats={quillFormats}
-              className="h-[360px] pb-12 text-navy-950"
-              placeholder="Write or paste your editorial content here..."
-            />
+          {/* Mode Switcher Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-warm-100/80 p-2.5 rounded-2xl border border-navy-200">
+            <div className="flex items-center gap-1 bg-white rounded-xl border border-navy-300 p-1 shadow-sm">
+              <button
+                type="button"
+                onClick={() => setEditorMode("visual")}
+                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg font-mono text-xs font-bold transition-all ${
+                  editorMode === "visual"
+                    ? "bg-navy-950 text-white shadow-sm"
+                    : "text-navy-700 hover:bg-warm-100"
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-bronze-400" />
+                <span>Visual WYSIWYG</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditorMode("html")}
+                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg font-mono text-xs font-bold transition-all ${
+                  editorMode === "html"
+                    ? "bg-bronze-600 text-white shadow-sm"
+                    : "text-navy-700 hover:bg-warm-100"
+                }`}
+              >
+                <Code className="w-3.5 h-3.5" />
+                <span>Raw HTML / Source Mode</span>
+              </button>
+            </div>
+
+            {editorMode === "html" && (
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-mono font-bold text-bronze-700 bg-bronze-50 px-2.5 py-1 rounded-lg border border-bronze-200 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-bronze-600" />
+                  Preserves Tables, SVGs &amp; Graphs
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowRawPreview((v) => !v)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-mono text-xs font-bold border transition-all ${
+                    showRawPreview
+                      ? "bg-navy-950 text-white border-navy-950"
+                      : "bg-white text-navy-800 border-navy-300 hover:bg-warm-50"
+                  }`}
+                >
+                  <Eye className="w-3.5 h-3.5 text-bronze-500" />
+                  <span>{showRawPreview ? "Edit Code" : "Live Preview"}</span>
+                </button>
+              </div>
+            )}
           </div>
+
+          {editorMode === "visual" ? (
+            <div className="bg-white rounded-2xl border border-navy-300 overflow-hidden shadow-inner min-h-[420px] text-navy-950">
+              <ReactQuill
+                theme="snow"
+                value={formData.content}
+                onChange={(val) => setFormData((prev) => ({ ...prev, content: val }))}
+                modules={quillModules}
+                formats={quillFormats}
+                className="h-[360px] pb-12 text-navy-950"
+                placeholder="Write or paste your editorial content here..."
+              />
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-navy-300 overflow-hidden shadow-inner space-y-3 p-4">
+              {showRawPreview ? (
+                <div className="p-6 bg-warm-50/50 rounded-xl border border-navy-200 min-h-[380px] max-h-[500px] overflow-y-auto">
+                  <div className="text-[11px] font-mono font-bold text-navy-400 uppercase tracking-widest mb-4 pb-2 border-b border-navy-200">
+                    Live HTML Rendered Output
+                  </div>
+                  <div 
+                    className="editorial-prose max-w-none font-normal text-navy-950"
+                    dangerouslySetInnerHTML={{ __html: formData.content }}
+                  />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-xs text-navy-500">
+                    <span className="font-mono text-[11px] text-navy-600 font-semibold">
+                      Full HTML / Source Code (Tables `&lt;table&gt;`, Graphs `&lt;svg&gt;`, and Charts `&lt;iframe&gt;` supported directly)
+                    </span>
+                    <div className="flex items-center gap-1.5 font-mono text-[10px]">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const tableSnippet = `\n<table style="width: 100%; border-collapse: collapse; margin: 20px 0;">\n  <thead>\n    <tr style="background: #0F172A; color: white;">\n      <th style="padding: 12px; text-align: left;">Metric</th>\n      <th style="padding: 12px; text-align: left;">Value</th>\n      <th style="padding: 12px; text-align: left;">Growth</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td style="padding: 12px; border-bottom: 1px solid #E2E8F0;">Conversion Rate</td>\n      <td style="padding: 12px; border-bottom: 1px solid #E2E8F0;">4.8%</td>\n      <td style="padding: 12px; border-bottom: 1px solid #E2E8F0; color: #16A34A;">+120% YoY</td>\n    </tr>\n  </tbody>\n</table>\n`;
+                          setFormData((prev) => ({ ...prev, content: prev.content + tableSnippet }));
+                        }}
+                        className="px-2 py-1 rounded bg-warm-100 text-navy-700 hover:bg-warm-200 font-bold border border-navy-300"
+                      >
+                        + Insert Table
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const svgSnippet = `\n<figure style="margin: 24px 0; text-align: center;">\n  <svg viewBox="0 0 400 150" style="width: 100%; max-width: 500px; height: auto; background: #0F172A; border-radius: 12px; padding: 16px;">\n    <path d="M 20 120 Q 100 20 200 80 T 380 30" fill="none" stroke="#B87333" stroke-width="4"/>\n    <circle cx="380" cy="30" r="6" fill="#F8FAFC"/>\n    <text x="20" y="30" fill="#F8FAFC" font-family="sans-serif" font-size="14" font-weight="bold">Performance Trajectory</text>\n  </svg>\n  <figcaption style="font-size: 12px; color: #64748B; margin-top: 8px;">Figure 1. Performance scaling curves across Q1-Q4</figcaption>\n</figure>\n`;
+                          setFormData((prev) => ({ ...prev, content: prev.content + svgSnippet }));
+                        }}
+                        className="px-2 py-1 rounded bg-warm-100 text-navy-700 hover:bg-warm-200 font-bold border border-navy-300"
+                      >
+                        + Insert Graph SVG
+                      </button>
+                    </div>
+                  </div>
+
+                  <textarea
+                    value={formData.content}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, content: e.target.value }))}
+                    rows={16}
+                    placeholder="Enter or paste full HTML here..."
+                    className="w-full p-4 rounded-xl border border-navy-300 bg-navy-950 text-emerald-400 font-mono text-xs leading-relaxed focus:outline-none focus:border-bronze-500 shadow-inner"
+                  />
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <hr className="border-navy-200" />
