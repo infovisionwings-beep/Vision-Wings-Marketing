@@ -19,6 +19,7 @@ export default function proxy(request: NextRequest) {
   // /admin-login and /admin-invite are excluded: they are how you get that cookie,
   // so gating them on it would lock every admin out permanently.
   const isAdminDashboard = path === "/admin" || path.startsWith("/admin/");
+  const isUserDashboard = path === "/dashboard" || path.startsWith("/dashboard/");
   if (isAdminDashboard) {
     if (!request.cookies.get("admin_session")?.value) {
       return NextResponse.redirect(new URL("/admin-login", request.url));
@@ -31,7 +32,10 @@ export default function proxy(request: NextRequest) {
     }
   }
 
-  if (path.startsWith("/admin") || path.startsWith("/dashboard")) {
+  // Reuse the exact-segment predicates above. A bare startsWith("/admin") also
+  // matches /admin-login and /admin-invite, which would hand the pages that mint
+  // the admin cookie to the very gate that requires it.
+  if (isAdminDashboard || isUserDashboard) {
     return neonProxy(request);
   }
 
