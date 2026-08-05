@@ -2,15 +2,20 @@ import { getInsightBySlug } from "@/app/actions/insights";
 import { notFound } from "next/navigation";
 import { Link } from "@/components/ui/Link";
 import Button from "@/components/ui/Button";
-import { ArrowLeft, Calendar, BookOpen, CheckCircle2, User, Users } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Calendar, BookOpen, CheckCircle2, Star, User, Users } from "lucide-react";
 import EssayActions from "@/components/essay/EssayActions";
 import { isEssaySaved } from "@/app/actions/savedEssays";
 import { format } from "date-fns";
 import { cache } from "react";
 import type { Metadata } from "next";
 import { pageMetadata, SITE_URL } from "@/lib/seo";
+import { localInsightBySlug } from "@/lib/content/localInsights";
 
 export const dynamic = "force-dynamic";
+
+// https://developers.google.com/search/docs/appearance/preferred-sources —
+// the tool takes a bare host, so strip the scheme off the canonical site URL.
+const PREFERRED_SOURCE_URL = `https://google.com/preferences/source?q=${SITE_URL.replace(/^https?:\/\//, "")}`;
 
 interface Article {
   /** The database row this came from. Absent for the hardcoded fallback
@@ -146,31 +151,20 @@ const resolveArticle = cache(async (slug: string): Promise<Article | null> => {
     if (fallbackContentMap[slug]) {
       return fallbackContentMap[slug];
     }
-    if (slug === "varanasi-business-promotion") {
+    // Articles authored as HTML files at the repo root, used until they are
+    // seeded into the database.
+    const local = localInsightBySlug[slug];
+    if (local) {
       try {
         const fs = await import("fs");
         const path = await import("path");
-        const filePath = path.resolve(process.cwd(), "../varanasi-business-promotion.html");
+        const filePath = path.resolve(process.cwd(), "..", local.file);
         if (fs.existsSync(filePath)) {
-          const htmlContent = fs.readFileSync(filePath, "utf-8");
-          return {
-            title: "How to Promote a Small Business in Varanasi: What Works, What Costs, and What to Do First",
-            category: "Local Strategy & Growth",
-            date: "Aug 5, 2026",
-            readTime: "12 min read",
-            author: "Amélie Laurent",
-            authorRole: "Partner, Growth Strategy",
-            authorAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
-            coverImage: "https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&w=1600&q=80",
-            content: htmlContent,
-            contributors: [
-              { name: "Mia di Silva", role: "Design Craft & Analytics", avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=150&q=80" },
-              { name: "Oliva Nacelle", role: "Market Telemetry", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80" }
-            ],
-          };
+          const { file, slug: _slug, excerpt, publishedAt, ...meta } = local;
+          return { ...meta, content: fs.readFileSync(filePath, "utf-8") };
         }
       } catch (e) {
-        console.error("Failed to read local Varanasi promotion guide:", e);
+        console.error(`Failed to read local insight ${slug}:`, e);
       }
     }
     return {
@@ -561,6 +555,33 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
                 </div>
               </div>
             </div>
+
+            {/* Google Preferred Sources opt-in. Google only accepts a domain or
+                subdomain here, so every article points at the same site-level
+                link rather than its own URL. */}
+            <a
+              href={PREFERRED_SOURCE_URL}
+              target="_blank"
+              rel="noopener"
+              className="group flex flex-wrap items-center justify-between gap-4 p-5 sm:p-6 rounded-2xl bg-white border border-navy-200 hover:border-bronze-500/60 shadow-sm transition-colors"
+              data-interactive
+            >
+              <div className="flex items-start gap-3">
+                <Star className="w-5 h-5 text-bronze-600 shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="text-sm font-bold font-display text-navy-950">
+                    Follow Vision Wings on Google
+                  </h4>
+                  <p className="text-xs text-navy-500 leading-relaxed mt-1 font-normal">
+                    Add us as a preferred source to see our work more often in Top Stories and AI Overviews.
+                  </p>
+                </div>
+              </div>
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-navy-900 group-hover:text-bronze-600 transition-colors whitespace-nowrap">
+                <span>Add as preferred source</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </span>
+            </a>
 
             {/* Share & Bookmark Footer Strip */}
             <div className="pt-8 border-t border-navy-200 flex flex-wrap items-center justify-between gap-4 text-sm text-navy-600">

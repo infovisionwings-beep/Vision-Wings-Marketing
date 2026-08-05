@@ -37,6 +37,19 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        // The Varanasi guide was published under two slugs — the database row
+        // and the repo-root HTML file disagreed — leaving one article competing
+        // with itself in the sitemap. The database slug is the one linked from
+        // /insights, so it wins.
+        source: "/insights/varanasi-business-promotion",
+        destination: "/insights/how-to-promote-a-small-business-in-varanasi",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {
