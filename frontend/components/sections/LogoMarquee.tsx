@@ -1,6 +1,7 @@
 "use client";
 
 import { useReducedMotion } from "framer-motion";
+import { responsiveImage } from "@/lib/media/responsiveImage";
 
 interface Logo {
   id: string;
@@ -13,10 +14,11 @@ function LogoImg({ logo }: { logo: Logo }) {
   const img = (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={logo.logoUrl}
+      {...responsiveImage(logo.logoUrl, "(max-width: 640px) 160px, 220px", { thumb: true })}
       alt={logo.name}
       className="h-20 w-auto object-contain grayscale opacity-60 transition-all duration-300 hover:grayscale-0 hover:opacity-100 sm:h-24"
       loading="lazy"
+      decoding="async"
     />
   );
   return logo.linkUrl ? (

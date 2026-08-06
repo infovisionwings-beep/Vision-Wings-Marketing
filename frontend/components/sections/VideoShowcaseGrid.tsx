@@ -146,7 +146,7 @@ function InlineVideoCard({
           {/* Close / stop button */}
           <button
             onClick={handleStop}
-            className="absolute top-3 right-3 z-20 p-2 rounded-full bg-navy-950/80 backdrop-blur-md text-warm-50 hover:bg-red-600 transition-colors"
+            className="absolute top-3 right-3 z-20 inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full bg-navy-950/80 backdrop-blur-md text-warm-50 hover:bg-red-600 transition-colors"
             aria-label="Close video"
             data-interactive
           >
@@ -249,7 +249,7 @@ function InlineVideoCardSmall({
           </video>
           <button
             onClick={(e) => { e.stopPropagation(); handleStop(); }}
-            className="absolute top-2 right-2 z-20 p-1.5 rounded-full bg-navy-950/80 backdrop-blur-md text-warm-50 hover:bg-red-600 transition-colors"
+            className="absolute top-2 right-2 z-20 inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full bg-navy-950/80 backdrop-blur-md text-warm-50 hover:bg-red-600 transition-colors"
             aria-label="Close video"
             data-interactive
           >
@@ -549,7 +549,7 @@ function ReelInlineCard({ video }: { video: VideoAsset }) {
             </video>
             <button
               onClick={handleStop}
-              className="absolute top-2 right-2 z-20 p-1.5 rounded-full bg-navy-950/80 backdrop-blur-md text-warm-50 hover:bg-red-600 transition-colors"
+              className="absolute top-2 right-2 z-20 inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full bg-navy-950/80 backdrop-blur-md text-warm-50 hover:bg-red-600 transition-colors"
               aria-label="Close video"
               data-interactive
             >

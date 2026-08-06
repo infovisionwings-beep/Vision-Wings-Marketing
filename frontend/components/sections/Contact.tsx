@@ -1,4 +1,5 @@
-"use client";
+// Server Component — no state, no handlers, no effects. Its interactive parts
+// (RevealOnScroll, Button, Link) are client components rendered as children.
 
 // Reading this as: Final conversion CTA banner for an agency landing page, utilizing bold dark-mode contrast, tactile button physics, film-grain texture, and unified CTA labeling.
 // DESIGN_VARIANCE: 8

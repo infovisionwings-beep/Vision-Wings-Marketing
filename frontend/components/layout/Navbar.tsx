@@ -116,7 +116,7 @@ export default function Navbar({ user, isAdmin }: { user: any; isAdmin?: boolean
                     <button
                       onClick={() => startTransition(() => logoutUser())}
                       disabled={isPending}
-                      className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-navy-900 rounded-lg transition-colors flex items-center gap-2 mt-1 min-h-[40px]"
+                      className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-navy-900 rounded-lg transition-colors flex items-center gap-2 mt-1 min-h-[44px]"
                       data-interactive
                     >
                       <LogOut className="w-4 h-4" />

@@ -1,4 +1,4 @@
-"use client";
+// Server Component — no state, no handlers, no effects.
 
 // Reading this as: Company introduction and manifesto section for an editorial brand agency, utilizing high-contrast typography, plain-layout data metrics, and architectural visual accents.
 // DESIGN_VARIANCE: 8
