@@ -1,4 +1,6 @@
-import { getInsights } from "@/app/actions/insights";
+import { getInsightSummaries } from "@/app/actions/insights";
+import { readTimeFromLength } from "@/lib/content/readTime";
+import { responsiveImage } from "@/lib/media/responsiveImage";
 import RevealOnScroll from "@/components/motion/RevealOnScroll";
 import { Link } from "@/components/ui/Link";
 import { ArrowUpRight, Plus, ArrowRight, Sparkles, BookOpen } from "lucide-react";
@@ -85,7 +87,7 @@ const fallbackEssays = [
 export default async function EssaysLandingPage() {
   let list = fallbackEssays;
   try {
-    const dbInsights = await getInsights();
+    const dbInsights = await getInsightSummaries();
     if (dbInsights && dbInsights.length > 0) {
       list = dbInsights.map((item: any, idx: number) => ({
         id: item.id || `db-${idx}`,
@@ -96,7 +98,7 @@ export default async function EssaysLandingPage() {
           ? format(new Date(item.publishedAt), "MMM d, yyyy") 
           : (item.createdAt ? format(new Date(item.createdAt), "MMM d, yyyy") : format(new Date(), "MMM d, yyyy")),
         coverImage: item.coverImage || fallbackEssays[idx % fallbackEssays.length].coverImage,
-        readTime: `${Math.max(3, Math.ceil((item.content?.length || 1500) / 500))} min read`,
+        readTime: readTimeFromLength(item.contentLength),
         excerpt: item.excerpt || fallbackEssays[idx % fallbackEssays.length].excerpt,
         author: item.authorName || fallbackEssays[idx % fallbackEssays.length].author,
         authorRole: item.authorRole || fallbackEssays[idx % fallbackEssays.length].authorRole,
@@ -150,9 +152,12 @@ export default async function EssaysLandingPage() {
               className="group block relative w-full h-full min-h-[460px] md:min-h-[560px] rounded-[32px] overflow-hidden bg-navy-900 border border-navy-200/60 shadow-xl"
               data-interactive
             >
-              <img 
-                src={heroEssay.coverImage} 
+              {/* LCP element for /insights — hinted high, never lazy. */}
+              <img
+                {...responsiveImage(heroEssay.coverImage, "(max-width: 1024px) 100vw, 66vw")}
                 alt={heroEssay.title}
+                fetchPriority="high"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-90"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-navy-950/80 via-navy-950/20 to-transparent" />
@@ -180,7 +185,7 @@ export default async function EssaysLandingPage() {
                     {heroEssay.excerpt}
                   </p>
                   <div className="flex items-center gap-3 mt-4 pt-4 border-t border-navy-100">
-                    <img src={heroEssay.authorAvatar} alt={heroEssay.author} className="w-6 h-6 rounded-full object-cover" />
+                    <img {...responsiveImage(heroEssay.authorAvatar, "24px", { thumb: true })} alt={heroEssay.author} loading="lazy" decoding="async" width={24} height={24} className="w-6 h-6 rounded-full object-cover" />
                     <span className="text-xs font-bold text-navy-900">{heroEssay.author}</span>
                     <span className="text-xs font-mono text-navy-400">· {heroEssay.readTime}</span>
                   </div>
@@ -231,9 +236,11 @@ export default async function EssaysLandingPage() {
               className="group block relative rounded-[32px] overflow-hidden bg-navy-900 min-h-[260px] shadow-lg border border-navy-200/60"
               data-interactive
             >
-              <img 
-                src={thirdEssay.coverImage} 
+              <img
+                {...responsiveImage(thirdEssay.coverImage, "(max-width: 1024px) 100vw, 33vw")}
                 alt={thirdEssay.title}
+                loading="lazy"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-85"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/30 to-transparent" />
@@ -310,7 +317,7 @@ export default async function EssaysLandingPage() {
 
                 <div className="pt-6 mt-6 border-t border-navy-100 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <img src={item.authorAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80"} alt={item.author || "Author"} className="w-7 h-7 rounded-full object-cover" />
+                    <img {...responsiveImage(item.authorAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80", "28px", { thumb: true })} alt={item.author || "Author"} loading="lazy" decoding="async" width={28} height={28} className="w-7 h-7 rounded-full object-cover" />
                     <span className="text-xs font-semibold text-navy-900">{item.author || "Amélie Laurent"}</span>
                   </div>
                   <div className="w-8 h-8 rounded-full bg-warm-100 group-hover:bg-navy-950 group-hover:text-warm-50 flex items-center justify-center transition-colors">

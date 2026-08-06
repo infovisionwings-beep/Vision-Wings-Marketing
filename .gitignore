@@ -46,3 +46,7 @@ desktop.ini
 `*`
 *\)
 *\(
+
+# Impeccable: shared config.json is committed; these are per-developer/machine
+.impeccable/config.local.json
+.impeccable/hook.cache.json
