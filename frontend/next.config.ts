@@ -20,8 +20,8 @@ import type { NextConfig } from "next";
  */
 const CSP = [
   "default-src 'self'",
-  // Analytics is the only third-party script origin.
-  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com",
+  // Analytics, plus Turnstile's loader on the login/signup screen.
+  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com",
   "style-src 'self' 'unsafe-inline'",
   // next/font self-hosts, so no foreign font origin is needed.
   "font-src 'self' data:",
@@ -30,7 +30,8 @@ const CSP = [
   "media-src 'self' blob: https:",
   // Where the page may send data. This is the directive doing the real work.
   "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.googletagmanager.com https://*.neon.tech https://*.vercel-storage.com",
-  "frame-src 'self' https://www.youtube.com https://player.vimeo.com",
+  // Turnstile renders its widget in an iframe from the same origin.
+  "frame-src 'self' https://www.youtube.com https://player.vimeo.com https://challenges.cloudflare.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
