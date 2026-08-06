@@ -13,6 +13,7 @@ import { ArrowUpRight } from "lucide-react";
 import { content } from "@/lib/content";
 import { getProjects } from "@/app/actions/projects";
 import { photoTitle, photoSource, photoYear } from "@/lib/media/present";
+import { responsiveImage } from "@/lib/media/responsiveImage";
 
 interface GalleryBrick {
   id: string | number;
@@ -22,6 +23,12 @@ interface GalleryBrick {
   year?: string;
   slug?: string;
   imageUrl?: string;
+  /** Intrinsic pixel size, when the source knows it. Uploaded photos store it;
+   *  campaign and project covers do not. Passing it to the <img> lets the
+   *  browser reserve the right height before the file arrives, which is what
+   *  stops this grid reflowing as each photo lands. */
+  width?: number;
+  height?: number;
   quoteText?: string;
   quoteSubtitle?: string;
 }
@@ -166,6 +173,8 @@ function computeBricks(
     category: p.category || "Brand Archive",
     year: photoYear(p),
     imageUrl: photoSource(p),
+    width: Number(p.width) || undefined,
+    height: Number(p.height) || undefined,
   }));
 
   const realBricks = [...projectBricks, ...campBricks, ...photoBricks];
@@ -272,11 +281,23 @@ export default function Work({ dbProjects = [], dbCampaigns = [], dbPhotos = [],
                   data-interactive
                 >
                   {/* Photo rendered with w-full h-auto so any size/aspect-ratio photo fits naturally without cropping */}
+                  {/* This is a masonry column layout, so bricks are meant to take
+                      their own height — no forced aspect ratio, no cropping.
+
+                      Uploaded photos carry their true dimensions, and passing
+                      them lets the browser reserve the exact natural ratio before
+                      the file arrives: no layout shift and no crop. Campaign and
+                      project covers store no dimensions, so those bricks still
+                      settle on load. Storing dimensions at upload for those is
+                      what would close the gap without flattening the grid. */}
                   <img
-                    src={brick.imageUrl}
+                    {...responsiveImage(brick.imageUrl, "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw")}
                     alt={brick.title || "Exhibition photography"}
+                    width={brick.width}
+                    height={brick.height}
                     className="w-full h-auto block object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                     loading="lazy"
+                    decoding="async"
                   />
 
                   {/* Tactile Hover / Tap Overlay - responsive for 2-column mobile */}

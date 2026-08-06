@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { League_Spartan, DM_Sans } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const leagueSpartan = League_Spartan({
@@ -79,7 +80,7 @@ const jsonLd = {
 };
 
 import SmoothScrollProvider from "@/components/motion/SmoothScrollProvider";
-import CursorAperture from "@/components/motion/CursorAperture";
+import DeferredCursor from "@/components/motion/DeferredCursor";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { auth } from '@/lib/auth/server';
@@ -96,6 +97,18 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // The dashboard brings its own chrome — a sidebar on desktop, a drawer on
+  // mobile. The public Navbar is `fixed top-0 z-50` and the admin header that
+  // holds the drawer trigger is `sticky top-0 z-10`, so rendering both put the
+  // marketing nav directly on top of the hamburger button. On desktop the
+  // sidebar is visible and navigation still worked, which is why this only ever
+  // showed up on mobile: the menu button was there, just covered.
+  const pathnameForChrome = (await headers()).get("x-pathname") || "";
+  const isAdminSurface =
+    pathnameForChrome.startsWith("/admin") ||
+    pathnameForChrome.startsWith("/admin-login") ||
+    pathnameForChrome.startsWith("/admin-invite");
+
   let user: any = null;
   let isAdmin = false;
   try {
@@ -151,22 +164,6 @@ export default async function RootLayout({
       className={`${leagueSpartan.variable} ${dmSans.variable} h-full antialiased`}
     >
       <head>
-        {/* Google tag (gtag.js) */}
-        <script
-          async
-          src="https://www.googletagmanager.com/gtag/js?id=G-KGL4WL9DLW"
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-KGL4WL9DLW');
-`,
-          }}
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -175,12 +172,28 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col bg-warm-50 text-navy-950">
         <LoaderProvider>
           <SmoothScrollProvider>
-            <CursorAperture />
-            <Navbar user={user} isAdmin={isAdmin} />
+            <DeferredCursor />
+            {!isAdminSurface && <Navbar user={user} isAdmin={isAdmin} />}
             <main className="flex-grow">{children}</main>
-            <Footer />
+            {!isAdminSurface && <Footer />}
           </SmoothScrollProvider>
         </LoaderProvider>
+
+        {/* Analytics moved out of <head> and off the critical path. As raw
+            script tags these opened a googletagmanager connection while the
+            page was still fetching its own JS and fonts; "afterInteractive"
+            waits until hydration is done. Measurement is unaffected — gtag
+            queues events until the library lands. */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-KGL4WL9DLW"
+          strategy="afterInteractive"
+        />
+        <Script id="ga-init" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-KGL4WL9DLW');`}
+        </Script>
       </body>
     </html>
   );
