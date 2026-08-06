@@ -67,6 +67,67 @@ async function ensureSignupOtpsTable() {
   }
 }
 
+/**
+ * Send one OTP mail. Both call sites had this inline and neither looked at the
+ * response, so a Resend rejection — the 403 you get for mailing anyone but the
+ * account owner from the shared `onboarding@resend.dev` sandbox — vanished
+ * silently and the user sat on the code screen waiting for mail that was never
+ * accepted. `catch` only ever fired on a network error, which this was not.
+ *
+ * RESEND_FROM must name a sender on a verified domain. There is no safe default
+ * here: the sandbox address is deliverable only to the Resend account owner.
+ */
+async function sendOtpEmail(to: string, otp: string, resent: boolean): Promise<boolean> {
+  const resendApiKey = process.env.RESEND_API_KEY;
+  if (!resendApiKey) {
+    console.log(`\n========================================\n[${resent ? 'RESEND' : 'SIGNUP'} OTP GENERATED] Email: ${to} | Code: ${otp}\n========================================\n`);
+    return true;
+  }
+
+  const fromEmail = process.env.RESEND_FROM;
+  if (!fromEmail) {
+    console.error('RESEND_FROM is not set; refusing to send from the shared sandbox sender, which only delivers to the Resend account owner.');
+    return false;
+  }
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: fromEmail,
+        ...(process.env.RESEND_REPLY_TO ? { reply_to: process.env.RESEND_REPLY_TO } : {}),
+        to,
+        subject: `Your Vision Wings Verification Code: ${otp}`,
+        html: `
+              <div style="font-family: sans-serif; padding: 24px; background-color: #0f172a; color: #fdfbf7; border-radius: 16px;">
+                <h2 style="color: #b87333; margin-bottom: 12px;">Vision Wings Marketing</h2>
+                <p style="font-size: 15px; color: #cbd5e1;">Your ${resent ? 'new ' : ''}cryptographic one-time verification code is:</p>
+                <div style="font-size: 36px; font-weight: bold; letter-spacing: 8px; padding: 20px; background-color: #1e293b; color: #fbbf24; text-align: center; border-radius: 12px; margin: 24px 0; border: 1px solid #334155;">
+                  ${otp}
+                </div>
+                <p style="font-size: 13px; color: #94a3b8;">This code will expire in 15 minutes.</p>
+              </div>
+            `,
+      }),
+    });
+
+    if (!res.ok) {
+      // The body carries Resend's reason — unverified domain, blocked recipient,
+      // bad key. Without it every failure looks identical from the outside.
+      console.error(`Resend rejected the OTP mail to ${to}: ${res.status} ${await res.text()}`);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error('Failed to dispatch OTP email via Resend:', e);
+    return false;
+  }
+}
+
 function safeRedirectPath(next: unknown): string | null {
   if (typeof next !== 'string' || !next.startsWith('/')) return null;
   if (next.startsWith('//') || next.startsWith('/\\')) return null;
@@ -174,38 +235,12 @@ export async function authenticateWithTurnstile(formData: FormData) {
       status: "pending",
     });
 
-    // Dispatch OTP email via Resend API
-    const resendApiKey = process.env.RESEND_API_KEY;
-    const fromEmail = process.env.RESEND_FROM || "onboarding@resend.dev";
-    if (resendApiKey) {
-      try {
-        await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${resendApiKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from: fromEmail,
-            to: email,
-            subject: `Your Vision Wings Verification Code: ${otpCode}`,
-            html: `
-              <div style="font-family: sans-serif; padding: 24px; background-color: #0f172a; color: #fdfbf7; border-radius: 16px;">
-                <h2 style="color: #b87333; margin-bottom: 12px;">Vision Wings Marketing</h2>
-                <p style="font-size: 15px; color: #cbd5e1;">Your cryptographic one-time verification code is:</p>
-                <div style="font-size: 36px; font-weight: bold; letter-spacing: 8px; padding: 20px; background-color: #1e293b; color: #fbbf24; text-align: center; border-radius: 12px; margin: 24px 0; border: 1px solid #334155;">
-                  ${otpCode}
-                </div>
-                <p style="font-size: 13px; color: #94a3b8;">This code will expire in 15 minutes. Enter this code to verify your identity and unlock onboarding.</p>
-              </div>
-            `,
-          }),
-        });
-      } catch (e) {
-        console.error("Failed to dispatch OTP email via Resend:", e);
-      }
-    } else {
-      console.log(`\n========================================\n[SIGNUP OTP GENERATED] Email: ${email} | Code: ${otpCode}\n========================================\n`);
+    // A code the user cannot receive is not a step they can complete, so a
+    // rejected send is an error, not a log line. The pending row is dropped so
+    // the retry starts clean rather than colliding with an orphan.
+    if (!(await sendOtpEmail(email, otpCode, false))) {
+      await db.delete(signupOtps).where(eq(signupOtps.email, email));
+      return { error: "We could not send your verification code. Please try again in a moment." };
     }
 
     // Set HTTP-only cookie to lock page refresh onto OTP screen
@@ -438,37 +473,8 @@ export async function resendSignupOtp() {
     })
     .where(eq(signupOtps.id, pendingRecord.id));
 
-  const resendApiKey = process.env.RESEND_API_KEY;
-  const fromEmail = process.env.RESEND_FROM || "onboarding@resend.dev";
-  if (resendApiKey) {
-    try {
-      await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${resendApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: fromEmail,
-          to: cleanEmail,
-          subject: `Your Vision Wings Verification Code: ${newOtp}`,
-          html: `
-            <div style="font-family: sans-serif; padding: 24px; background-color: #0f172a; color: #fdfbf7; border-radius: 16px;">
-              <h2 style="color: #b87333; margin-bottom: 12px;">Vision Wings Marketing</h2>
-              <p style="font-size: 15px; color: #cbd5e1;">Your new cryptographic one-time verification code is:</p>
-              <div style="font-size: 36px; font-weight: bold; letter-spacing: 8px; padding: 20px; background-color: #1e293b; color: #fbbf24; text-align: center; border-radius: 12px; margin: 24px 0; border: 1px solid #334155;">
-                ${newOtp}
-              </div>
-              <p style="font-size: 13px; color: #94a3b8;">This code will expire in 15 minutes.</p>
-            </div>
-          `,
-        }),
-      });
-    } catch (e) {
-      console.error("Failed to resend OTP email:", e);
-    }
-  } else {
-    console.log(`\n========================================\n[RESEND OTP GENERATED] Email: ${cleanEmail} | Code: ${newOtp}\n========================================\n`);
+  if (!(await sendOtpEmail(cleanEmail, newOtp, true))) {
+    return { error: "We could not send your verification code. Please try again in a moment." };
   }
 
   return { success: true, message: `A new 6-digit code has been sent to ${cleanEmail}.` };

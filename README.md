@@ -145,6 +145,8 @@ Both `.env` files are gitignored. **Never commit real values.**
 | `TURNSTILE_SECRET_KEY` | Turnstile server-side verification key |
 | `UPSTASH_REDIS_REST_URL` · `UPSTASH_REDIS_REST_TOKEN` · `REDIS_URL` | Rate limiting and queues |
 | `RESEND_API_KEY` | Transactional email |
+| `RESEND_FROM` | **Required.** Verified sender for signup OTPs. Unset means no mail goes out — see below |
+| `RESEND_REPLY_TO` | Where replies land |
 | `BLOB_READ_WRITE_TOKEN` | Vercel Blob uploads |
 
 ### `backend/.env`
@@ -163,6 +165,9 @@ Both `.env` files are gitignored. **Never commit real values.**
 | `RESEND_REPLY_TO` | Where replies land — `RESEND_FROM` has no mailbox behind it |
 | `CONTACT_NOTIFY_EMAIL` | *Optional.* Contact-form recipient; falls back to `SUPER_ADMIN_EMAIL` |
 | `BLOB_READ_WRITE_TOKEN` | Vercel Blob uploads |
+
+> [!WARNING]
+> **`RESEND_FROM` must be set in *both* tiers.** Resend's shared `onboarding@resend.dev` sandbox sender only delivers to the Resend account owner — every other recipient is rejected with a `403`. The backend has always set a verified sender, so admin invites went out fine; the frontend did not, so signup OTPs were silently rejected and users waited on a code screen for mail that was never accepted. Both tiers now refuse to send rather than fall back to the sandbox.
 
 ---
 
