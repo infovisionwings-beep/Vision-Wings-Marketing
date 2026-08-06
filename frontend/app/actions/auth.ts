@@ -7,7 +7,8 @@ import { logAdminAction } from '@/lib/auth/audit-log'
 import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
 import { signupOtps, userProfiles } from '@/lib/db/schema'
-import { eq, and, gt, desc, sql, or } from 'drizzle-orm'
+import { eq, and, gt, lt, desc, sql, or } from 'drizzle-orm'
+import { seal, open } from '@/lib/auth/secret-box'
 
 // Rate limit: 5 login attempts per 15 minutes per email
 const LOGIN_RATE_LIMIT_MAX = 5;
@@ -32,6 +33,20 @@ function otpMatches(expected: string, provided: string): boolean {
     diff |= expected.charCodeAt(i) ^ provided.charCodeAt(i);
   }
   return diff === 0;
+}
+
+/**
+ * Deletes pending signups whose code has expired. Rows were previously removed
+ * only on successful verification, so every abandoned signup left its stored
+ * credential behind permanently. Runs on the same paths that already touch this
+ * table, so it needs no scheduler.
+ */
+async function purgeExpiredSignupOtps() {
+  try {
+    await db.delete(signupOtps).where(lt(signupOtps.expiresAt, new Date()));
+  } catch (err) {
+    console.error("Failed to purge expired signup OTP rows:", err);
+  }
 }
 
 async function ensureSignupOtpsTable() {
@@ -143,6 +158,7 @@ export async function authenticateWithTurnstile(formData: FormData) {
     }
 
     await ensureSignupOtpsTable();
+    await purgeExpiredSignupOtps();
 
     const otpCode = generateOtp();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
@@ -150,7 +166,9 @@ export async function authenticateWithTurnstile(formData: FormData) {
     // Save pending registration in signup_otps table
     await db.insert(signupOtps).values({
       email: email,
-      passwordHash: password,
+      // Sealed, not hashed — it has to be replayed into auth.signUp once the
+      // code is verified. See lib/auth/secret-box.ts for why.
+      passwordHash: seal(password),
       otp: otpCode,
       expiresAt: expiresAt,
       status: "pending",
@@ -332,16 +350,18 @@ export async function verifySignupOtp(formData: FormData) {
   // Create authentic account & session in Neon Auth
   try {
     const name = email.split('@')[0] || 'User';
+    const submittedPassword = open(pendingRecord.passwordHash);
+
     let result = await auth.signUp.email({
       name,
       email: pendingRecord.email,
-      password: pendingRecord.passwordHash,
+      password: submittedPassword,
     });
 
     if (result?.error) {
       result = await auth.signIn.email({
         email: pendingRecord.email,
-        password: pendingRecord.passwordHash,
+        password: submittedPassword,
       });
     }
 
@@ -353,11 +373,10 @@ export async function verifySignupOtp(formData: FormData) {
     return { error: err?.message || "Authentication error after OTP verification." };
   }
 
-  // The row holds the submitted password in clear text (the column is named
-  // passwordHash but nothing hashes it) because it has to be replayed into
-  // auth.signUp once the code checks out. Marking it "verified" left every
-  // password ever registered sitting in the table indefinitely. It has served
-  // its purpose now, so it goes.
+  // The row holds the submitted password sealed with AES-256-GCM, because it
+  // has to be replayed into auth.signUp once the code checks out. Marking it
+  // "verified" left every registration sitting in the table indefinitely. It
+  // has served its purpose now, so it goes.
   try {
     await db.delete(signupOtps).where(eq(signupOtps.email, pendingRecord.email));
   } catch (err) {

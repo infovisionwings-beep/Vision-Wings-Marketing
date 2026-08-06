@@ -5,15 +5,24 @@ import { auth } from "@/lib/auth/server";
 import { db } from "@/lib/db";
 import { savedEssays, insights } from "@/lib/db/schema";
 import { and, desc, eq, ne, sql } from "drizzle-orm";
+import { readMinutesFromLength } from "@/lib/content/readTime";
 
 /**
  * The saved_essays table is created on demand, matching how signup_otps is
  * handled in auth.ts — this project has no migration runner, so a table that
  * only this feature touches is made where it is first used.
  */
-async function ensureSavedEssaysTable() {
-  try {
-    await db.execute(sql`
+/**
+ * Held for the life of the process. This previously ran on every dashboard load
+ * and every save toggle, spending a network round trip to a serverless database
+ * — plus a DDL lock check — to re-confirm a table that cannot stop existing.
+ * Once per process is enough; a cold start pays it again, which is correct.
+ */
+let savedEssaysTableReady: Promise<void> | null = null;
+
+function ensureSavedEssaysTable() {
+  savedEssaysTableReady ??= db
+    .execute(sql`
       CREATE TABLE IF NOT EXISTS saved_essays (
         id SERIAL PRIMARY KEY,
         user_id VARCHAR(255) NOT NULL,
@@ -21,10 +30,14 @@ async function ensureSavedEssaysTable() {
         created_at TIMESTAMP DEFAULT NOW(),
         UNIQUE (user_id, insight_id)
       );
-    `);
-  } catch (err) {
-    console.error("Failed to ensure saved_essays table:", err);
-  }
+    `)
+    .then(() => undefined)
+    .catch((err) => {
+      console.error("Failed to ensure saved_essays table:", err);
+      // Do not cache a failure — the next call should retry.
+      savedEssaysTableReady = null;
+    });
+  return savedEssaysTableReady;
 }
 
 /** The reader's identity, or null when signed out. Never trusted from the client. */
@@ -138,7 +151,7 @@ export async function getSavedEssays(): Promise<SavedEssay[]> {
         category: insights.category,
         coverImage: insights.coverImage,
         authorName: insights.authorName,
-        contentLength: sql<number>`length(${insights.content})`,
+        contentLength: sql<number>`length(regexp_replace(${insights.content}, '<[^>]+>', '', 'g'))`,
         savedAt: savedEssays.createdAt,
         publishedAt: insights.publishedAt,
       })
@@ -155,7 +168,7 @@ export async function getSavedEssays(): Promise<SavedEssay[]> {
       coverImage: r.coverImage,
       authorName: r.authorName,
       // Mirrors the estimate the essay page shows, so the two never disagree.
-      readMinutes: Math.max(3, Math.ceil((Number(r.contentLength) || 1500) / 500)),
+      readMinutes: readMinutesFromLength(r.contentLength),
       savedAt: r.savedAt?.toISOString() ?? null,
       publishedAt: r.publishedAt?.toISOString() ?? null,
     }));

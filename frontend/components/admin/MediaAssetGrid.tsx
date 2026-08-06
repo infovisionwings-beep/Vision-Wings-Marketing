@@ -219,7 +219,11 @@ export default function MediaAssetGrid({
           )}
         </div>
       ) : (
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        // Masonry via CSS columns rather than a fixed grid. Every tile used to be
+        // forced to 16:9, so a portrait photo sat letterboxed inside a landscape
+        // box and a phone showed one tall card at a time. Columns let each brick
+        // take its own height, which fits how mixed this library actually is.
+        <ul className="columns-2 gap-4 xl:columns-3">
           {visible.map((a) => {
             const preview = previewOf(a, kind);
             const processing = isProcessing(a);
@@ -230,16 +234,23 @@ export default function MediaAssetGrid({
             return (
               <li
                 key={a.id}
-                className={`flex flex-col overflow-hidden rounded-2xl border bg-white transition-colors ${
+                className={`mb-4 flex break-inside-avoid flex-col overflow-hidden rounded-2xl border bg-white transition-colors ${
                   archived ? "border-navy-200 opacity-70" : "border-navy-200"
                 }`}
               >
-                <div className="relative aspect-video bg-navy-950">
+                <div className="relative bg-navy-950">
                   {preview ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={preview} alt="" className="h-full w-full object-contain" loading="lazy" />
+                    <img
+                      src={preview}
+                      alt=""
+                      className="block h-auto w-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                    />
                   ) : (
-                    <div className="flex h-full items-center justify-center text-xs font-mono text-navy-400">
+                    // No image to size the brick, so this one keeps a reserved box.
+                    <div className="flex aspect-video items-center justify-center text-xs font-mono text-navy-400">
                       {processing ? "Processing…" : "No preview"}
                     </div>
                   )}

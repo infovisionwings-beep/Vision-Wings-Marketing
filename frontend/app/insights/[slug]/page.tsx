@@ -10,6 +10,8 @@ import { cache } from "react";
 import type { Metadata } from "next";
 import { pageMetadata, SITE_URL } from "@/lib/seo";
 import { localInsightBySlug } from "@/lib/content/localInsights";
+import { readTimeFromHtml } from "@/lib/content/readTime";
+import { responsiveImage } from "@/lib/media/responsiveImage";
 
 export const dynamic = "force-dynamic";
 
@@ -145,7 +147,7 @@ const resolveArticle = cache(async (slug: string): Promise<Article | null> => {
         authorRole: (dbInsight as any).authorRole || "Partner, Brand Architecture",
         authorAvatar: (dbInsight as any).authorAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
         contributors: (dbInsight as any).contributors || null,
-        readTime: `${Math.max(3, Math.ceil((dbInsight.content?.length || 1500) / 500))} min read`
+        readTime: readTimeFromHtml(dbInsight.content)
       };
     }
     if (fallbackContentMap[slug]) {
@@ -254,11 +256,30 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
     articleSection: article.category,
   };
 
+  // Breadcrumbs give Google the article's place in the site hierarchy, which is
+  // what replaces the raw URL in the search result with a Home › Insights ›
+  // Title trail. The visible trail below carries the same three steps, because
+  // markup that describes navigation the page does not actually show is exactly
+  // what the structured-data guidelines treat as misleading.
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Insights", item: `${SITE_URL}/insights` },
+      { "@type": "ListItem", position: 3, name: article.title, item: `${SITE_URL}/insights/${slug}` },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-warm-50 pt-32 pb-28 px-5 md:px-10 xl:px-20 text-navy-950">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       
       {/* Editorial Drop Cap Styling & Typography Injection */}
@@ -431,6 +452,27 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
 
       <div className="max-w-[1280px] mx-auto space-y-12">
         
+        {/* Visible breadcrumb trail, matching the BreadcrumbList above. */}
+        <nav aria-label="Breadcrumb" className="text-xs font-mono font-bold uppercase tracking-wider text-navy-600">
+          <ol className="flex flex-wrap items-center gap-2">
+            <li>
+              <Link href="/" className="hover:text-bronze-600 transition-colors py-2 inline-block" data-interactive>
+                Home
+              </Link>
+            </li>
+            <li aria-hidden="true" className="text-navy-400">/</li>
+            <li>
+              <Link href="/insights" className="hover:text-bronze-600 transition-colors py-2 inline-block" data-interactive>
+                Insights
+              </Link>
+            </li>
+            <li aria-hidden="true" className="text-navy-400">/</li>
+            <li className="text-navy-400 normal-case font-normal truncate max-w-[16rem] sm:max-w-md" aria-current="page">
+              {article.title}
+            </li>
+          </ol>
+        </nav>
+
         {/* Top Back Link */}
         <Link href="/insights" className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-navy-600 hover:text-bronze-600 transition-colors py-2" data-interactive>
           <ArrowLeft className="w-4 h-4" />
@@ -460,9 +502,16 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
 
             {/* Feature Photo with Hover-Only Desktop Overlay & Removed Overlap on Mobile */}
             <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] rounded-3xl overflow-hidden bg-navy-900 border border-navy-200/80 shadow-xl group/hero">
-              <img 
-                src={article.coverImage || "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1600&q=80"} 
+              {/* The article page's LCP element — hinted high and never lazy.
+                  The wrapper already reserves an aspect ratio, so no CLS. */}
+              <img
+                {...responsiveImage(
+                  article.coverImage || "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1600&q=80",
+                  "(max-width: 1024px) 100vw, 66vw",
+                )}
                 alt={article.title}
+                fetchPriority="high"
+                decoding="async"
                 className="w-full h-full object-cover opacity-90 transition-transform duration-700 group-hover/hero:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-navy-950/70 via-navy-950/10 to-transparent opacity-60 group-hover/hero:opacity-90 transition-opacity duration-300" />
@@ -481,7 +530,7 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
                 </div>
                 <div className="flex flex-col gap-2.5">
                   <div className="flex items-center gap-3 group cursor-default">
-                    <img src={article.authorAvatar} alt={article.author} className="w-10 h-10 rounded-full object-cover border-2 border-bronze-500 shadow-md group-hover:scale-105 transition-transform flex-shrink-0" />
+                    <img {...responsiveImage(article.authorAvatar, "48px", { thumb: true })} alt={article.author} loading="lazy" decoding="async" width={48} height={48} className="w-10 h-10 rounded-full object-cover border-2 border-bronze-500 shadow-md group-hover:scale-105 transition-transform flex-shrink-0" />
                     <div className="text-left overflow-hidden">
                       <div className="text-xs font-bold text-white truncate font-display">{article.author}</div>
                       <div className="text-[10px] font-mono text-bronze-300 truncate">{article.authorRole} (Lead)</div>
@@ -492,7 +541,16 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
                     { name: "Mia di Silva", role: "Art Direction", avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=150&q=80" }
                   ]).map((c, idx) => (
                     <div key={idx} className="flex items-center gap-3 group cursor-default">
-                      <img src={c.avatar} alt={c.name} className="w-9 h-9 rounded-full object-cover border border-white/40 shadow-md group-hover:scale-105 transition-transform flex-shrink-0" />
+                      {/* Contributors are free-form JSON, so an entry can arrive
+                          without an avatar. Rendering the tag anyway produces an
+                          <img> with no src — a broken-image box. Initials instead. */}
+                      {c.avatar ? (
+                        <img {...responsiveImage(c.avatar, "36px", { thumb: true })} alt={c.name} loading="lazy" decoding="async" width={36} height={36} className="w-9 h-9 rounded-full object-cover border border-white/40 shadow-md group-hover:scale-105 transition-transform flex-shrink-0" />
+                      ) : (
+                        <span aria-hidden="true" className="w-9 h-9 rounded-full border border-white/40 shadow-md flex items-center justify-center bg-navy-800 text-warm-100 text-[11px] font-bold flex-shrink-0">
+                          {(c.name || "?").trim().charAt(0).toUpperCase()}
+                        </span>
+                      )}
                       <div className="text-left overflow-hidden">
                         <div className="text-xs font-semibold text-warm-100 truncate">{c.name}</div>
                         <div className="text-[10px] font-mono text-navy-300 truncate">{c.role}</div>
@@ -548,7 +606,7 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
               </p>
               
               <div className="flex items-center gap-3.5 pt-2">
-                <img src={article.authorAvatar} alt={article.author} className="w-10 h-10 rounded-full object-cover border border-navy-200" />
+                <img {...responsiveImage(article.authorAvatar, "48px", { thumb: true })} alt={article.author} loading="lazy" decoding="async" width={48} height={48} className="w-10 h-10 rounded-full object-cover border border-navy-200" />
                 <div>
                   <h4 className="text-sm font-bold text-navy-950 font-display">{article.author}</h4>
                   <span className="text-xs font-mono text-navy-500">{article.authorRole}</span>
@@ -631,7 +689,7 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
                 Written by
               </h4>
               <div className="flex items-center gap-3.5">
-                <img src={article.authorAvatar} alt={article.author} className="w-12 h-12 rounded-full object-cover border border-navy-200 shadow-sm" />
+                <img {...responsiveImage(article.authorAvatar, "48px", { thumb: true })} alt={article.author} loading="lazy" decoding="async" width={48} height={48} className="w-12 h-12 rounded-full object-cover border border-navy-200 shadow-sm" />
                 <div>
                   <h5 className="text-sm font-bold font-display text-navy-950">{article.author}</h5>
                   <p className="text-xs font-mono text-navy-500">{article.authorRole}</p>
@@ -652,7 +710,13 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
                   { name: "Mia di Silva", role: "Art Direction, Design Engineering", avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=120&q=80" }
                 ]).map((c, idx) => (
                   <div key={idx} className="flex items-center gap-3">
-                    <img src={c.avatar} alt={c.name} className="w-10 h-10 rounded-full object-cover border border-navy-200 shadow-sm" />
+                    {c.avatar ? (
+                      <img {...responsiveImage(c.avatar, "40px", { thumb: true })} alt={c.name} loading="lazy" decoding="async" width={40} height={40} className="w-10 h-10 rounded-full object-cover border border-navy-200 shadow-sm" />
+                    ) : (
+                      <span aria-hidden="true" className="w-10 h-10 rounded-full border border-navy-200 shadow-sm flex items-center justify-center bg-navy-100 text-navy-700 text-xs font-bold flex-shrink-0">
+                        {(c.name || "?").trim().charAt(0).toUpperCase()}
+                      </span>
+                    )}
                     <div>
                       <h6 className="text-sm font-bold text-navy-900 font-display">{c.name}</h6>
                       <span className="text-xs font-mono text-navy-500">{c.role}</span>

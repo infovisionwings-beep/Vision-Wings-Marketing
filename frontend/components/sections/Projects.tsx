@@ -12,6 +12,7 @@ import { useState } from "react";
 import RevealOnScroll from "@/components/motion/RevealOnScroll";
 import { Link } from "@/components/ui/Link";
 import { ArrowUpRight } from "lucide-react";
+import { responsiveImage } from "@/lib/media/responsiveImage";
 import { content } from "@/lib/content";
 
 interface ProjectsProps {
@@ -43,10 +44,12 @@ function Plate({ project, priority }: { project: any; priority: boolean }) {
   }
   return (
     <img
-      src={project.coverImage}
+      {...responsiveImage(project.coverImage, "(max-width: 768px) 100vw, 60vw")}
       alt={project.title}
       className="w-full h-full object-cover"
       loading={priority ? "eager" : "lazy"}
+      decoding="async"
+      {...(priority ? { fetchPriority: "high" as const } : {})}
     />
   );
 }

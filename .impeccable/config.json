@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "app/insights/[slug]/page.tsx"
+        ],
+        "createdAt": "2026-08-06T03:16:45.163Z",
+        "reason": "Avatars use {...responsiveImage()} spread so no literal src attribute is visible to the detector; every path has a verified fallback and contributor avatars are guarded with initials. Runtime check: 0 missing/empty src, 0 broken images."
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "app/insights/[slug]/page.tsx"
+        ],
+        "createdAt": "2026-08-06T03:16:51.002Z",
+        "reason": "border-left on .editorial-prose blockquote is standard editorial typography for the Key Takeaways box, not a card side-tab accent"
+      }
+    ]
+  }
+}

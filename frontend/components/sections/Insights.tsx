@@ -1,18 +1,20 @@
-"use client";
+// Server Component. It holds no state and no handlers — the "use client"
+// directive that used to sit here existed only for the data-fetching effect
+// that has since moved to the page. Rendering on the server keeps this section,
+// date-fns and its icons out of the client bundle.
 
 // Reading this as: Thinking and perspectives section for a strategic branding agency, designed as a Minimalist Editorial Wire / Newspaper layout with generous whitespace and high typographic contrast.
 // DESIGN_VARIANCE: 8
 // MOTION_INTENSITY: 6
 // VISUAL_DENSITY: 3
 
-import { useEffect, useState } from "react";
 import RevealOnScroll from "@/components/motion/RevealOnScroll";
 import { Link } from "@/components/ui/Link";
 import { ArrowUpRight } from "lucide-react";
 import Button from "@/components/ui/Button";
-import { getInsights } from "@/app/actions/insights";
 import { format } from "date-fns";
 import { content } from "@/lib/content";
+import { readTimeFromLength } from "@/lib/content/readTime";
 
 const fallbackInsights = [
   {
@@ -46,33 +48,27 @@ const fallbackInsights = [
 
 interface InsightsProps {
   settings?: Record<string, string>;
+  /** Summaries fetched on the server. Previously this component fetched them
+   *  itself from an effect, which cost every homepage visitor a server-action
+   *  round trip after hydration that returned every article's full HTML body
+   *  — to render three titles and a read-time estimate. */
+  dbInsights?: any[];
 }
 
-export default function Insights({ settings }: InsightsProps) {
-  const [insights, setInsights] = useState<any[]>(fallbackInsights);
-
-  useEffect(() => {
-    async function load() {
-      try {
-        const data = await getInsights();
-        if (data && data.length > 0) {
-          const formatted = data.map((item: any, idx: number) => ({
-            id: item.id,
-            title: item.title,
-            category: item.category || "Strategic Perspective",
-            slug: item.slug || item.id,
-            date: item.publishedAt ? format(new Date(item.publishedAt), "MMM d, yyyy") : format(new Date(item.createdAt), "MMM d, yyyy"),
-            readTime: `${Math.max(3, Math.ceil((item.content?.length || 1500) / 500))} min read`,
-            excerpt: item.excerpt || "An in-depth exploration of brand strategy, design systems, and digital growth."
-          }));
-          setInsights(formatted);
-        }
-      } catch (err) {
-        console.error("Failed to load insights client-side:", err);
-      }
-    }
-    load();
-  }, []);
+export default function Insights({ settings, dbInsights = [] }: InsightsProps) {
+  const insights = dbInsights.length > 0
+    ? dbInsights.map((item: any) => ({
+        id: item.id,
+        title: item.title,
+        category: item.category || "Strategic Perspective",
+        slug: item.slug || item.id,
+        date: item.publishedAt
+          ? format(new Date(item.publishedAt), "MMM d, yyyy")
+          : format(new Date(item.createdAt), "MMM d, yyyy"),
+        readTime: readTimeFromLength(item.contentLength),
+        excerpt: item.excerpt || "An in-depth exploration of brand strategy, design systems, and digital growth.",
+      }))
+    : fallbackInsights;
 
   return (
     <section id="insights" className="py-20 md:py-32 lg:py-40 px-5 md:px-10 xl:px-20 bg-warm-100 text-navy-950">

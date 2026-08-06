@@ -187,13 +187,24 @@ export const InsightForm: React.FC<InsightFormProps> = ({ insight }) => {
       return;
     }
 
-    // Comprehensive sanitization: preserve tables, graphs, SVGs, iframes, styles, and data attributes
+    // Preserves tables, charts, SVGs and video embeds, which is what imported
+    // articles depend on.
+    //
+    // `script`, `object` and `embed` used to be in this allowlist. Adding
+    // `script` to ADD_TAGS tells DOMPurify to permit <script> — so pasting an
+    // HTML document containing one imported executable code into the article
+    // body verbatim, which is the exact thing this call exists to prevent.
+    // They are now forbidden explicitly as well as absent from the allowlist.
+    //
+    // `iframe` is deliberately kept for video embeds; the Content-Security-Policy
+    // in next.config.ts restricts frame-src to self, YouTube and Vimeo, so an
+    // iframe pointing anywhere else will not load.
     const clean = DOMPurify.sanitize(html, {
       ADD_TAGS: [
         "figure", "figcaption", "table", "thead", "tbody", "tfoot", "tr", "th", "td",
         "caption", "colgroup", "col", "svg", "path", "g", "rect", "circle", "line",
         "polyline", "polygon", "text", "tspan", "use", "defs", "linearGradient", "stop",
-        "foreignObject", "marker", "clipPath", "iframe", "embed", "object", "canvas", "style", "script"
+        "foreignObject", "marker", "clipPath", "iframe", "canvas", "style"
       ],
       ADD_ATTR: [
         "target", "rel", "style", "class", "id", "colspan", "rowspan", "border",
@@ -201,6 +212,10 @@ export const InsightForm: React.FC<InsightFormProps> = ({ insight }) => {
         "stroke-width", "stroke-linecap", "stroke-linejoin", "d", "transform", "src",
         "frameborder", "allow", "allowfullscreen", "loading", "align", "valign", "scope", "title"
       ],
+      FORBID_TAGS: ["script", "object", "embed", "base", "form", "link", "meta"],
+      // DOMPurify strips event handlers by default; naming them keeps that true
+      // if this config is widened again later.
+      FORBID_ATTR: ["onerror", "onload", "onclick", "onmouseover", "onfocus", "onanimationstart", "formaction"],
       ADD_DATA_URI_TAGS: ["img", "src", "use"],
     });
 

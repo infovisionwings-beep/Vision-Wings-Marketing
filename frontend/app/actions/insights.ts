@@ -5,7 +5,61 @@ import { requireAdmin } from "@/lib/auth/rbac";
 import { logAdminAction } from "@/lib/auth/audit-log";
 import { db } from "@/lib/db";
 import { insights } from "@/lib/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
+
+/**
+ * Every column except `content` and `contributors`, plus the body's length.
+ *
+ * Listings only ever needed a title, an excerpt and a read-time estimate, but
+ * read-time was derived from `content.length`, so the full article HTML was
+ * being transferred to compute one integer. At four articles that is 87 KB per
+ * call and it grows with every post published. `length(content)` is computed in
+ * Postgres instead, and the body never leaves the database.
+ */
+const SUMMARY_COLUMNS = {
+  id: insights.id,
+  title: insights.title,
+  slug: insights.slug,
+  category: insights.category,
+  coverImage: insights.coverImage,
+  excerpt: insights.excerpt,
+  authorName: insights.authorName,
+  authorRole: insights.authorRole,
+  authorAvatar: insights.authorAvatar,
+  isPublished: insights.isPublished,
+  status: insights.status,
+  publishedAt: insights.publishedAt,
+  createdAt: insights.createdAt,
+  updatedAt: insights.updatedAt,
+  // Tags stripped before measuring. The raw column length counted markup as
+  // prose, which is why a 2,500-word article was advertised as a 53-minute read.
+  contentLength: sql<number>`length(regexp_replace(${insights.content}, '<[^>]+>', '', 'g'))`,
+};
+
+/**
+ * Listing data for the insights index, the homepage section and the sitemap.
+ * Use this anywhere the article body is not rendered; use getInsights() only
+ * where the body is genuinely needed.
+ */
+export async function getInsightSummaries() {
+  try {
+    const results = await db
+      .select(SUMMARY_COLUMNS)
+      .from(insights)
+      .orderBy(desc(insights.createdAt));
+
+    return results.map((i) => ({
+      ...i,
+      contentLength: Number(i.contentLength) || 0,
+      createdAt: i.createdAt?.toISOString() || null,
+      updatedAt: i.updatedAt?.toISOString() || null,
+      publishedAt: i.publishedAt?.toISOString() || null,
+    }));
+  } catch (err) {
+    console.error("Failed to fetch insight summaries from Neon DB:", err);
+    return [];
+  }
+}
 
 export async function getInsights() {
   try {
@@ -56,6 +110,7 @@ export async function createInsight(data: any) {
       title: data.title,
       slug: data.slug,
       category: data.category,
+      excerpt: data.excerpt,
       coverImage: data.coverImage || "",
       content: data.content || "",
       authorName: data.authorName || "Amélie Laurent",
@@ -88,6 +143,7 @@ export async function updateInsight(id: number, data: any) {
       title: data.title,
       slug: data.slug,
       category: data.category,
+      excerpt: data.excerpt,
       coverImage: data.coverImage,
       content: data.content,
       authorName: data.authorName,

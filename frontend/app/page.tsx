@@ -13,6 +13,7 @@ import { getSettings } from "@/app/actions/settings";
 import { getCampaigns } from "@/app/actions/campaigns";
 import { getClientLogos } from "@/app/actions/clientLogos";
 import { getProjects } from "@/app/actions/projects";
+import { getInsightSummaries } from "@/app/actions/insights";
 import { pageMetadata } from "@/lib/seo";
 
 // The homepage carried no metadata of its own, so it had no canonical and
@@ -38,27 +39,33 @@ async function DynamicHomepageContent() {
   let archiveCampaigns: any[] = [];
   let logos: any[] = [];
   let dbProjects: any[] = [];
+  let dbInsights: any[] = [];
 
   try {
-    const [vData, pData, sData, heroData, showData, archData, logoData, projData] = await Promise.all([
+    const [vData, pData, sData, campaignData, logoData, projData, insightData] = await Promise.all([
       getCompletedVideos().catch(() => []),
       getPublishedPhotos().catch(() => []),
       getSettings().catch(() => ({})),
-      getCampaigns("hero").catch(() => []),
-      getCampaigns("showcases").catch(() => []),
-      getCampaigns("archive").catch(() => []),
+      // One query for all three sections instead of three round trips to a
+      // serverless database that each returned two rows.
+      getCampaigns().catch(() => []),
       getClientLogos().catch(() => []),
       getProjects().catch(() => []),
+      // Fetched here rather than from an effect inside <Insights>, so the
+      // section renders on the server and the article bodies never travel.
+      getInsightSummaries().catch(() => []),
     ]);
 
     dbVideos = vData || [];
     dbPhotos = pData || [];
     settings = sData || {};
-    heroCampaigns = heroData || [];
-    showcaseCampaigns = showData || [];
-    archiveCampaigns = archData || [];
+    const allCampaigns = campaignData || [];
+    heroCampaigns = allCampaigns.filter((c: any) => c.section === "hero");
+    showcaseCampaigns = allCampaigns.filter((c: any) => c.section === "showcases");
+    archiveCampaigns = allCampaigns.filter((c: any) => c.section === "archive");
     logos = logoData || [];
     dbProjects = projData || [];
+    dbInsights = insightData || [];
   } catch (err) {
     console.error("Failed to fetch CMS data for homepage:", err);
   }
@@ -71,7 +78,7 @@ async function DynamicHomepageContent() {
       <Projects projects={dbProjects} settings={settings} />
       <Work dbProjects={dbProjects} dbCampaigns={archiveCampaigns} dbPhotos={dbPhotos} settings={settings} />
       <FeaturedVideosSection dbVideos={dbVideos} settings={settings} dbCampaigns={showcaseCampaigns} />
-      <Insights settings={settings} />
+      <Insights settings={settings} dbInsights={dbInsights} />
       <Contact settings={settings} />
     </>
   );

@@ -10,6 +10,7 @@ import AnimatedLogo from "@/components/motion/AnimatedLogo";
 import Button from "@/components/ui/Button";
 import { Link } from "@/components/ui/Link";
 import { content } from "@/lib/content";
+import { responsiveImage } from "@/lib/media/responsiveImage";
 
 interface HeroProps {
   campaign?: any;
@@ -102,10 +103,18 @@ export default function Hero({ campaign, settings }: HeroProps) {
           <div className="lg:col-span-5 flex justify-center items-center w-full">
             {heroImage ? (
               // eslint-disable-next-line @next/next/no-img-element
+              // The homepage LCP element. It carries an explicit priority hint
+              // and eager decoding so it is not queued behind the analytics and
+              // hydration chunks, and intrinsic dimensions so the column does
+              // not collapse and reflow when it lands.
               <img
-                src={heroImage}
+                {...responsiveImage(heroImage, "(max-width: 1024px) 90vw, 380px")}
                 alt={heroImageAlt}
-                className="w-full max-w-[380px] rounded-2xl object-cover shadow-xl"
+                width={380}
+                height={380}
+                fetchPriority="high"
+                decoding="async"
+                className="w-full max-w-[380px] h-auto rounded-2xl object-cover shadow-xl"
               />
             ) : (
               <AnimatedLogo isReducedMotion={!!prefersReducedMotion} />

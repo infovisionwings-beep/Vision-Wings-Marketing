@@ -1,4 +1,5 @@
-import { pgTable, serial, text, varchar, timestamp, boolean, jsonb, uuid, bigint, integer } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, varchar, timestamp, boolean, jsonb, uuid, bigint, integer, index } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 export const projects = pgTable("projects", {
   id: serial("id").primaryKey(),
@@ -38,6 +39,10 @@ export const insights = pgTable("insights", {
   category: varchar("category", { length: 100 }).notNull(),
   coverImage: text("cover_image"),
   content: text("content").notNull(),
+  // Listing pages read this instead of the article body. Without it the cards
+  // fell back to another article's excerpt, and every list query had to pull the
+  // full `content` column just to have something to show.
+  excerpt: text("excerpt"),
   authorName: varchar("author_name", { length: 255 }),
   authorRole: varchar("author_role", { length: 255 }),
   authorAvatar: text("author_avatar"),
@@ -171,7 +176,12 @@ export const adminAuditLogs = pgTable("admin_audit_logs", {
   newValue: jsonb("new_value"),
   status: varchar("status", { length: 50 }), // success, failure
   failureReason: text("failure_reason"),
-});
+}, (t) => ({
+  // The only table here that grows without bound — it is append-only and never
+  // pruned. The audit view reads it newest-first, so this is the one ordering
+  // that will stop being free once the table outgrows a few pages.
+  timestampIdx: index("admin_audit_logs_timestamp_idx").on(sql`${t.timestamp} DESC`),
+}));
 
 // Admin OTPs for Dual Verification
 export const adminOtps = pgTable("admin_otps", {
@@ -245,4 +255,9 @@ export const signupOtps = pgTable("signup_otps", {
   expiresAt: timestamp("expires_at").notNull(),
   status: varchar("status", { length: 50 }).default("pending"), // pending, verified, expired
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (t) => ({
+  // Every signup path looks up the newest pending OTP for one email. Rows
+  // accumulate per attempt and are only deleted on success, so this table grows
+  // with failed signups even though it holds few rows at any moment.
+  emailCreatedIdx: index("signup_otps_email_created_at_idx").on(t.email, sql`${t.createdAt} DESC`),
+}));
