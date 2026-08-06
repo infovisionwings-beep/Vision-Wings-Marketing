@@ -4,7 +4,7 @@
 // VISUAL_DENSITY: 5
 
 import { getProjects } from "@/app/actions/projects";
-import { getInsights } from "@/app/actions/insights";
+import { getInsightSummaries } from "@/app/actions/insights";
 import { getAdminCampaigns } from "@/app/actions/campaigns";
 import { db } from "@/lib/db";
 import { userProfiles } from "@/lib/db/schema";
@@ -23,7 +23,8 @@ export default async function AdminDashboard() {
   try {
     const [pData, iData, lData, cData] = await Promise.all([
       getProjects(),
-      getInsights(),
+      // The dashboard only renders insights.length — no need for the bodies.
+      getInsightSummaries(),
       db.select().from(userProfiles),
       getAdminCampaigns()
     ]);

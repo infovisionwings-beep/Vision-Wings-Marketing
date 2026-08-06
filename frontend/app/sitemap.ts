@@ -1,5 +1,5 @@
 import { MetadataRoute } from "next";
-import { getInsights } from "@/app/actions/insights";
+import { getInsightSummaries } from "@/app/actions/insights";
 import { getProjects } from "@/app/actions/projects";
 import { SITE_URL } from "@/lib/seo";
 import { localInsights } from "@/lib/content/localInsights";
@@ -42,7 +42,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // pages, and none of them were being advertised to search engines. A failure
   // here must not take the whole sitemap down, so each source degrades to empty.
   const [insights, projects] = await Promise.all([
-    getInsights().catch(() => []),
+    getInsightSummaries().catch(() => []),
     getProjects().catch(() => []),
   ]);
 
