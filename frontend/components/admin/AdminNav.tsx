@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Link } from "@/components/ui/Link";
 import { logoutAdmin } from "@/app/actions/adminAuth";
+import { canAccess } from "@/lib/auth/adminAccess";
 
 export interface AdminNavItem {
   href: string;
@@ -49,13 +50,20 @@ export function isActiveRoute(pathname: string, href: string) {
   return href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
 }
 
-/** Nav list shared by both surfaces. `onNavigate` lets the drawer close itself. */
-export function AdminNavList({ onNavigate }: { onNavigate?: () => void }) {
+/** Nav list shared by both surfaces. `onNavigate` lets the drawer close itself.
+ *  `role` filters out sections this admin would only be redirected away from —
+ *  a group whose every item is filtered drops its heading too, rather than
+ *  leaving a bare "Content" label above nothing. */
+export function AdminNavList({ role, onNavigate }: { role?: string; onNavigate?: () => void }) {
   const pathname = usePathname();
+
+  const groups = ADMIN_NAV
+    .map((group) => ({ ...group, items: group.items.filter((item) => canAccess(role, item.href)) }))
+    .filter((group) => group.items.length > 0);
 
   return (
     <nav className="flex flex-col gap-6" aria-label="Admin">
-      {ADMIN_NAV.map((group) => (
+      {groups.map((group) => (
         <div key={group.heading} className="space-y-1">
           <h2 className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-widest text-navy-400">
             {group.heading}

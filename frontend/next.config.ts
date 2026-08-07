@@ -18,6 +18,24 @@ import type { NextConfig } from "next";
  * Upgrade path: if inline scripts are ever consolidated, switch to
  * `'strict-dynamic'` with a per-request nonce and drop `'unsafe-inline'`.
  */
+/**
+ * The Express API is a separate origin, and the admin console calls it straight
+ * from the browser (media uploads, conversion polling). It is read from the env
+ * rather than written in literally because the Render URL has already changed
+ * once — a hardcoded host silently blocks every admin fetch the next time it
+ * moves, and the failure shows up only as a CSP console error.
+ */
+const backendOrigin = (() => {
+  const raw = process.env.NEXT_PUBLIC_BACKEND_URL;
+  if (!raw) return "";
+  try {
+    return new URL(raw).origin;
+  } catch {
+    console.warn(`NEXT_PUBLIC_BACKEND_URL is not a valid URL: ${raw}`);
+    return "";
+  }
+})();
+
 const CSP = [
   "default-src 'self'",
   // Analytics, plus Turnstile's loader on the login/signup screen.
@@ -29,7 +47,7 @@ const CSP = [
   "img-src 'self' data: blob: https:",
   "media-src 'self' blob: https:",
   // Where the page may send data. This is the directive doing the real work.
-  "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.googletagmanager.com https://*.neon.tech https://*.vercel-storage.com",
+  `connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.googletagmanager.com https://*.neon.tech https://*.vercel-storage.com${backendOrigin ? ` ${backendOrigin}` : ""}`,
   // Turnstile renders its widget in an iframe from the same origin.
   "frame-src 'self' https://www.youtube.com https://player.vimeo.com https://challenges.cloudflare.com",
   "object-src 'none'",

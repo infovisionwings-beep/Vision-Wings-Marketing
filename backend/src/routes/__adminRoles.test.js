@@ -4,9 +4,13 @@
 // Run: node backend/src/routes/__adminRoles.test.js
 const assert = require('assert');
 
-const MEDIA_ROLES = ['Developer', 'Admin', 'Content Manager'];
-const CONTENT_ROLES = ['Developer', 'Admin', 'Content Manager', 'SEO'];
-const BLOG_ROLES = ['Admin', 'SEO'];
+// Mirrors adminAccess.ts: FULL_ACCESS_ROLES plus each section's extra roles.
+// SEO owns written content, Content Manager owns campaigns, both upload media.
+const MEDIA_ROLES = ['Developer', 'Admin', 'SEO', 'Content Manager'];
+const CAMPAIGN_ROLES = ['Developer', 'Admin', 'Content Manager'];
+const BLOG_ROLES = ['Developer', 'Admin', 'SEO'];
+// Sections outside both designations — projects, logos, leads, site content.
+const FULL_ACCESS_ONLY = ['Developer', 'Admin'];
 
 // --- role derivation (frontend/lib/auth/rbac.ts) ------------------------------
 // dbRole simulates the backend /is-admin lookup; null = not an admin.
@@ -47,19 +51,29 @@ assert.strictEqual(deriveRole({ email: 'seo@vw.com', superAdminEmail: SUPER, jwt
 assert.strictEqual(deriveRole({ email: 'ops@vw.com', superAdminEmail: SUPER, jwtRole: null, dbRole: null, adminEmails: ['ops@vw.com'] }), 'Admin');
 
 // --- per-designation enforcement (backend/src/routes/admin.ts) ----------------
-// SEO must not touch photos/videos; Content Manager must not touch blogs.
-assert.ok(!allowed('SEO', MEDIA_ROLES), 'SEO must not edit or archive media');
-assert.ok(!allowed('Content Manager', BLOG_ROLES), 'Content Manager must not edit blogs');
-assert.ok(allowed('Content Manager', MEDIA_ROLES));
-assert.ok(allowed('SEO', BLOG_ROLES));
+// Both designations upload media; each owns exactly one publishing surface.
+assert.ok(allowed('SEO', MEDIA_ROLES), 'SEO uploads to the shared media library');
+assert.ok(allowed('Content Manager', MEDIA_ROLES), 'Content Manager uploads too');
 
-// Admin does both; Developer does everything.
-for (const roles of [MEDIA_ROLES, CONTENT_ROLES, BLOG_ROLES]) {
-  assert.ok(allowed('Admin', roles), 'Admin covers both designations');
+assert.ok(allowed('SEO', BLOG_ROLES), 'SEO owns written content');
+assert.ok(!allowed('Content Manager', BLOG_ROLES), 'Content Manager must not edit insights');
+
+assert.ok(allowed('Content Manager', CAMPAIGN_ROLES), 'Content Manager owns campaigns');
+assert.ok(!allowed('SEO', CAMPAIGN_ROLES), 'SEO must not edit campaigns');
+
+// Neither designation reaches the sections outside both remits.
+assert.ok(!allowed('SEO', FULL_ACCESS_ONLY), 'SEO must not reach projects/logos/leads/site content');
+assert.ok(!allowed('Content Manager', FULL_ACCESS_ONLY), 'Content Manager must not either');
+
+// Admin covers every ordinary section; Developer covers everything.
+for (const roles of [MEDIA_ROLES, CAMPAIGN_ROLES, BLOG_ROLES, FULL_ACCESS_ONLY]) {
+  assert.ok(allowed('Admin', roles), 'Admin covers every ordinary section');
   assert.ok(allowed('Developer', roles), 'Developer is allowed everywhere');
 }
 
-// Only Developer reaches admin creation.
+// Only Developer reaches admin creation. Admin is full-access by being listed
+// in every section, NOT by bypassing the role check — if it ever bypasses, it
+// passes this gate too and can mint other admins.
 assert.ok(!allowed('Admin', ['Developer']), 'Admin must not be able to add other admins');
 assert.ok(!allowed('SEO', ['Developer']));
 assert.ok(!allowed('Content Manager', ['Developer']));

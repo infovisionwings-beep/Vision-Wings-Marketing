@@ -11,15 +11,15 @@ import { sendEmail, MAIL_FROM } from '../email';
 
 const router = Router();
 
-// Ownership split, matching the page guards in frontend/app/admin:
+// Ownership split, matching frontend/lib/auth/adminAccess.ts:
 //   media library   — SEO and Content Manager both upload
-//   campaigns       — SEO decides what appears where on the public site
-//   written content — Content Manager owns essays and insights
+//   written content — SEO owns essays and insights
+//   campaigns       — Content Manager decides what appears where on the site
 // Developer is the super admin and Admin is the existing full-access role, so
 // both appear everywhere. These must stay in step with the frontend guards: a
 // page that blocks a role while the API still answers it is not a restriction.
 const MEDIA_ROLES = ['Developer', 'Admin', 'SEO', 'Content Manager'];
-const CAMPAIGN_ROLES = ['Developer', 'Admin', 'SEO'];
+const CAMPAIGN_ROLES = ['Developer', 'Admin', 'Content Manager'];
 
 // Roles the super admin may hand out. 'Developer' is deliberately absent: it comes
 // from SUPER_ADMIN_EMAIL only, so no invite can mint another super admin.

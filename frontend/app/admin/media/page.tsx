@@ -1,4 +1,5 @@
 import { requireAdmin } from "@/lib/auth/rbac";
+import { rolesFor } from "@/lib/auth/adminAccess";
 import MediaLibrary from "@/components/admin/MediaLibrary";
 
 export const dynamic = "force-dynamic";
@@ -9,7 +10,7 @@ export const dynamic = "force-dynamic";
  * links inside the pipeline console do not 404.
  */
 export default async function MediaLibraryPage() {
-  await requireAdmin(["SEO", "Content Manager"]);
+  await requireAdmin(rolesFor("/admin/media"));
 
   return (
     <div className="space-y-8">
