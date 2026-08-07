@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Menu, X } from "lucide-react";
 import { AdminNavList, AdminLogoutButton } from "./AdminNav";
 
@@ -64,7 +65,16 @@ export function AdminMobileNav() {
         <Menu className="h-6 w-6" />
       </button>
 
-      {isOpen && (
+      {/*
+        Portalled to <body> rather than left where it sits in the tree. This
+        component renders inside the admin header, and that header carries
+        `backdrop-blur-md` — a backdrop-filter makes an element the containing
+        block for its `position: fixed` descendants. So `fixed inset-0` resolved
+        against the header's own box: the drawer and its backdrop were clipped to
+        a thin strip across the top of the screen and the nav was unreachable on
+        mobile. The portal takes it out from under any ancestor filter.
+      */}
+      {isOpen && typeof document !== "undefined" && createPortal(
         <div className="fixed inset-0 z-50 flex">
           <div
             className="fixed inset-0 bg-navy-950/60 backdrop-blur-sm"
@@ -105,7 +115,8 @@ export function AdminMobileNav() {
               <AdminLogoutButton />
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
