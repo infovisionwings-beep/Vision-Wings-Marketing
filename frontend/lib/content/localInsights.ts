@@ -80,6 +80,18 @@ export const localInsights: LocalInsight[] = [
     coverImage: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1600&q=80",
     ...BYLINE,
   },
+  {
+    slug: "rbi-polymer-banknotes-india",
+    file: "rbi-polymer-banknotes-india.html",
+    title: "RBI's Plastic Money Pilot: What India Actually Approved, and Why It Failed Twice Before",
+    category: "Policy & Economy",
+    date: "Aug 6, 2026",
+    publishedAt: "2026-08-06T00:00:00Z",
+    readTime: "34 min read",
+    excerpt: "The government cleared two billion polymer ₹10 and ₹20 notes for field trials. The tender demands substrate certified free of animal tallow — a condition no other country imposes — and India's paper notes already last four to five years, which makes the savings case far weaker here than in Australia or Britain.",
+    coverImage: "https://images.unsplash.com/photo-1565514160046-79d8ca6510b6?auto=format&fit=crop&w=1600&q=80",
+    ...BYLINE,
+  },
 ];
 
 export const localInsightBySlug = Object.fromEntries(
