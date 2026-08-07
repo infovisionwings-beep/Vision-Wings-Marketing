@@ -7,12 +7,9 @@ import Button from "@/components/ui/Button";
 import { Eye, Target, Briefcase, FileText, Mail } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useActiveSection } from "@/hooks/useActiveSection";
-import { UserCircle, LogOut, LayoutGrid } from "lucide-react";
-import { logoutUser } from "@/app/actions/auth";
-import { useTransition } from "react";
+import { UserCircle, LayoutGrid } from "lucide-react";
 
 export default function Navbar({ user, isAdmin }: { user: any; isAdmin?: boolean }) {
-  const [isPending, startTransition] = useTransition();
   const [isScrolled, setIsScrolled] = useState(false);
   const { scrollY } = useScroll();
   const pathname = usePathname();
@@ -104,24 +101,17 @@ export default function Navbar({ user, isAdmin }: { user: any; isAdmin?: boolean
                       <p className="text-sm font-semibold text-warm-50 truncate">{user?.email || "Admin"}</p>
                     </div>
 
+                    {/* Signing out lives on the dashboard now, on both
+                        breakpoints — one place to manage the account rather
+                        than a control that differs by screen width. */}
                     <Link
                       href="/dashboard"
-                      className="w-full px-3 py-2 text-sm text-warm-50 hover:bg-navy-900 rounded-lg transition-colors flex items-center gap-2 min-h-[40px] outline-none focus-visible:ring-2 focus-visible:ring-bronze-500"
+                      className="w-full px-3 py-2 text-sm text-warm-50 hover:bg-navy-900 rounded-lg transition-colors flex items-center gap-2 min-h-[44px] outline-none focus-visible:ring-2 focus-visible:ring-bronze-500"
                       data-interactive
                     >
                       <LayoutGrid className="w-4 h-4 text-navy-300" />
                       <span>Dashboard</span>
                     </Link>
-
-                    <button
-                      onClick={() => startTransition(() => logoutUser())}
-                      disabled={isPending}
-                      className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-navy-900 rounded-lg transition-colors flex items-center gap-2 mt-1 min-h-[44px]"
-                      data-interactive
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>{isPending ? "Logging out..." : "Logout"}</span>
-                    </button>
                   </div>
                 </div>
               ) : (
@@ -167,11 +157,15 @@ export default function Navbar({ user, isAdmin }: { user: any; isAdmin?: boolean
             <span className={`text-[10px] font-medium tracking-wide uppercase transition-colors ${isActive("/contact", "contact") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`}>Contact</span>
           </Link>
 
+          {/* Signed in, this slot used to be Logout — which meant the dock had
+              no route to the dashboard at all, and the only thing a phone user
+              could do with their account was leave it. Signing out now lives on
+              the dashboard, where the rest of the account already is. */}
           {user ? (
-            <button onClick={() => startTransition(() => logoutUser())} disabled={isPending} className="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] px-1 py-1 gap-1 group focus-visible:ring-2 focus-visible:ring-bronze-500 rounded-lg outline-none" data-interactive>
-              <LogOut className="w-6 h-6 text-navy-500 group-hover:text-red-500 transition-colors" />
-              <span className="text-[10px] font-medium tracking-wide uppercase text-navy-500 group-hover:text-red-500 transition-colors">Logout</span>
-            </button>
+            <Link href="/dashboard" className="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] px-1 py-1 gap-1 group focus-visible:ring-2 focus-visible:ring-bronze-500 rounded-lg outline-none" data-interactive>
+              <LayoutGrid className={`w-6 h-6 transition-colors ${isActive("/dashboard", "dashboard") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`} />
+              <span className={`text-[10px] font-medium tracking-wide uppercase transition-colors ${isActive("/dashboard", "dashboard") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`}>Account</span>
+            </Link>
           ) : (
             <Link href="/login" className="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] px-1 py-1 gap-1 group focus-visible:ring-2 focus-visible:ring-bronze-500 rounded-lg outline-none" data-interactive>
               <UserCircle className={`w-6 h-6 transition-colors ${isActive("/login", "login") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`} />

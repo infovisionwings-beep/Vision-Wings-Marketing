@@ -1,7 +1,6 @@
 import { getInsightBySlug } from "@/app/actions/insights";
 import { notFound } from "next/navigation";
 import { Link } from "@/components/ui/Link";
-import Button from "@/components/ui/Button";
 import { ArrowLeft, ArrowUpRight, Calendar, BookOpen, CheckCircle2, Star, User, Users } from "lucide-react";
 import EssayActions from "@/components/essay/EssayActions";
 import { isEssaySaved } from "@/app/actions/savedEssays";
@@ -15,6 +14,8 @@ import { responsiveImage } from "@/lib/media/responsiveImage";
 import { getRelatedInsights } from "@/lib/content/relatedInsights";
 import { auth } from "@/lib/auth/server";
 import PreferredSourcePrompt from "@/components/essay/PreferredSourcePrompt";
+import NewsletterSubscribeButton from "@/components/essay/NewsletterSubscribeButton";
+import { isSubscribedToNewsletter } from "@/app/actions/newsletter";
 
 export const dynamic = "force-dynamic";
 
@@ -216,9 +217,10 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
 
   // Further reading, and whether this reader is signed in — the preferred-source
   // prompt is only shown to people who already have an account here.
-  const [related, session] = await Promise.all([
+  const [related, session, subscribedToNewsletter] = await Promise.all([
     getRelatedInsights(slug, article.category),
     auth.getSession().catch(() => null),
+    isSubscribedToNewsletter(),
   ]);
   const signedIn = Boolean((session as any)?.data?.user);
 
@@ -747,15 +749,11 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
               <p className="text-xs text-navy-500 leading-relaxed font-normal">
                 Receive senior strategic viewpoints on brand architecture and digital craft in your inbox every Tuesday.
               </p>
-              <div className="space-y-2.5 pt-1">
-                <input 
-                  type="email" 
-                  placeholder="Enter your email" 
-                  className="w-full px-4 py-2.5 rounded-xl border border-navy-200 bg-warm-50/50 text-sm text-navy-900 placeholder:text-navy-400 focus:outline-none focus:border-bronze-500 focus:bg-white transition-all"
-                />
-                <Button className="w-full justify-center bg-navy-950 text-warm-50 hover:bg-navy-900 py-2.5 rounded-xl text-sm font-bold shadow-md">
-                  Subscribe
-                </Button>
+              {/* No email field: the address comes from the session, so the
+                  only person who can subscribe an address is the one who owns
+                  it. The field was wired to nothing anyway. */}
+              <div className="pt-1">
+                <NewsletterSubscribeButton initiallySubscribed={subscribedToNewsletter} />
               </div>
             </div>
 

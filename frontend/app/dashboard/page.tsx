@@ -3,7 +3,10 @@ import { format } from "date-fns";
 import { Link } from "@/components/ui/Link";
 import { getAccountSummary } from "@/app/actions/account";
 import { getSavedEssays } from "@/app/actions/savedEssays";
+import { isSubscribedToNewsletter } from "@/app/actions/newsletter";
 import SavedEssayCard, { EmptyLibrary } from "@/components/account/SavedEssayCard";
+import SignOutButton from "@/components/account/SignOutButton";
+import NewsletterSubscribeButton from "@/components/essay/NewsletterSubscribeButton";
 import { pageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +32,11 @@ function Detail({ label, value }: { label: string; value: string | null | undefi
 }
 
 export default async function DashboardPage() {
-  const [account, essays] = await Promise.all([getAccountSummary(), getSavedEssays()]);
+  const [account, essays, subscribed] = await Promise.all([
+    getAccountSummary(),
+    getSavedEssays(),
+    isSubscribedToNewsletter(),
+  ]);
 
   // The proxy already gates /dashboard on a session; this covers the gap
   // between the cookie existing and the session behind it still resolving.
@@ -41,16 +48,21 @@ export default async function DashboardPage() {
     <div className="min-h-screen bg-warm-50 px-5 pb-24 pt-32 text-navy-950 md:px-10 xl:px-20">
       <div className="mx-auto max-w-[1080px] space-y-14">
 
-        <header className="border-b border-navy-200 pb-9">
-          <h1 className="text-display font-bold leading-[1.05] tracking-tight text-balance">
-            {account.displayName}
-          </h1>
-          <p className="mt-3 font-mono text-body-sm text-navy-600">{account.email}</p>
-          {account.memberSince && (
-            <p className="mt-1 font-mono text-[11px] uppercase tracking-widest text-navy-500">
-              Member since {format(new Date(account.memberSince), "MMMM yyyy")}
-            </p>
-          )}
+        <header className="flex flex-col gap-6 border-b border-navy-200 pb-9 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-display font-bold leading-[1.05] tracking-tight text-balance">
+              {account.displayName}
+            </h1>
+            <p className="mt-3 font-mono text-body-sm text-navy-600">{account.email}</p>
+            {account.memberSince && (
+              <p className="mt-1 font-mono text-[11px] uppercase tracking-widest text-navy-500">
+                Member since {format(new Date(account.memberSince), "MMMM yyyy")}
+              </p>
+            )}
+          </div>
+          <div className="flex-shrink-0">
+            <SignOutButton />
+          </div>
         </header>
 
         <div className="grid grid-cols-1 gap-14 lg:grid-cols-12 lg:gap-16">
@@ -133,6 +145,22 @@ export default async function DashboardPage() {
                 </Link>
               </div>
             )}
+
+            {/* The one place a subscription can be undone. The essay-page button
+                only ever subscribes, and points here to cancel. */}
+            <div className="mt-12 border-t border-navy-200 pt-6">
+              <h3 id="newsletter-heading" className="text-h3 font-bold tracking-tight">
+                Newsletter
+              </h3>
+              <p className="mt-2 text-body-sm leading-relaxed text-navy-600">
+                {subscribed
+                  ? "You're receiving senior strategic viewpoints on brand architecture and digital craft every Tuesday."
+                  : "Senior strategic viewpoints on brand architecture and digital craft, every Tuesday."}
+              </p>
+              <div className="mt-4 max-w-xs">
+                <NewsletterSubscribeButton initiallySubscribed={subscribed} allowUnsubscribe />
+              </div>
+            </div>
           </section>
 
         </div>
