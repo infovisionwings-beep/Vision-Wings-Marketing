@@ -28,11 +28,16 @@ export const metadata: Metadata = {
   authors: [{ name: "Vision Wings Marketing" }],
   icons: {
     icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-48x48.png", sizes: "48x48", type: "image/png" },
       { url: "/icon.svg", type: "image/svg+xml" },
-      { url: "/logo-svg/Primary%20ICON.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
-    shortcut: "/icon.svg",
-    apple: "/logo-svg/Primary%20ICON.svg",
+    shortcut: "/favicon.ico",
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
   openGraph: {
     title: "Vision Wings Marketing - Strategic Growth & Marketing Agency",
