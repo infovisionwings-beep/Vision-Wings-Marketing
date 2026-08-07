@@ -19,22 +19,37 @@ import type { NextConfig } from "next";
  * `'strict-dynamic'` with a per-request nonce and drop `'unsafe-inline'`.
  */
 /**
- * The Express API is a separate origin, and the admin console calls it straight
- * from the browser (media uploads, conversion polling). It is read from the env
- * rather than written in literally because the Render URL has already changed
- * once — a hardcoded host silently blocks every admin fetch the next time it
- * moves, and the failure shows up only as a CSP console error.
+ * Origins the browser must be allowed to reach are read from the env rather
+ * than written in literally, because they move: the Render backend URL has
+ * already changed once, and @vercel/blob lets its API host be overridden. A
+ * hardcoded host silently blocks the call the next time either moves, and the
+ * failure surfaces only as a CSP console error.
  */
-const backendOrigin = (() => {
-  const raw = process.env.NEXT_PUBLIC_BACKEND_URL;
-  if (!raw) return "";
+function originFromEnv(value: string | undefined, label: string, fallback = ""): string {
+  if (!value) return fallback;
   try {
-    return new URL(raw).origin;
+    return new URL(value).origin;
   } catch {
-    console.warn(`NEXT_PUBLIC_BACKEND_URL is not a valid URL: ${raw}`);
-    return "";
+    console.warn(`${label} is not a valid URL: ${value}`);
+    return fallback;
   }
-})();
+}
+
+// The admin console calls the Express API straight from the browser — media
+// uploads, conversion-status polling.
+const backendOrigin = originFromEnv(process.env.NEXT_PUBLIC_BACKEND_URL, "NEXT_PUBLIC_BACKEND_URL");
+
+// Media uploads go through @vercel/blob's client flow: the browser fetches a
+// short-lived token from our own route, then talks to the Blob API directly.
+// That API lives on vercel.com, which is a different origin from the
+// *.vercel-storage.com host the finished blobs are served from — so allowing
+// the storage host alone let reads through while every upload was refused.
+// Default matches `defaultVercelBlobApiUrl` in the SDK.
+const blobApiOrigin = originFromEnv(
+  process.env.NEXT_PUBLIC_VERCEL_BLOB_API_URL,
+  "NEXT_PUBLIC_VERCEL_BLOB_API_URL",
+  "https://vercel.com"
+);
 
 const CSP = [
   "default-src 'self'",
@@ -47,7 +62,16 @@ const CSP = [
   "img-src 'self' data: blob: https:",
   "media-src 'self' blob: https:",
   // Where the page may send data. This is the directive doing the real work.
-  `connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.googletagmanager.com https://*.neon.tech https://*.vercel-storage.com${backendOrigin ? ` ${backendOrigin}` : ""}`,
+  [
+    "connect-src 'self'",
+    "https://www.google-analytics.com",
+    "https://*.google-analytics.com",
+    "https://*.googletagmanager.com",
+    "https://*.neon.tech",
+    "https://*.vercel-storage.com",
+    blobApiOrigin,
+    backendOrigin,
+  ].filter(Boolean).join(" "),
   // Turnstile renders its widget in an iframe from the same origin.
   "frame-src 'self' https://www.youtube.com https://player.vimeo.com https://challenges.cloudflare.com",
   "object-src 'none'",
