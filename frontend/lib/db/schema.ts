@@ -83,6 +83,24 @@ export const savedEssays = pgTable("saved_essays", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+/**
+ * Newsletter opt-ins.
+ *
+ * There is no email field on the sign-up control: the address comes from the
+ * session, so the only person who can subscribe an address is the person who
+ * owns it. A row here means subscribed — unsubscribing deletes it rather than
+ * setting a flag, so there is no "is it null or false" question to get wrong,
+ * and re-subscribing is the same insert as the first time.
+ *
+ * userId matches userProfiles.userId: the Better Auth email, lowercased. It is
+ * both the identity and the address to send to, so no second column is needed.
+ */
+export const newsletterSubscribers = pgTable("newsletter_subscribers", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).notNull().unique(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const contactSubmissions = pgTable("contact_submissions", {
   id: uuid("id").defaultRandom().primaryKey(),
   firstName: varchar("first_name", { length: 255 }).notNull(),
