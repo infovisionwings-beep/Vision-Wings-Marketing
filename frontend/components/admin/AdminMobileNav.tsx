@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { Menu, X } from "lucide-react";
 import { AdminNavList, AdminLogoutButton } from "./AdminNav";
 
-export function AdminMobileNav() {
+export function AdminMobileNav({ role }: { role?: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -108,7 +108,7 @@ export function AdminMobileNav() {
             </div>
 
             <div className="flex-1 px-4 py-6">
-              <AdminNavList onNavigate={() => setIsOpen(false)} />
+              <AdminNavList role={role} onNavigate={() => setIsOpen(false)} />
             </div>
 
             <div className="border-t border-navy-800 p-4">

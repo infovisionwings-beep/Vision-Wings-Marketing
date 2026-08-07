@@ -1,4 +1,6 @@
 import { InsightForm } from "@/components/admin/InsightForm";
+import { requireAdmin } from "@/lib/auth/rbac";
+import { rolesFor } from "@/lib/auth/adminAccess";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { insights } from "@/lib/db/schema";
@@ -9,6 +11,10 @@ export const metadata = {
 };
 
 export default async function EditInsightPage({ params }: { params: Promise<{ id: string }> }) {
+  // This page carried no role check at all, so it inherited only the layout's
+  // "any resolved admin role" gate — a direct URL let a role that cannot open
+  // the insights list edit an article through it.
+  await requireAdmin(rolesFor("/admin/insights"));
   const { id } = await params;
   const insightId = parseInt(id, 10);
   if (isNaN(insightId)) {

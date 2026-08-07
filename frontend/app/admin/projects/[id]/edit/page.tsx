@@ -3,8 +3,11 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { projects } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { requireAdmin } from "@/lib/auth/rbac";
+import { rolesFor } from "@/lib/auth/adminAccess";
 
 export default async function EditProjectPage({ params }: { params: Promise<{ id: string }> }) {
+  await requireAdmin(rolesFor("/admin/projects"));
   const { id } = await params;
   const projectId = parseInt(id, 10);
   if (isNaN(projectId)) {

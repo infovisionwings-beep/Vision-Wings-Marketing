@@ -7,11 +7,17 @@ import { format } from "date-fns";
 import { db } from "@/lib/db";
 import { userProfiles, contactSubmissions } from "@/lib/db/schema";
 import { desc } from "drizzle-orm";
+import { requireAdmin } from "@/lib/auth/rbac";
+import { rolesFor } from "@/lib/auth/adminAccess";
 import { Users, Building2, User, Phone, MapPin, Sparkles, Mail, MessageSquare } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminLeadsPage() {
+  // This page had no role check of its own while listing names, emails, phone
+  // numbers and enquiry text — the layout's "any resolved admin role" gate was
+  // the only thing in front of it.
+  await requireAdmin(rolesFor("/admin/leads"));
   let leads: any[] = [];
   let inquiries: any[] = [];
   try {

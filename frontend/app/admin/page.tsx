@@ -9,11 +9,18 @@ import { getAdminCampaigns } from "@/app/actions/campaigns";
 import { db } from "@/lib/db";
 import { userProfiles } from "@/lib/db/schema";
 import { Link } from "@/components/ui/Link";
+import { requireAdmin } from "@/lib/auth/rbac";
+import { canAccess } from "@/lib/auth/adminAccess";
 import { ArrowRight, FileText, Video, Sparkles, Plus, ShieldAlert, Layers } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
+  // Same map the nav filters on, so the dashboard cannot offer a shortcut into
+  // a section the sidebar has already hidden from this role.
+  const { role } = await requireAdmin();
+  const allowed = (href: string) => canAccess(role, href);
+
   let projects: any[] = [];
   let insights: any[] = [];
   let leads: any[] = [];
@@ -44,22 +51,36 @@ export default async function AdminDashboard() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-navy-200 pb-6">
         <h1 className="text-h2 font-bold text-navy-950 tracking-tight">Dashboard</h1>
         <div className="flex flex-wrap gap-2">
-          <Link
-            href="/admin/projects/new"
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-navy-950 px-4 text-sm font-semibold text-warm-50 transition-colors outline-none hover:bg-navy-900 focus-visible:ring-2 focus-visible:ring-bronze-500"
-            data-interactive
-          >
-            <Plus className="w-4 h-4 text-bronze-400" />
-            New project
-          </Link>
-          <Link
-            href="/admin/insights/new"
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-navy-300 bg-warm-200 px-4 text-sm font-semibold text-navy-950 transition-colors outline-none hover:bg-warm-300 focus-visible:ring-2 focus-visible:ring-bronze-500"
-            data-interactive
-          >
-            <FileText className="w-4 h-4 text-bronze-700" />
-            New insight
-          </Link>
+          {allowed("/admin/projects") && (
+            <Link
+              href="/admin/projects/new"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-navy-950 px-4 text-sm font-semibold text-warm-50 transition-colors outline-none hover:bg-navy-900 focus-visible:ring-2 focus-visible:ring-bronze-500"
+              data-interactive
+            >
+              <Plus className="w-4 h-4 text-bronze-400" />
+              New project
+            </Link>
+          )}
+          {allowed("/admin/insights") && (
+            <Link
+              href="/admin/insights/new"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-navy-300 bg-warm-200 px-4 text-sm font-semibold text-navy-950 transition-colors outline-none hover:bg-warm-300 focus-visible:ring-2 focus-visible:ring-bronze-500"
+              data-interactive
+            >
+              <FileText className="w-4 h-4 text-bronze-700" />
+              New insight
+            </Link>
+          )}
+          {allowed("/admin/campaigns") && (
+            <Link
+              href="/admin/campaigns/new"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-navy-300 bg-warm-200 px-4 text-sm font-semibold text-navy-950 transition-colors outline-none hover:bg-warm-300 focus-visible:ring-2 focus-visible:ring-bronze-500"
+              data-interactive
+            >
+              <Layers className="w-4 h-4 text-bronze-700" />
+              New campaign
+            </Link>
+          )}
         </div>
       </div>
 
@@ -78,13 +99,16 @@ export default async function AdminDashboard() {
 
       {/* Counts double as the jump-off into each section, so the numbers do work
           rather than just sit there being large. */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-px rounded-xl border border-navy-200 bg-navy-200 overflow-hidden">
+      {/* auto-fit rather than a fixed 4 columns: a role that can see only one
+          section would otherwise get a lone quarter-width cell with dead space
+          beside it. */}
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-px rounded-xl border border-navy-200 bg-navy-200 overflow-hidden">
         {[
           { label: "Campaigns", value: campaignsCount, href: "/admin/campaigns", note: "published" },
           { label: "Projects", value: projects.length, href: "/admin/projects", note: "in archive" },
           { label: "Insights", value: insights.length, href: "/admin/insights", note: "published" },
           { label: "Leads", value: leads.length, href: "/admin/leads", note: "total" },
-        ].map(({ label, value, href, note }) => (
+        ].filter(({ href }) => allowed(href)).map(({ label, value, href, note }) => (
           <Link
             key={href}
             href={href}
@@ -101,12 +125,15 @@ export default async function AdminDashboard() {
       {/* The counts above already reach campaigns, projects, insights and leads.
           These are the remaining destinations, kept quiet — a dashboard should
           point somewhere, not describe the architecture back to its own author. */}
+      {/* `gate` rather than `href`: /admin/videos and /admin/photos both just
+          redirect into the media library, so access follows that section, not
+          the legacy path they still advertise. */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
-          { href: "/admin/videos", label: "Videos", desc: "Upload and track transcoding", Icon: Video },
-          { href: "/admin/photos", label: "Photos", desc: "Upload and manage images", Icon: Sparkles },
-          { href: "/admin/content", label: "Site content", desc: "Edit homepage copy", Icon: Layers },
-        ].map(({ href, label, desc, Icon }) => (
+          { href: "/admin/videos", gate: "/admin/media", label: "Videos", desc: "Upload and track transcoding", Icon: Video },
+          { href: "/admin/photos", gate: "/admin/media", label: "Photos", desc: "Upload and manage images", Icon: Sparkles },
+          { href: "/admin/content", gate: "/admin/content", label: "Site content", desc: "Edit homepage copy", Icon: Layers },
+        ].filter(({ gate }) => allowed(gate)).map(({ href, label, desc, Icon }) => (
           <Link
             key={href}
             href={href}

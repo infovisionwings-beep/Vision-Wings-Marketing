@@ -179,7 +179,10 @@ export async function requireAdmin(requiredRoles?: string[]): Promise<AdminUser>
       redirect('/admin-login');
     }
 
-    // Role check
+    // Role check. Only Developer bypasses a role list — Admin must NOT, or it
+    // would pass the `['Developer']` gate on /admin/new and be able to mint
+    // other admins. Admin reaches every ordinary section because `rolesFor()`
+    // puts it in each section's list explicitly, not by bypassing the check.
     if (requiredRoles && requiredRoles.length > 0) {
       if (!requiredRoles.includes(activeRole) && activeRole !== 'Developer') {
         redirect('/admin');

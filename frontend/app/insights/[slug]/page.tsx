@@ -12,6 +12,9 @@ import { pageMetadata, SITE_URL } from "@/lib/seo";
 import { localInsightBySlug } from "@/lib/content/localInsights";
 import { readTimeFromHtml } from "@/lib/content/readTime";
 import { responsiveImage } from "@/lib/media/responsiveImage";
+import { getRelatedInsights } from "@/lib/content/relatedInsights";
+import { auth } from "@/lib/auth/server";
+import PreferredSourcePrompt from "@/components/essay/PreferredSourcePrompt";
 
 export const dynamic = "force-dynamic";
 
@@ -210,6 +213,14 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
   // Resolved on the server so the bookmark renders in its true state on first
   // paint rather than flipping under the reader a moment later.
   const savedAlready = article.id ? await isEssaySaved(article.id) : false;
+
+  // Further reading, and whether this reader is signed in — the preferred-source
+  // prompt is only shown to people who already have an account here.
+  const [related, session] = await Promise.all([
+    getRelatedInsights(slug, article.category),
+    auth.getSession().catch(() => null),
+  ]);
+  const signedIn = Boolean((session as any)?.data?.user);
 
   // Format content: normalize non-breaking spaces so words wrap naturally without breaking midway
   let rawHtml = (article.content || "")
@@ -752,7 +763,79 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
 
         </div>
 
+        {/* Further reading. Rendered in the page rather than behind a button so
+            the links are crawlable and carry internal link equity — a modal
+            would hide them from both readers who never click and from Google. */}
+        {related.length > 0 && (
+          <section aria-labelledby="read-more-heading" className="pt-12 border-t border-navy-200">
+            <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
+              <div>
+                <h2 id="read-more-heading" className="text-h3 font-display font-bold text-navy-950 tracking-tight">
+                  Read more like this
+                </h2>
+                <p className="text-sm text-navy-500 mt-1.5">
+                  More perspectives from the Vision Wings editorial desk.
+                </p>
+              </div>
+              <Link
+                href="/insights"
+                className="inline-flex items-center gap-1.5 text-sm font-bold text-navy-900 hover:text-bronze-600 transition-colors"
+                data-interactive
+              >
+                <span>All insights</span>
+                <ArrowUpRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {related.map((item) => (
+                <Link
+                  key={item.slug}
+                  href={`/insights/${item.slug}`}
+                  className="group flex flex-col overflow-hidden rounded-2xl border border-navy-200 bg-white shadow-sm transition-colors hover:border-bronze-500/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bronze-500"
+                  data-interactive
+                >
+                  {item.coverImage && (
+                    <span className="block aspect-[16/9] overflow-hidden bg-navy-100">
+                      <img
+                        {...responsiveImage(item.coverImage, "(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw")}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                      />
+                    </span>
+                  )}
+                  <span className="flex flex-1 flex-col gap-2.5 p-5">
+                    <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-bronze-700">
+                      {item.category}
+                    </span>
+                    <span className="font-display text-base font-bold leading-snug text-navy-950 group-hover:text-bronze-700 transition-colors">
+                      {item.title}
+                    </span>
+                    {item.excerpt && (
+                      <span className="line-clamp-3 text-sm leading-relaxed text-navy-600">
+                        {item.excerpt}
+                      </span>
+                    )}
+                    <span className="mt-auto flex items-center gap-2 pt-2 font-mono text-[11px] text-navy-500">
+                      {item.date && <span>{item.date}</span>}
+                      {item.date && item.readTime && <span aria-hidden>·</span>}
+                      {item.readTime && <span>{item.readTime}</span>}
+                    </span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
       </div>
+
+      {/* Signed-in readers only: someone with no account here is not going to
+          make us a preferred source, and the article already carries the inline
+          card for everyone else. */}
+      {signedIn && <PreferredSourcePrompt href={PREFERRED_SOURCE_URL} />}
     </div>
   );
 }

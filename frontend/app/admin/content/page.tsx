@@ -1,11 +1,13 @@
 import { requireAdmin } from "@/lib/auth/rbac";
+import { rolesFor } from "@/lib/auth/adminAccess";
 import SiteContentEditor from "@/components/admin/SiteContentEditor";
 
 export const dynamic = "force-dynamic";
 
 export default async function SiteContentPage() {
-  // Site copy follows the content designations; Developer passes any role list.
-  await requireAdmin(["Admin", "SEO", "Content Manager"]);
+  // Homepage copy is no longer part of either designation: SEO is scoped to
+  // insights and media, Content Manager to campaigns and media.
+  await requireAdmin(rolesFor("/admin/content"));
 
   return (
     <div className="space-y-8">

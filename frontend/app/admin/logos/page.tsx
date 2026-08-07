@@ -1,10 +1,11 @@
 import { requireAdmin } from "@/lib/auth/rbac";
+import { rolesFor } from "@/lib/auth/adminAccess";
 import ClientLogosAdmin from "@/components/admin/ClientLogosAdmin";
 
 export const dynamic = "force-dynamic";
 
 export default async function ClientLogosPage() {
-  await requireAdmin();
+  await requireAdmin(rolesFor("/admin/logos"));
 
   return (
     <div className="space-y-8">
