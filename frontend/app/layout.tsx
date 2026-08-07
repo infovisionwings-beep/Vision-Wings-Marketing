@@ -26,19 +26,10 @@ export const metadata: Metadata = {
   description: "Vision Wings Marketing is a strategic marketing and growth partner based in Varanasi, elevating growth-stage businesses.",
   keywords: ["marketing agency", "brand strategy", "business consultancy", "growth marketing", "Vision Wings Marketing", "Varanasi agency"],
   authors: [{ name: "Vision Wings Marketing" }],
-  icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/favicon-48x48.png", sizes: "48x48", type: "image/png" },
-      { url: "/icon.svg", type: "image/svg+xml" },
-      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
-    ],
-    shortcut: "/favicon.ico",
-    apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
-    ],
-  },
+  // Icons come from the App Router file convention — app/favicon.ico, app/icon.png
+  // and app/apple-icon.png. Declaring them here instead would override that and
+  // pin plain URLs, which is what previously left the site pointing at icon files
+  // that had moved out of public/.
   openGraph: {
     title: "Vision Wings Marketing - Strategic Growth & Marketing Agency",
     description: "Vision Wings Marketing is a strategic marketing agency and growth partner.",

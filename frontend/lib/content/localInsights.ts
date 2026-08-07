@@ -92,6 +92,19 @@ export const localInsights: LocalInsight[] = [
     coverImage: "https://images.unsplash.com/photo-1565514160046-79d8ca6510b6?auto=format&fit=crop&w=1600&q=80",
     ...BYLINE,
   },
+  {
+    slug: "dpdp-marketing-consent-india",
+    file: "dpdp-marketing-consent-india.html",
+    title: "India's Data Law and Your Marketing List: What Is Actually in Force, and What Breaks by 2027",
+    category: "Policy & Economy",
+    date: "Aug 7, 2026",
+    publishedAt: "2026-08-07T00:00:00Z",
+    readTime: "28 min read",
+    excerpt:
+      "India's data protection regulator has issued zero orders and has no appointed members. The regulator nobody mentions issued 7,31,120 notices last year. What genuinely binds your lead forms, WhatsApp lists and ad audiences today, what changes in May 2027, and why the ₹250 crore figure everyone quotes is the wrong number for marketing.",
+    coverImage: "https://images.unsplash.com/photo-1633265486064-086b219458ec?auto=format&fit=crop&w=1600&q=80",
+    ...BYLINE,
+  },
 ];
 
 export const localInsightBySlug = Object.fromEntries(
