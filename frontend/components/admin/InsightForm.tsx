@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
+import { looksLikeHtml } from "@/lib/content/richText";
 import "react-quill-new/dist/quill.snow.css";
 import MediaPickerModal from "./MediaPickerModal";
 
@@ -165,10 +166,6 @@ export const InsightForm: React.FC<InsightFormProps> = ({ insight }) => {
       return { ...prev, contributors: updated };
     });
   };
-
-  // Heuristic used only when the editor leaves format on "auto": real markdown
-  // essentially never starts with a tag, and pasted HTML documents/fragments do.
-  const looksLikeHtml = (text: string) => /^\s*<(!doctype|html|body|div|p|h[1-6]|figure|table|ul|ol|blockquote|section|article|img|a)\b/i.test(text);
 
   const handleImport = () => {
     setImportError("");
