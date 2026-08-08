@@ -1,10 +1,34 @@
 "use client";
 
+import { useState } from "react";
 import { Link } from "@/components/ui/Link";
 import { usePathname } from "next/navigation";
 
 export default function Footer() {
+  const [copied, setCopied] = useState(false);
   const pathname = usePathname();
+
+  const handlePhoneClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const isMobile =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      ) ||
+      ("ontouchstart" in window && window.innerWidth <= 768);
+
+    if (isMobile) {
+      return;
+    }
+
+    e.preventDefault();
+    const phoneNumber = "+91 8081952359";
+    navigator.clipboard.writeText(phoneNumber).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
   if (pathname?.startsWith("/admin")) {
     return null;
   }
@@ -44,7 +68,16 @@ export default function Footer() {
             <h4 className="text-h4 text-bronze-500 mb-2">CONNECT</h4>
             <a href="mailto:info.visionwings@gmail.com" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>info.visionwings@gmail.com</a>
             <a href="https://www.instagram.com/visionwingsmarketing" target="_blank" rel="noopener noreferrer" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>Instagram</a>
-            <a href="https://wa.me/918018952359" target="_blank" rel="noopener noreferrer" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>WhatsApp: +91 8018952359</a>
+            <a href="https://wa.me/918299672472" target="_blank" rel="noopener noreferrer" className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none" data-interactive>WhatsApp: +91 8299672472</a>
+            <a
+              href="tel:+918081952359"
+              onClick={handlePhoneClick}
+              className="text-body hover:text-bronze-300 transition-colors w-fit py-2 min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-bronze-400 rounded outline-none cursor-pointer"
+              data-interactive
+              title={copied ? "Copied!" : "Click to copy number on desktop or dial on mobile"}
+            >
+              {copied ? "Copied: +91 8081952359" : "Phone: +91 8081952359"}
+            </a>
           </div>
         </div>
       </div>

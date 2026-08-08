@@ -1,0 +1,106 @@
+{
+  "voiceId": "onwK4e9ZLuTAKqWW03F9",
+  "_voiceComment": "Daniel — authoritative, polished, broadcast/advertising. Swap to XrExE9yKIg1WjnnlVkGX for Matilda (warm confident female).",
+  "model": "eleven_multilingual_v2",
+  "outputDir": ".",
+  "sections": [
+    {
+      "id": "hook-1",
+      "text": "Every day, remarkable businesses go unnoticed.",
+      "startTime": 3.2,
+      "emotion": "whisper",
+      "settings": { "stability": 0.30, "similarity_boost": 0.90, "style": 0.30 }
+    },
+    {
+      "id": "hook-2",
+      "text": "Your competitors aren't better — just easier to find.",
+      "startTime": 5.8,
+      "emotion": "whisper",
+      "settings": { "stability": 0.30, "similarity_boost": 0.90, "style": 0.30 }
+    },
+    {
+      "id": "problem",
+      "text": "An empty table at seven. A clinic with open slots. Rooms unbooked. Not because the work isn't good — because no one saw it.",
+      "startTime": 9.2,
+      "emotion": "neutral",
+      "settings": { "stability": 0.45, "similarity_boost": 0.88, "style": 0.30 }
+    },
+    {
+      "id": "reveal",
+      "text": "Vision Wings Marketing.",
+      "startTime": 18.6,
+      "emotion": "confident",
+      "settings": { "stability": 0.60, "similarity_boost": 0.85, "style": 0.25 }
+    },
+    {
+      "id": "services",
+      "text": "One partner. Brand, website, search, ads, and social — moving together.",
+      "startTime": 21.9,
+      "emotion": "confident",
+      "settings": { "stability": 0.60, "similarity_boost": 0.85, "style": 0.25 }
+    },
+    {
+      "id": "seniors",
+      "text": "Built and run by senior practitioners. Never juniors.",
+      "startTime": 26.6,
+      "emotion": "confident",
+      "settings": { "stability": 0.60, "similarity_boost": 0.85, "style": 0.25 }
+    },
+    {
+      "id": "result-visibility",
+      "text": "So you get found first.",
+      "startTime": 30.3,
+      "emotion": "confident",
+      "settings": { "stability": 0.55, "similarity_boost": 0.85, "style": 0.30 }
+    },
+    {
+      "id": "result-leads",
+      "text": "Enquiries that arrive while you sleep.",
+      "startTime": 33.8,
+      "emotion": "confident",
+      "settings": { "stability": 0.55, "similarity_boost": 0.85, "style": 0.30 }
+    },
+    {
+      "id": "result-bookings",
+      "text": "Tables filled. Rooms booked. Appointments confirmed.",
+      "startTime": 37.6,
+      "emotion": "confident",
+      "settings": { "stability": 0.55, "similarity_boost": 0.85, "style": 0.30 }
+    },
+    {
+      "id": "result-sales",
+      "text": "Growth you can actually measure.",
+      "startTime": 41.5,
+      "emotion": "warm",
+      "settings": { "stability": 0.65, "similarity_boost": 0.83, "style": 0.20 }
+    },
+    {
+      "id": "trust-mobile",
+      "text": "Mobile-first. Fast. Built to convert.",
+      "startTime": 45.3,
+      "emotion": "warm",
+      "settings": { "stability": 0.65, "similarity_boost": 0.83, "style": 0.20 }
+    },
+    {
+      "id": "trust-senior",
+      "text": "Every project, senior-led. Complete transparency.",
+      "startTime": 48.7,
+      "emotion": "warm",
+      "settings": { "stability": 0.65, "similarity_boost": 0.83, "style": 0.20 }
+    },
+    {
+      "id": "trust-partner",
+      "text": "This is what a real growth partner looks like.",
+      "startTime": 51.8,
+      "emotion": "warm",
+      "settings": { "stability": 0.65, "similarity_boost": 0.83, "style": 0.20 }
+    },
+    {
+      "id": "ending",
+      "text": "Your vision. Amplified.",
+      "startTime": 55.5,
+      "emotion": "dramatic",
+      "settings": { "stability": 0.45, "similarity_boost": 0.88, "style": 0.35 }
+    }
+  ]
+}

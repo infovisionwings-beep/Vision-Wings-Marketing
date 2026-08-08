@@ -1,0 +1,4 @@
+node_modules/
+out/
+# Generated audio — regenerate with ../build-audio.sh (needs ELEVENLABS_API_KEY)
+public/voiceover-with-music.mp3
