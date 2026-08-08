@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { League_Spartan, DM_Sans } from "next/font/google";
 import Script from "next/script";
+import { OG_IMAGE, OG_IMAGE_SIZE } from "@/lib/seo";
 import "./globals.css";
 
 const leagueSpartan = League_Spartan({
@@ -37,12 +38,17 @@ export const metadata: Metadata = {
     siteName: "Vision Wings Marketing",
     locale: "en_US",
     type: "website",
+    // The default card for anything that doesn't set its own — pages like
+    // login and onboarding declare metadata without going through
+    // pageMetadata(), so without this they'd share with no artwork at all.
+    images: [{ url: OG_IMAGE, ...OG_IMAGE_SIZE, alt: "Vision Wings Marketing" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Vision Wings Marketing - Strategic Growth & Marketing Agency",
     description: "Vision Wings Marketing is a strategic marketing agency and growth partner.",
     creator: "@visionwing",
+    images: [OG_IMAGE],
   },
   robots: {
     index: true,
