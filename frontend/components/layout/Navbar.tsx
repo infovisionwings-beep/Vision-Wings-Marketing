@@ -131,19 +131,66 @@ export default function Navbar({ user, isAdmin }: { user: any; isAdmin?: boolean
       </motion.nav>
 
       {/* Bottom Floating App Bar (Mobile Only - Reference 2 Tactile Dock).
-          Collapsed to a bottom-left toggle so the dock isn't permanently
-          eating the bottom of every phone screen. */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 p-4 lg:hidden pointer-events-none flex flex-col items-center gap-3">
-        <AnimatePresence>
-          {isDockOpen && (
+          One surface that unrolls: collapsed it's a pill in the bottom-left
+          corner, open it's the full dock grown from that same corner. The
+          toggle is the first child in both states, so it holds its position
+          while the bar opens out to the right of it rather than the dock
+          appearing somewhere else on screen. */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 p-4 lg:hidden pointer-events-none flex">
         <motion.div
-          key="mobile-dock"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 16 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
+          layout
+          initial={false}
+          animate={{
+            backgroundColor: isDockOpen ? "rgba(250,247,242,0.98)" : "rgb(15,23,42)",
+            borderRadius: isDockOpen ? 16 : 999,
+          }}
+          transition={{ type: "spring", stiffness: 420, damping: 38 }}
+          className={`pointer-events-auto flex items-center overflow-hidden shadow-2xl backdrop-blur-md border ${
+            isDockOpen
+              ? "border-navy-200/80 w-full max-w-sm px-1 py-1.5 gap-0.5"
+              : "border-transparent"
+          }`}
+        >
+          {/* Stays mounted across both states so `layout` slides it rather
+              than cross-fading a new element in. */}
+          <motion.button
+            layout
+            type="button"
+            onClick={() => setIsDockOpen((open) => !open)}
+            aria-expanded={isDockOpen}
+            aria-label={isDockOpen ? "Close menu" : "Open menu"}
+            className={`shrink-0 flex items-center justify-center gap-2 overflow-hidden whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-bronze-500 rounded-full ${
+              isDockOpen
+                ? "w-11 h-11 text-navy-500 hover:text-bronze-900"
+                : "pl-4 pr-5 py-3 min-h-[44px] text-warm-50"
+            }`}
+            data-interactive
+          >
+            <motion.span layout className="shrink-0 flex items-center justify-center">
+              {isDockOpen ? <X className="w-6 h-6" /> : <Menu className="w-5 h-5" />}
+            </motion.span>
+            {!isDockOpen && (
+              <motion.span
+                layout
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-sm font-medium tracking-wide uppercase"
+              >
+                Menu
+              </motion.span>
+            )}
+          </motion.button>
+
+          <AnimatePresence initial={false}>
+            {isDockOpen && (
+        <motion.div
+          key="mobile-dock-links"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
           onClick={() => setIsDockOpen(false)}
-          className="bg-warm-50/98 border border-navy-200/80 shadow-2xl rounded-2xl px-2 py-1.5 flex items-center justify-around w-full max-w-sm pointer-events-auto backdrop-blur-md">
+          className="flex items-center justify-around flex-1 min-w-0">
           <Link href="/#vision" className="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] px-1 py-1 gap-1 group focus-visible:ring-2 focus-visible:ring-bronze-500 rounded-lg outline-none" data-interactive>
             <Eye className={`w-6 h-6 transition-colors ${isActive("/", "vision") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`} />
             <span className={`text-[10px] font-medium tracking-wide uppercase transition-colors ${isActive("/", "vision") ? "text-bronze-900" : "text-navy-500 group-hover:text-bronze-900"}`}>Vision</span>
@@ -185,20 +232,9 @@ export default function Navbar({ user, isAdmin }: { user: any; isAdmin?: boolean
             </Link>
           )}
         </motion.div>
-          )}
-        </AnimatePresence>
-
-        <button
-          type="button"
-          onClick={() => setIsDockOpen((open) => !open)}
-          aria-expanded={isDockOpen}
-          aria-label={isDockOpen ? "Close menu" : "Open menu"}
-          className="self-start bg-navy-950 text-warm-50 shadow-2xl rounded-full pl-4 pr-5 py-3 min-h-[44px] flex items-center gap-2 pointer-events-auto focus-visible:ring-2 focus-visible:ring-bronze-500 outline-none"
-          data-interactive
-        >
-          {isDockOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          <span className="text-sm font-medium tracking-wide uppercase">Menu</span>
-        </button>
+            )}
+          </AnimatePresence>
+        </motion.div>
       </div>
     </>
   );
